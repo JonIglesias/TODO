@@ -1,0 +1,23 @@
+/* ======== VOICE VIZ OVERLAY ======== */
+.phsbot-input{ position: relative; } /* referencia para posición absoluta */
+
+#phsbot-voiceviz{
+  position: absolute;
+  /* el JS ajusta left/top/width/height al rect de #phsbot-q */
+  pointer-events: none;
+  opacity: 0;                       /* se anima a 1 en grabación */
+  transition: opacity .18s ease;
+  z-index: 9999;                    /* por encima del textarea */
+  border-radius: var(--phsbot-input-radius, 10px);
+  background: #fff;                 /* fondo blanco como pediste */
+}
+
+#phsbot-voiceviz.phsbot-voiceviz--show{
+  opacity: 1;                       /* “100%” */
+}
+
+#phsbot-voiceviz-canvas{
+  display: block;
+  width: 100%;
+  height: 100%;
+}

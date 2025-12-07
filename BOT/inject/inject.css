@@ -1,0 +1,13 @@
+/* File: inject/inject.css */
+
+/* ===== FRONT: bloque inyectado ===== */
+.phsbot-inject-block { width: 100%; }
+.phsbot-inject-html  { width: 100%; box-sizing: border-box; }
+.phsbot-inject-html img { max-width: 100%; height: auto; display: block; }
+.phsbot-inject-html iframe,
+.phsbot-inject-html video { max-width: 100%; }
+
+/* ===== ADMIN ===== */
+.phsbot-inject-admin .col-type .dashicons { vertical-align: text-bottom; margin-right: 6px; }
+.phsbot-inject-admin .phs-help { color:#666; font-size:12px; margin:8px 0 14px; }
+.phs-inline-editor .ie-help { display:inline-block; margin-left:8px; color:#666; font-size:12px; max-width:520px; vertical-align:middle; }

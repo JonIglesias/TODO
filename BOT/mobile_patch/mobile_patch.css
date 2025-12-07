@@ -1,0 +1,50 @@
+.phsbot-card {
+    min-height: 100dvh !important; 
+    min-width: 100vw !important;
+    border-radius: 0px !important;
+    position: fixed !important;
+    top: 0px !important;
+    left: 0px !important;
+}
+
+/* ======== MOBILE PATCH: iOS/ANDROID – FULLSCREEN + TECLADO (SOLO MÓVIL) ======== */
+/* Kill switch del viejo blackout de prueba por si quedó cacheado */
+#phsbot-root::before,
+#phsbot-widget::before { content: none !important; display: none !important; }
+
+/* Suaviza transform del JS anti-teclado */
+.phsbot-card {
+  backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Acolchado dinámico para que el teclado no tape el último mensaje */
+#phsbot-body,
+#phsbot-messages,
+.phsbot-body {
+  padding-bottom: var(--phsbot-kbd-pad, 12px);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Límites de altura en navegadores modernos */
+@supports (height: 100dvh) {
+  .phsbot-card { max-height: calc(100dvh - 12px); }
+}
+@supports (height: 100svh) {
+  .phsbot-card { max-height: calc(100svh - 12px); }
+}
+
+/* ======== BLOQUEAR SCROLL CUANDO EL CHAT ESTÁ ABIERTO ======== */
+html.phsbot-lock,
+html.phsbot-lock body { overscroll-behavior: none; }
+
+html.phsbot-lock body {
+  position: fixed;
+  left: 0; right: 0;
+  width: 100%;
+  top: var(--phsbot-lock-top, 0); /* valor negativo con el scroll actual */
+  overflow: hidden;
+}
+/* ========FIN BLOQUEAR SCROLL ======== */

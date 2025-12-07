@@ -1,0 +1,43 @@
+/* PHSBOT – Leads Admin Styles (accordion detail) */
+.phsbot-wrap .phsbot-leads-toolbar{display:flex;gap:10px;align-items:center;margin:12px 0 16px;flex-wrap:wrap}
+#phsbot-leads-search{min-width:320px;max-width:520px;padding:6px 8px}
+.phsbot-switch{display:inline-flex;gap:8px;align-items:center}
+.phsbot-leads-table .check-col{width:24px}
+.phsbot-leads-table .actions-col{width:140px}
+.phsbot-badge{display:inline-block;min-width:36px;text-align:center;padding:2px 6px;border-radius:4px;background:#f0f0f0}
+.phsbot-badge.ok{background:#d8f5dd}
+.phsbot-state.open{color:#0a7f2e;font-weight:600}
+.phsbot-state.closed{color:#9b1c1c;font-weight:600}
+.phsbot-truncate{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.phsbot-leads-bulk{margin-top:10px}
+
+/* Fila de detalle tipo persiana */
+tr.phsbot-detail td{background:#f8f9fb;padding:0;border-top:0}
+.phsbot-detail__wrap{padding:14px 16px}
+tr.is-open{background:#fffdf5} /* resalta la fila abierta */
+
+/* Meta y resumen */
+.meta-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 16px;margin-bottom:12px}
+@media (max-width:900px){.meta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.meta-grid{grid-template-columns:1fr}}
+
+/* Conversación */
+.conv{border-top:1px solid #e5e5e5;margin-top:12px;padding-top:12px;max-height:420px;overflow:auto}
+.bubble{padding:8px 10px;border-radius:8px;margin:8px 0}
+.bubble .meta{opacity:.85;font-size:12px;margin-bottom:4px}
+.bubble.user{background:#eef6ff;border-left:4px solid #6aa6ff}
+.bubble.bot{background:#f3f4f6;border-left:4px solid #a0a0a0}
+.bubble .text{line-height:1.45}
+button.link.phsbot-more{background:none;border:0;padding:0;margin-left:6px;cursor:pointer;text-decoration:underline;font-size:12px}
+button.link.phsbot-more:hover{text-decoration:none}
+
+/* Oculta estilos antiguos de modal si quedaban */
+.phsbot-modal{display:none!important}
+
+/* Burbujas conversación */
+.phsbot-detail__wrap .conv .bubble{padding:10px 12px;border-radius:10px;margin:8px 0;max-width:90%}
+.phsbot-detail__wrap .conv .bubble.user{background:#dbeafe}   /* azul clarito */
+.phsbot-detail__wrap .conv .bubble.bot{background:#f3f4f6}    /* gris claro */
+.phsbot-detail__wrap .conv .meta{font-size:12px;opacity:.8;margin:4px 2px}
+button.link.phsbot-more{background:none;border:0;padding:0;margin-left:6px;cursor:pointer;text-decoration:underline;font-size:11px;opacity:.85}
+button.link.phsbot-more:hover{text-decoration:none;opacity:1}
