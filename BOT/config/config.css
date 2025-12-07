@@ -1,0 +1,101 @@
+/* v1.3.2 external CSS (opcional; preview ya trae inline) */
+.phsbot-config-panel[aria-hidden="true"] { display: none; }
+.phsbot-config-panel[aria-hidden="false"] { display: block; }
+.phsbot-aspecto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+@media (max-width: 1200px){ .phsbot-aspecto-grid { grid-template-columns: 1fr; } }
+.phsbot-slider-row { display: grid; grid-template-columns: 150px 1fr 80px; gap: 10px; align-items: center; margin: 8px 0; }
+.phsbot-colors .hint{ display:block; font-weight:400; color:#666; margin-top:4px; }
+
+#phsbot-preview {
+  width: var(--phsbot-width,360px);
+  height: var(--phsbot-height,720px);
+  border: 1px solid #dcdcdc; border-radius: 14px; overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  background: var(--phsbot-bg,#fff); color: var(--phsbot-text,#111);
+  margin: 6px auto; position: relative;
+}
+
+#phsbot-preview .phs-header {
+  height: 54px; background: var(--phsbot-primary,#667a3a); color: #fff;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 10px 0 14px; font-weight: 600; letter-spacing: .2px;
+}
+#phsbot-preview .phs-title { font-size: 15px; }
+#phsbot-preview .phs-head-actions { display: flex; gap: 8px; }
+#phsbot-preview .phs-head-btn {
+  width: var(--phsbot-head-btn,26px); height: var(--phsbot-head-btn,26px);
+  border-radius: 50%; background: rgba(255,255,255,.25); color: #fff; border: none;
+  display: inline-flex; align-items: center; justify-content: center; cursor: default;
+}
+#phsbot-preview .phs-head-btn:hover { background: rgba(255,255,255,.35); }
+#phsbot-preview .phs-head-btn svg { width: 60%; height: 60%; display: block; }
+
+#phsbot-preview .phs-messages {
+  position: absolute; top: 54px; bottom: calc(var(--phsbot-btn-h,44px) + 20px);
+  left: 0; right: 0; padding: 12px; overflow: hidden;
+  display: flex; flex-direction: column; gap: 10px;
+}
+#phsbot-preview .phs-msg { display: flex; }
+#phsbot-preview .phs-msg.user { justify-content: flex-end; }
+#phsbot-preview .phsbot-bubble {
+  max-width: 78%; padding: 10px 12px; border-radius: 10px;
+  font-size: 13px; line-height: 1.35; background: rgba(0,0,0,.06);
+}
+#phsbot-preview .phs-msg.bot .phsbot-bubble { background: var(--phsbot-bot-bubble,#f1f1f2); }
+#phsbot-preview .phs-msg.user .phsbot-bubble { background: var(--phsbot-user-bubble,rgba(0,0,0,.10)); }
+
+/* === AQUÍ SE USA LA VARIABLE DEL FOOTER === */
+#phsbot-preview .phs-input {
+  position: absolute; left:0; right:0; bottom:0;
+  height: calc(var(--phsbot-btn-h,44px) + 20px);
+  display:flex; align-items:center; gap:10px; padding:10px;
+  background: var(--phsbot-footer, var(--phsbot-bg,#fff));
+  border-top: 1px solid rgba(0,0,0,.08);
+}
+/* Preview: tamaño de fuente de los globos */
+#phsbot-preview .phsbot-bubble {
+  font-size: var(--phsbot-bubble-fs, 15px);
+  line-height: 1.35;
+}
+#phsbot-preview #phsbot-q {
+  flex:1 1 auto; min-height: var(--phsbot-btn-h,44px);
+  border:1px solid #dadde5; border-radius:10px; padding:10px 12px;
+  resize:none; background:#fff; color:#222;
+}
+
+/* Botón enviar (sin borde) */
+#phsbot-preview .phsbot-send {
+  position: relative; background: var(--phsbot-primary,#667a3a); color:#fff;
+  border-radius:9999px; padding:0 56px 0 16px; font-weight:600; line-height:1;
+  text-transform:uppercase; letter-spacing:.02em;
+  height:var(--phsbot-btn-h,44px); display:inline-flex; align-items:center; gap:8px;
+  border:none; cursor:pointer; transition: background .18s ease, color .18s ease, transform .06s ease;
+}
+#phsbot-preview .phsbot-send__text{ font-size:12px; }
+#phsbot-preview .phsbot-send__icon {
+  position:absolute; right:6px; top:50%; transform:translateY(-50%);
+  width:calc(var(--phsbot-btn-h,44px) - 8px); height:calc(var(--phsbot-btn-h,44px) - 8px);
+  border-radius:50%; background:#fff; color:#000; display:inline-flex; align-items:center; justify-content:center;
+}
+#phsbot-preview .phsbot-send__icon svg{ width:16px; height:16px; display:block; }
+#phsbot-preview .phsbot-send:active{ transform: translateY(1px); }
+
+/* Mic (sin borde) */
+#phsbot-preview .phsbot-mic {
+  width: var(--phsbot-btn-h,44px); height: var(--phsbot-btn-h,44px);
+  border-radius:50%; background:#fff; color:#000; border:none;
+  display:inline-flex; align-items:center; justify-content:center;
+  cursor:pointer; transition: background .18s ease, color .18s ease, transform .06s ease;
+}
+#phsbot-preview .phsbot-mic svg{ width:18px; height:18px; display:block; }
+#phsbot-preview .phsbot-mic:hover{background:var(--phsbot-whatsapp,#25D366);color:#fff}
+#phsbot-preview .phsbot-mic:active{ transform: translateY(1px); }
+/* --- FIX: el tamaño de fuente de las burbujas siempre usa la variable --- */
+#phsbot-preview .phs-msg .phsbot-bubble {
+  font-size: var(--phsbot-bubble-fs, 15px);
+  line-height: 1.35;
+}
+/* --- FIX final: el slider manda SIEMPRE en la preview --- */
+#phsbot-preview .phs-messages { font-size: var(--phsbot-bubble-fs, 15px) !important; }
+#phsbot-preview .phs-msg .phsbot-bubble { font-size: inherit !important; }
+.phsbot-bubble p{ font-size: var(--phsbot-bubble-fs, 15px) !important; }

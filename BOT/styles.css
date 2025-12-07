@@ -1,0 +1,71 @@
+
+button#phsbot-send:hover {
+       background-color: #54da1d;
+    color: black;
+    
+}
+button#phsbot-send {
+    background-color: #768154 ;
+}
+
+button#phsbot-send {
+padding-right: 22px;}
+#phsbot-q:focus-visible {
+    outline: none !important;
+    border: 0px solid #527a71;
+    box-shadow: 0 0 8px #4a544a;
+}
+/* —— FIX universal: burbujas con vídeo/iframe ———————————— */
+#phsbot-root .phsbot-msg.bot { width: 100%; }
+
+#phsbot-root .phsbot-msg.bot .phsbot-bubble{
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
+/* si la burbuja contiene un embed, quitamos padding/fondo para que sea “full” */
+#phsbot-root .phsbot-msg.bot .phsbot-bubble:has(.phsbot-embed){
+  padding: 0;
+  background: transparent;
+}
+
+/* Contenedor responsive (fallback sin depender de aspect-ratio) */
+#phsbot-root .phsbot-bubble .phsbot-embed{
+  position: relative;
+  width: 100%;
+  /* altura mediante padding-top (16:9 = 56.25%) */
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  display: block;
+  min-height: 180px; /* por si el ancho es pequeño */
+}
+#phsbot-root .phsbot-bubble .phsbot-embed::before{
+  content: "";
+  display: block;
+  padding-top: 56.25%; /* 16:9 */
+}
+
+/* El iframe/video rellena el contenedor */
+#phsbot-root .phsbot-bubble .phsbot-embed iframe,
+#phsbot-root .phsbot-bubble .phsbot-embed video{
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0;
+  display: block;
+}
+
+/* Fallback por si algún navegador no soporta :has() -> quita padding a todas las burbujas bot */
+@supports not (selector(:has(*))){
+  #phsbot-root .phsbot-msg.bot .phsbot-bubble{ padding: 0; background: transparent; }
+}
+
+
+
+.phsbot-launcher {
+ 
+    border: none !important;
+    background-color: #f0f8ff00 !important;
+}

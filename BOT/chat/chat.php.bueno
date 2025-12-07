@@ -1,0 +1,828 @@
+<?php
+// PHSBOT – chat/chat.php (FLOAT limpio + Panel "Chat & Widget" restaurado)
+// Compatible con tu common/menu. Mantiene AJAX, saludo i18n, opciones y shortcode FLOAT.
+// No toca common.php ni menu.php.
+if (!defined('ABSPATH')) exit;
+
+/* ===== Parche móvil sólo frontend ===== */
+add_action('init', function () {
+    /* =======================================================
+    == Inicia el parche móvil en frontend: si es admin o no es móvil, no carga.
+    == Incluye 'mobile-patch.php' cuando aplique.
+    ======================================================= */
+    if (is_admin()) return;
+    if (function_exists('wp_is_mobile') && !wp_is_mobile()) return;
+    $patch = PHSBOT_DIR . 'mobile-patch.php';
+    if (file_exists($patch)) require_once $patch;
+    /* =======================================================
+    == Fin función: parche móvil frontend
+    ======================================================= */
+}, 5);
+
+
+
+
+/* ===== Constantes + helpers ===== */
+if (!defined('PHSBOT_CHAT_OPT'))   define('PHSBOT_CHAT_OPT',   'phsbot_chat_settings');
+if (!defined('PHSBOT_CHAT_GROUP')) define('PHSBOT_CHAT_GROUP', 'phsbot_chat_group');
+if (!defined('PHSBOT_KB_DOC_OPT')) define('PHSBOT_KB_DOC_OPT', 'phsbot_kb_document');
+
+
+/* ===== LENGUAJE: detector externo ===== */
+require_once PHSBOT_DIR . 'lang/lang.php';
+/* ===== FIN LENGUAJE ===== */
+
+
+/* =======================================================
+== Devuelve un setting del core 'phsbot_settings' con fallback
+======================================================= */
+if (!function_exists('phsbot_setting')) {
+  function phsbot_setting($key, $default=null){
+    /* =======================================================
+    == Lee y devuelve la clave solicitada; si no existe, usa $default.
+    ======================================================= */
+    $opt = get_option('phsbot_settings', array());
+    return (is_array($opt) && array_key_exists($key,$opt)) ? $opt[$key] : $default;
+    /* =======================================================
+    == Fin función: phsbot_setting
+    ======================================================= */
+  }
+}
+
+
+
+   
+
+/* =======================================================
+== Valores por defecto del módulo de chat
+======================================================= */
+function phsbot_chat_defaults(){
+  /* =======================================================
+  == Retorna el array de defaults del chat (modelo, temperatura, tokens, etc.)
+  ======================================================= */
+  return array(
+    'model'            => 'gpt-4.1-mini',
+    'temperature'      => 0.5,
+    'tone'             => 'profesional',
+    'welcome'          => 'Hola, soy PHSBot. ¿En qué puedo ayudarte?',
+    'allow_html'       => 1,
+    'allow_elementor'  => 1,
+    'allow_live_fetch' => 1,
+    'max_history'      => 10,
+    'max_tokens'       => 1400,
+    'max_height_vh'    => 70, // tope en % de viewport (FLOAT)
+    'anchor_paragraph' => 1,
+  );
+  /* =======================================================
+  == Fin función: phsbot_chat_defaults
+  ======================================================= */
+}
+
+
+
+   
+
+/* =======================================================
+== Genera y cachea traducciones del saludo inicial (welcome_i18n)
+======================================================= */
+if (!function_exists('phsbot_chat_build_welcome_i18n')) {
+function phsbot_chat_build_welcome_i18n($text){
+  /* =======================================================
+  == Traduce a varios idiomas mediante OpenAI y devuelve mapa {lang=>texto}.
+  == Si no hay API key o hay error, devuelve el mapa mínimo.
+  ======================================================= */
+  $text = trim(wp_strip_all_tags((string)$text));
+  if ($text === '') return array();
+
+  $langs = apply_filters('phsbot_chat_welcome_langs', array('es','en','fr','de','it','pt'));
+  $base  = substr(get_locale(),0,2); if (!$base) $base = 'es';
+  $out   = array($base => $text);
+
+  $api_key = (string) phsbot_setting('openai_api_key', '');
+  if (!$api_key) return $out;
+
+  $prompt = "Traduce el saludo entre <<< y >>> a estos idiomas: ".implode(',', $langs).".\n".
+            "Devuelve SOLO un objeto JSON {\"es\":\"...\",\"en\":\"...\"} sin texto extra.\n".
+            "<<<".$text.">>>";
+
+  $body = array(
+    'model' => 'gpt-4o-mini',
+    'temperature' => 0.2,
+    'messages' => array(
+      array('role'=>'system','content'=>'Eres un traductor profesional. Devuelves exclusivamente JSON válido.'),
+      array('role'=>'user','content'=>$prompt),
+    ),
+    'max_tokens' => 300,
+  );
+
+  $res = wp_remote_post('https://api.openai.com/v1/chat/completions', array(
+    'timeout' => 25,
+    'headers' => array(
+      'Authorization' => 'Bearer '.$api_key,
+      'Content-Type'  => 'application/json',
+    ),
+    'body' => wp_json_encode($body),
+  ));
+  if (is_wp_error($res)) return $out;
+  $code = wp_remote_retrieve_response_code($res);
+  if ($code !== 200) return $out;
+
+  $json = json_decode(wp_remote_retrieve_body($res), true);
+  $txt  = (string)($json['choices'][0]['message']['content'] ?? '');
+  $txt  = trim($txt);
+  $start = strpos($txt,'{'); $end = strrpos($txt,'}');
+  if ($start!==false && $end!==false) $txt = substr($txt,$start,$end-$start+1);
+  $map = json_decode($txt, true);
+  if (!is_array($map)) return $out;
+
+  foreach ($map as $k=>$v){
+    $k2  = strtolower(substr((string)$k,0,2));
+    $val = trim(wp_strip_all_tags((string)$v));
+    if ($k2 && $val!=='') $out[$k2] = $val;
+  }
+  return $out;
+  /* =======================================================
+  == Fin función: phsbot_chat_build_welcome_i18n
+  ======================================================= */
+}
+}
+
+
+
+   
+
+/* =======================================================
+== Traduce el saludo en tiempo de ejecución y lo cachea (welcome_i18n)
+======================================================= */
+if (!function_exists('phsbot_chat_translate_welcome_runtime')) {
+function phsbot_chat_translate_welcome_runtime($lang){
+  /* =======================================================
+  == Devuelve el saludo en el idioma solicitado; si no existe, lo traduce y cachea.
+  == Blindaje: si el saludo cambió, invalida el i18n antiguo por hash.
+  ======================================================= */
+  $lang = strtolower(substr((string)$lang, 0, 2));
+  $opt  = phsbot_chat_get_settings();
+  $base = trim((string)($opt['welcome'] ?? ''));
+  $map  = (array)($opt['welcome_i18n'] ?? array());
+
+  if ($lang === '') return $base;
+  if ($base === '') return '';
+
+  // --- Blindaje: si cambió el saludo, ignora i18n viejo
+  $hash_current = md5(wp_strip_all_tags($base));
+  $hash_stored  = isset($opt['welcome_hash']) ? (string)$opt['welcome_hash'] : '';
+  if ($hash_stored !== $hash_current) {
+    $map = array();
+  }
+
+  if (!empty($map[$lang])) return (string)$map[$lang];
+
+  $api = (string) phsbot_setting('openai_api_key', '');
+  if (!$api) return $base;
+
+  // Pide SOLO JSON { "t": "..." } con el saludo traducido
+  $prompt = "Translate the following greeting to the target language (ISO-639-1): ".$lang.".\n".
+            "Preserve emojis and tone. Return ONLY JSON: {\"t\":\"...\"}.\n<<<".$base.">>>";
+
+  $body = array(
+    'model' => 'gpt-4o-mini',
+    'temperature' => 0.2,
+    'messages' => array(
+      array('role'=>'system','content'=>'You are a precise translator. Output strictly valid JSON only.'),
+      array('role'=>'user','content'=>$prompt),
+    ),
+    'max_tokens' => 200,
+  );
+
+  $res = wp_remote_post('https://api.openai.com/v1/chat/completions', array(
+    'timeout' => 20,
+    'headers' => array(
+      'Authorization' => 'Bearer '.$api,
+      'Content-Type'  => 'application/json',
+    ),
+    'body' => wp_json_encode($body),
+  ));
+  if (is_wp_error($res)) return $base;
+  if (wp_remote_retrieve_response_code($res) !== 200) return $base;
+
+  $json = json_decode(wp_remote_retrieve_body($res), true);
+  $txt  = trim((string)($json['choices'][0]['message']['content'] ?? ''));
+  $start = strpos($txt,'{'); $end = strrpos($txt,'}');
+  if ($start!==false && $end!==false) $txt = substr($txt, $start, $end-$start+1);
+  $obj = json_decode($txt, true);
+  $t   = isset($obj['t']) ? trim(wp_strip_all_tags((string)$obj['t'])) : '';
+
+  if ($t === '') return $base;
+
+  // Cachear, guardar hash y traducción para siguientes cargas
+  $map[$lang] = $t;
+  $opt['welcome_i18n'] = $map;
+  $opt['welcome_hash'] = $hash_current;
+  update_option(PHSBOT_CHAT_OPT, $opt);
+
+  return $t;
+  /* =======================================================
+  == Fin función: phsbot_chat_translate_welcome_runtime
+  ======================================================= */
+}
+}
+
+
+
+   
+
+/*--- Determina si el modelo usa la API /v1/responses (GPT-5 y derivados) ----------------------------------*/
+function phsbot_model_uses_responses_api($model){
+  return (bool) preg_match('/^gpt-?5/i', (string)$model);
+}
+/*--- Fin subfunción: phsbot_model_uses_responses_api ----------------------------------*/
+
+
+
+   
+
+/*--- Convierte messages[] clásicos al formato input[] de Responses ----------------------------------*/
+function phsbot_messages_to_responses_input($messages){
+  $out = array();
+  foreach ((array)$messages as $m){
+    $role = isset($m['role']) && in_array($m['role'], array('system','user','assistant'), true) ? $m['role'] : 'user';
+    $text = (string)($m['content'] ?? '');
+    $out[] = array(
+      'role'    => $role,
+      'content' => array(array('type'=>'text', 'text'=>$text)),
+    );
+  }
+  return $out;
+}
+/*--- Fin subfunción: phsbot_messages_to_responses_input ----------------------------------*/
+
+
+
+   
+
+/* =======================================================
+== Devuelve las opciones del chat fusionadas con defaults
+======================================================= */
+function phsbot_chat_get_settings(){
+  /* =======================================================
+  == Lee la opción PHSBOT_CHAT_OPT y la mezcla con phsbot_chat_defaults().
+  ======================================================= */
+  $opt = get_option(PHSBOT_CHAT_OPT, array());
+  if (!is_array($opt)) $opt = array();
+  return array_merge(phsbot_chat_defaults(), $opt);
+  /* =======================================================
+  == Fin función: phsbot_chat_get_settings
+  ======================================================= */
+}
+
+
+
+   
+
+/*--- Acceso a una clave anidada dentro de las opciones del chat ----------------------------------*/
+function phsbot_chat_opt($keys, $def=null){
+  $opt = phsbot_chat_get_settings();
+  if (!is_array($keys)) $keys = array($keys);
+  $cur = $opt;
+  foreach ($keys as $k){
+    if (!is_array($cur) || !array_key_exists($k, $cur)) return $def;
+    $cur = $cur[$k];
+  }
+  return $cur;
+}
+/*--- Fin subfunción: phsbot_chat_opt ----------------------------------*/
+
+
+
+   
+
+/* =======================================================
+== Registra el menú principal y el submenú "Chat & Widget"
+======================================================= */
+add_action('admin_menu', function(){
+  /* =======================================================
+  == Añade página de menú principal y submenú para ajustes del chat FLOAT.
+  ======================================================= */
+  add_menu_page('PHSBot', 'PHSBot', 'manage_options', 'phsbot', function(){
+    /* --- Callback simple que pinta el título del dashboard principal --- */
+    echo '<div class="wrap"><h1>PHSBot</h1></div>';
+    /* --- Fin callback simple --- */
+  }, 'dashicons-format-chat', 60);
+
+  add_submenu_page('phsbot', 'Chat & Widget (FLOAT)', 'Chat & Widget', 'manage_options', 'phsbot_chat', 'phsbot_render_chat_settings');
+  /* =======================================================
+  == Fin función anónima: registro de menús
+  ======================================================= */
+}, 60);
+
+
+
+   
+
+/* =======================================================
+== Renderiza la pantalla de ajustes "Chat & Widget (FLOAT)"
+======================================================= */
+function phsbot_render_chat_settings(){
+  /* =======================================================
+  == Pinta el formulario, procesa guardado, y fuerza reset si cambia el saludo.
+  ======================================================= */
+  if (!current_user_can('manage_options')) return;
+  $saved = false;
+
+  if ($_SERVER['REQUEST_METHOD']==='POST' && check_admin_referer('phsbot_chat_save','phsbot_chat_nonce')){
+    $opt = phsbot_chat_get_settings();
+
+    // Guardamos el saludo previo para detectar cambios
+    $prev_welcome = (string)($opt['welcome'] ?? '');
+
+    $opt['model']            = sanitize_text_field($_POST['model'] ?? 'gpt-4o-mini');
+    $opt['temperature']      = max(0.0, min(2.0, floatval($_POST['temperature'] ?? 0.5))); // clamp 0–2
+    $opt['tone']             = sanitize_text_field($_POST['tone'] ?? 'profesional');
+    $opt['welcome']          = wp_kses_post($_POST['welcome'] ?? 'Hola, soy PHSBot. ¿En qué puedo ayudarte?');
+
+    $opt['allow_html']       = !empty($_POST['allow_html']) ? 1 : 0;
+    $opt['allow_elementor']  = !empty($_POST['allow_elementor']) ? 1 : 0;
+    $opt['allow_live_fetch'] = !empty($_POST['allow_live_fetch']) ? 1 : 0;
+
+    $opt['max_history']      = max(1, intval($_POST['max_history'] ?? 10));
+    $opt['max_tokens']       = max(200, intval($_POST['max_tokens'] ?? 1400));
+    $opt['max_height_vh']    = max(50, min(95, intval($_POST['max_height_vh'] ?? 70)));
+    $opt['anchor_paragraph'] = !empty($_POST['anchor_paragraph']) ? 1 : 0;
+
+    // Invalida y reconstruye i18n si cambió el saludo
+    $welcome_changed   = ((string)$opt['welcome'] !== $prev_welcome);
+    $opt['welcome_i18n'] = array();
+    $opt['welcome_hash'] = md5(wp_strip_all_tags($opt['welcome']));
+
+    $api_key = (string) phsbot_setting('openai_api_key', '');
+    if ($api_key && $opt['welcome'] !== '') {
+      $opt['welcome_i18n'] = phsbot_chat_build_welcome_i18n($opt['welcome']);
+    }
+
+    update_option(PHSBOT_CHAT_OPT, $opt);
+
+    if ($welcome_changed) {
+      // Forzar a los clientes a limpiar caches locales para ver el nuevo saludo
+      update_option('phsbot_client_reset_version', time());
+    }
+
+    $saved = true;
+  }
+
+  $opt = phsbot_chat_get_settings();
+
+  ?>
+  <div class="wrap">
+    <h1>Chat & Widget (FLOAT)</h1>
+    <?php if ($saved): ?><div class="notice notice-success"><p>Guardado ✅</p></div><?php endif; ?>
+    <form method="post">
+      <?php wp_nonce_field('phsbot_chat_save','phsbot_chat_nonce'); ?>
+      <table class="form-table">
+        <tr><th scope="row">Modelo</th><td><input type="text" name="model" value="<?php echo esc_attr($opt['model']); ?>" class="regular-text"></td></tr>
+        <tr><th scope="row">Temperatura</th><td><input type="number" step="0.1" name="temperature" value="<?php echo esc_attr($opt['temperature']); ?>" class="small-text"> (0–2)</td></tr>
+        <tr><th scope="row">Tono</th><td><input type="text" name="tone" value="<?php echo esc_attr($opt['tone']); ?>" class="regular-text"></td></tr>
+        <tr><th scope="row">Saludo</th><td><textarea name="welcome" rows="2" class="large-text"><?php echo esc_textarea($opt['welcome']); ?></textarea></td></tr>
+        <tr><th scope="row">Permitir HTML</th><td><label><input type="checkbox" name="allow_html" value="1" <?php checked($opt['allow_html'],1); ?>> Sí</label></td></tr>
+        <tr><th scope="row">Integración Elementor</th><td><label><input type="checkbox" name="allow_elementor" value="1" <?php checked($opt['allow_elementor'],1); ?>> Sí</label></td></tr>
+        <tr><th scope="row">Live fetch (URL actual)</th><td><label><input type="checkbox" name="allow_live_fetch" value="1" <?php checked($opt['allow_live_fetch'],1); ?>> Sí</label></td></tr>
+        <tr><th scope="row">Histórico (turnos)</th><td><input type="number" name="max_history" value="<?php echo esc_attr($opt['max_history']); ?>" class="small-text"></td></tr>
+        <tr><th scope="row">Máx. tokens</th><td><input type="number" name="max_tokens" value="<?php echo esc_attr($opt['max_tokens']); ?>" class="small-text"></td></tr>
+        <tr><th scope="row">Altura máx. (%VH)</th><td><input type="number" name="max_height_vh" value="<?php echo esc_attr($opt['max_height_vh']); ?>" class="small-text"> (50–95)</td></tr>
+        <tr><th scope="row">Anclar al 1er párrafo</th><td><label><input type="checkbox" name="anchor_paragraph" value="1" <?php checked($opt['anchor_paragraph'],1); ?>> Sí</label></td></tr>
+      </table>
+      <p><button class="button button-primary">Guardar cambios</button></p>
+    </form>
+  </div>
+  <?php
+  /* =======================================================
+  == Fin función: phsbot_render_chat_settings
+  ======================================================= */
+}
+
+
+
+   
+
+/* =======================================================
+== Encola assets del front y pasa variables/estilos al widget FLOAT
+======================================================= */
+add_action('wp_enqueue_scripts', function(){
+  /* =======================================================
+  == Registra/enfila CSS/JS, detecta idioma, prepara saludo y CSS variables.
+  ======================================================= */
+  if (!phsbot_setting('chat_active', 1)) return;
+
+  wp_register_style('phsbot-chat', plugins_url('chat.css', __FILE__), array(), '1.6', 'all');
+  wp_register_script('phsbot-chat', plugins_url('chat.js', __FILE__), array(), '1.6', true);
+
+  wp_enqueue_style('phsbot-chat');
+  wp_enqueue_script('phsbot-chat');
+
+  // Detecta idioma de la PÁGINA (WPML/Polylang) con fallback a locale
+  $page_lang = '';
+  if (defined('ICL_LANGUAGE_CODE')) { $page_lang = (string) ICL_LANGUAGE_CODE; }
+  if (!$page_lang && function_exists('apply_filters')) {
+    $tmp = apply_filters('wpml_current_language', null);
+    if (is_string($tmp) && $tmp!=='') $page_lang = $tmp;
+  }
+  if (!$page_lang && function_exists('pll_current_language')) {
+    $tmp = pll_current_language('slug');
+    if (is_string($tmp) && $tmp!=='') $page_lang = $tmp;
+  }
+  if (!$page_lang) { $page_lang = substr(get_locale(),0,2); }
+  $lang = strtolower(substr((string)$page_lang,0,2));
+  if (function_exists('phsbot_site_language')) { $lang = phsbot_site_language(); }
+
+  $UI = array(
+    'send'   => $lang==='en' ? 'Send' : 'Enviar',
+    'ph'     => $lang==='en' ? 'Type your question...' : 'Escribe tu pregunta...',
+    'typing' => $lang==='en' ? 'Typing…' : 'Escribiendo…',
+  );
+
+  $chatopt       = get_option(PHSBOT_CHAT_OPT, array());
+  $welcome_raw   = (string) phsbot_chat_opt(array('welcome','saludo','mensaje_inicial','greeting'), '');
+
+  // Si no usamos el runtime (por cualquier motivo), valida que el i18n no esté desalineado
+  $welcome_hash_opt = isset($chatopt['welcome_hash']) ? (string)$chatopt['welcome_hash'] : '';
+  $welcome_hash_now = md5(wp_strip_all_tags($welcome_raw));
+
+  if (function_exists('phsbot_chat_translate_welcome_runtime')) {
+    $welcome_pick = phsbot_chat_translate_welcome_runtime($lang);
+  } else {
+    $welcome_i18n  = (array) (isset($chatopt['welcome_i18n']) && is_array($chatopt['welcome_i18n']) ? $chatopt['welcome_i18n'] : array());
+    if ($welcome_hash_opt !== $welcome_hash_now) {
+      $welcome_i18n = array(); // invalidar i18n viejo si cambió el saludo
+    }
+    $welcome_pick  = isset($welcome_i18n[$lang]) && trim((string)$welcome_i18n[$lang])!=='' ? $welcome_i18n[$lang] : $welcome_raw;
+  }
+
+  // Sanea cualquier HTML del saludo antes de pasarlo al front
+  $welcome_pick = wp_kses_post($welcome_pick);
+
+  $payload = array(
+    'ajaxUrl'      => admin_url('admin-ajax.php'),
+    'nonce'        => wp_create_nonce('phsbot_chat'),
+    'allowHTML'    => (int) !!phsbot_chat_opt(array('allow_html')),
+    'allowElem'    => (int) !!phsbot_chat_opt(array('allow_elementor')),
+    'maxVH'        => intval(phsbot_chat_opt(array('max_height_vh'), 70)),
+    'welcome'      => $welcome_pick,
+    'welcome_i18n' => (array) ($chatopt['welcome_i18n'] ?? array()),
+    'maxHistory'   => intval(phsbot_chat_opt(array('max_history'), 10)),
+    'anchorPara'   => (int) !!phsbot_chat_opt(array('anchor_paragraph'), 1),
+  );
+
+  // Estilos críticos + variables CSS desde settings (COLORES INTACTOS)
+  $pos = (string) phsbot_setting('chat_position', 'bottom-right');
+  $pos_x = (strpos($pos,'left')!==false) ? 'left' : 'right';
+  $pos_y = (strpos($pos,'top')!==false) ? 'top'  : 'bottom';
+
+  $w     = (string) phsbot_setting('chat_width',  '360px');
+  $h     = (string) phsbot_setting('chat_height', '720px');
+
+  $c1  = (string) phsbot_setting('color_primary',    '#667a3a');
+  $c2  = (string) phsbot_setting('color_secondary',  '#4c5e27');
+  $cbg = (string) phsbot_setting('color_background', '#ffffff');
+  $ctx = (string) phsbot_setting('color_text',       '#111111');
+  $cb  = (string) phsbot_setting('color_bot_bubble', '#f1f1f2');
+  $cu  = (string) phsbot_setting('color_user_bubble','#1f7ae0');
+  $cfoot = (string) phsbot_setting('color_footer', $cbg);
+
+  wp_localize_script('phsbot-chat','PHSBOT_CHAT',$payload);
+  wp_localize_script('phsbot-chat','PHSBOT_CHAT_UI',$UI);
+
+  ?>
+  <style id="phsbot-chat-critical">
+    #phsbot-widget{
+      --phsbot-primary: <?php echo esc_html($c1); ?>;
+      --phsbot-secondary: <?php echo esc_html($c2); ?>;
+      --phsbot-bg: <?php echo esc_html($cbg); ?>;
+      --phsbot-text: <?php echo esc_html($ctx); ?>;
+      --phsbot-bot-bubble: <?php echo esc_html($cb); ?>;
+      --phsbot-user-bubble: <?php echo esc_html($cu); ?>;
+      --phsbot-width: <?php echo esc_html($w); ?>;
+      --phsbot-height: <?php echo esc_html($h); ?>;
+      --phsbot-whatsapp: <?php echo esc_html( phsbot_setting('color_whatsapp', '#25D366') ); ?>;
+      --phsbot-btn-h:    <?php echo (int) phsbot_setting('btn_height', 44); ?>px;
+      --phsbot-head-btn: <?php echo (int) phsbot_setting('head_btn_size', 26); ?>px;
+      --mic-stroke-w:    <?php echo (int) phsbot_setting('mic_stroke_w', 1); ?>px;
+      --phsbot-footer: <?php echo esc_html($cfoot); ?>;
+    }
+    .phsbot-wrap{
+      position: fixed !important;
+      <?php echo $pos_x; ?>:18px; <?php echo $pos_y; ?>:88px;
+      z-index: 2147483646 !important;
+      width: var(--phsbot-width);
+      max-width: min(92vw, 920px);
+      transform: none !important; isolation: isolate;
+    }
+  </style>
+  <?php
+  /* =======================================================
+  == Fin función anónima: enqueue front FLOAT
+  ======================================================= */
+}, 6);
+
+
+
+   
+
+/* =======================================================
+== Pinta el widget FLOAT (markup) evitando doble render
+======================================================= */
+if (!function_exists('phsbot_render_chat_markup')) {
+function phsbot_render_chat_markup(){
+  /* =======================================================
+  == Incluye chat-view.php si el chat está activo y aún no fue renderizado.
+  ======================================================= */
+  if (!phsbot_setting('chat_active', 1)) return;
+  if (!empty($GLOBALS['__phsbot_chat_rendered'])) return;
+  $GLOBALS['__phsbot_chat_rendered'] = true;
+
+  include __DIR__ . '/chat-view.php';
+  /* =======================================================
+  == Fin función: phsbot_render_chat_markup
+  ======================================================= */
+}
+}
+
+
+
+/* =======================================================
+== Inserta el FLOAT al final del body si está activo
+======================================================= */
+add_action('wp_footer', function(){
+  /* =======================================================
+  == Hook footer: llama al render del chat si procede.
+  ======================================================= */
+  if (is_admin()) return;
+  if (!(int) phsbot_setting('chat_active', 1)) return;
+  if (!empty($GLOBALS['__phsbot_chat_rendered'])) return;
+  phsbot_render_chat_markup();
+  /* =======================================================
+  == Fin función anónima: wp_footer -> render FLOAT
+  ======================================================= */
+}, 98);
+
+
+
+   
+
+/* =======================================================
+== Shortcode [phsbot] para insertar el FLOAT una sola vez
+======================================================= */
+add_shortcode('phsbot', function($atts){
+  /* =======================================================
+  == Devuelve el markup del chat capturando la salida del render.
+  ======================================================= */
+  ob_start();
+  phsbot_render_chat_markup();
+  return ob_get_clean();
+  /* =======================================================
+  == Fin función anónima: shortcode [phsbot]
+  ======================================================= */
+});
+
+
+
+   
+
+/* ===== AJAX ===== */
+add_action('wp_ajax_phsbot_chat','phsbot_ajax_chat');
+add_action('wp_ajax_nopriv_phsbot_chat','phsbot_ajax_chat');
+
+
+
+/* =======================================================
+== Handler AJAX principal del chat
+== - Construye contexto (histórico, página, KB, live fetch)
+== - Llama a OpenAI (Chat Completions o Responses según modelo)
+== - Devuelve HTML/texto saneado
+======================================================= */
+function phsbot_ajax_chat(){
+  /* =======================================================
+  == Valida nonce y API key, arma mensajes y hace la petición a OpenAI.
+  ======================================================= */
+  if (!check_ajax_referer('phsbot_chat','_ajax_nonce', false)) {
+    wp_send_json(array('ok'=>false,'error'=>'Nonce inválido'));
+  }
+
+  $chat = phsbot_chat_get_settings();
+
+  $api_key = (string) phsbot_setting('openai_api_key', '');
+  if (!$api_key) wp_send_json(array('ok'=>false,'error'=>'Falta API key'));
+
+  // Inputs base
+  $q     = sanitize_text_field($_POST['q'] ?? '');
+  $cid   = sanitize_text_field($_POST['cid'] ?? '');
+  $url   = esc_url_raw($_POST['url'] ?? '');
+  $hist  = json_decode(stripslashes($_POST['history'] ?? '[]'), true);
+  if (!is_array($hist)) $hist = array();
+  $hist  = array_slice($hist, -max(1,intval($chat['max_history'] ?? 10))*2);
+
+  // Contexto del front (si viene)
+  $ctx_raw = isset($_POST['ctx']) ? wp_unslash($_POST['ctx']) : '';
+  $ctx = array();
+  if ($ctx_raw) { $tmp = json_decode($ctx_raw, true); if (is_array($tmp)) $ctx = $tmp; }
+  $lim = function($s,$n){ $s=(string)$s; $s=wp_strip_all_tags($s); return (mb_strlen($s)>$n)?mb_substr($s,0,$n):$s; };
+  $ctx_url   = $ctx && !empty($ctx['url']) ? esc_url_raw($ctx['url']) : '';
+  $ctx_h1    = $lim($ctx['h1'] ?? '', 160);
+  $ctx_title = $lim($ctx['title'] ?? '', 160);
+  $ctx_topic = $lim($ctx['topic'] ?? '', 160);
+  $ctx_mdesc = $lim($ctx['meta_description'] ?? '', 300);
+  $ctx_ogt   = $lim($ctx['og_title'] ?? '', 160);
+  $ctx_bc    = $lim($ctx['breadcrumbs'] ?? '', 220);
+  $ctx_lang  = sanitize_text_field($ctx['lang'] ?? '');
+  $ctx_sel   = $lim($ctx['selection'] ?? '', 400);
+  $ctx_main  = $lim($ctx['main_excerpt'] ?? '', 1200);
+
+  // Parámetros IA
+  $model = (string) ($chat['model'] ?? 'gpt-4o-mini');
+  $temp  = floatval($chat['temperature'] ?? 0.5);
+  $tone  = (string)  ($chat['tone'] ?? 'profesional');
+  $sys_p = (string)  ($chat['system_prompt'] ?? '');
+  $max_t = intval($chat['max_tokens'] ?? 1400);
+  if ($max_t < 200) $max_t = 200;
+
+  // KB
+  $kb = (string) get_option(PHSBOT_KB_DOC_OPT, '');
+  if ($kb !== '') $kb = wp_strip_all_tags($kb);
+
+  // Live fetch (limitado por allowed_domains)
+  $live = '';
+  if (!empty($chat['allow_live_fetch']) && !empty($url)){
+    $allowed = phsbot_setting('allowed_domains', array());
+    if (is_string($allowed)) {
+      // Compat con valores antiguos en string separadas por comas o saltos
+      $allowed = preg_split('/[\s,]+/', $allowed);
+    }
+    if (!is_array($allowed)) $allowed = array();
+    $host = parse_url($url, PHP_URL_HOST);
+    if ($host){
+      $domain = strtolower($host);
+      $ok = false;
+      foreach ($allowed as $ad){
+        $ad = strtolower(trim((string)$ad));
+        if (!$ad) continue;
+        if (substr('.'.$domain, -strlen('.'.$ad)) === '.'.$ad || $domain===$ad) { $ok=true; break; }
+      }
+      if ($ok){
+        $res = wp_remote_get($url, array('timeout'=>8));
+        if (!is_wp_error($res) && wp_remote_retrieve_response_code($res)===200){
+          $live = wp_strip_all_tags(wp_remote_retrieve_body($res));
+          $live = preg_replace('/\s+/',' ', $live);
+          $live = wp_trim_words($live, 1200, '…');
+        }
+      }
+    }
+  }
+
+  /* ======== LENGUAJE: fijar idioma del turno (1→2→3) ======== */
+  $__phs_reply_lang = function_exists('phsbot_reply_language') ? phsbot_reply_language($q) : 'es';
+  $__phs_lang_directive = "LANGUAGE: Always reply in [{$__phs_reply_lang}] and keep that language consistently. Switch only if the user's latest message is clearly in another language.";
+  /* ======== FIN LENGUAJE ======== */
+
+  // System prompt (tono + formato HTML si procede)
+  $system = ($sys_p !== '') ? $sys_p : 'Responde de forma precisa y honesta. Si no sabes, dilo. Responde en el idioma del usuario.';
+  $system .= "\n".$__phs_lang_directive;
+  if ($tone !== '') $system .= "\nTono: ".$tone.".";
+  if (!empty(phsbot_chat_opt(array('allow_html')))) {
+    $system .= "\nFORMATO DE SALIDA: Devuelve SIEMPRE HTML válido, usando <p>, <ul>, <ol>, <li>, <strong>, <em>, <pre>, <code>, <br>. No uses <script>, <style>, iframes ni backticks. No envuelvas con <html> ni <body>.";
+  }
+
+  // Construcción de messages
+  $messages = array(array('role'=>'system','content'=>$system));
+  if ($kb)   $messages[] = array('role'=>'system','content'=>"KB:\n".$kb);
+  if ($live) $messages[] = array('role'=>'system','content'=>"Contenido de la URL (resumen):\n".$live);
+
+  // Contexto de la página (si vino)
+  $ctx_lines = array();
+  if ($ctx_url)   $ctx_lines[] = '- URL: '.$ctx_url;
+  if ($ctx_h1)    $ctx_lines[] = '- H1: '.$ctx_h1;
+  if ($ctx_title) $ctx_lines[] = '- Título: '.$ctx_title;
+  if ($ctx_topic) $ctx_lines[] = '- Tema: '.$ctx_topic;
+  if ($ctx_mdesc) $ctx_lines[] = '- Meta: '.$ctx_mdesc;
+  if ($ctx_ogt)   $ctx_lines[] = '- OG: '.$ctx_ogt;
+  if ($ctx_bc)    $ctx_lines[] = '- Migas: '.$ctx_bc;
+  if ($ctx_lang)  $ctx_lines[] = '- HTML lang: '.$ctx_lang;
+  if ($ctx_sel)   $ctx_lines[] = '- Selección: '.$ctx_sel;
+  if ($ctx_main)  $ctx_lines[] = "- Extracto:\n".$ctx_main;
+  if (!empty($ctx_lines)){
+    $messages[] = array('role'=>'system','content'=>"Contexto actual de página:\n".implode("\n", $ctx_lines));
+  }
+
+  foreach ($hist as $h){
+    $content = isset($h['content']) ? (string)$h['content'] : ( isset($h['html']) ? wp_strip_all_tags((string)$h['html']) : '' );
+    $messages[] = array('role'=>($h['role']==='assistant'?'assistant':'user'), 'content'=>$content);
+  }
+  if ($q) $messages[] = array('role'=>'user','content'=>$q);
+
+  // === Llamada a OpenAI: Chat Completions vs Responses ===
+  $use_responses = phsbot_model_uses_responses_api($model);
+  $endpoint = $use_responses ? 'https://api.openai.com/v1/responses' : 'https://api.openai.com/v1/chat/completions';
+  $payload  = $use_responses
+    ? array(
+        'model'             => $model,
+        'input'             => phsbot_messages_to_responses_input($messages),
+        'temperature'       => $temp,
+        'max_output_tokens' => $max_t,
+        'metadata'          => array('cid'=>$cid, 'source'=>'phsbot'),
+      )
+    : array(
+        'model'       => $model,
+        'temperature' => $temp,
+        'max_tokens'  => $max_t,
+        'messages'    => $messages,
+      );
+
+  $res = wp_remote_post($endpoint, array(
+    'timeout' => 30,
+    'headers' => array(
+      'Authorization' => 'Bearer '.$api_key,
+      'Content-Type'  => 'application/json',
+    ),
+    'body' => wp_json_encode($payload),
+  ));
+  if (is_wp_error($res)) wp_send_json(array('ok'=>false,'error'=>$res->get_error_message()));
+
+  $code = wp_remote_retrieve_response_code($res);
+  if ($code !== 200 && defined('WP_DEBUG') && WP_DEBUG) {
+    error_log('PHSBOT endpoint='.$endpoint.' model='.$model.' code='.$code);
+    error_log('PHSBOT body='.substr(wp_remote_retrieve_body($res),0,400));
+  }
+  $body = json_decode(wp_remote_retrieve_body($res), true);
+  if ($code !== 200 || !is_array($body)) wp_send_json(array('ok'=>false,'error'=>'Error '.$code));
+
+  // Parse de texto en ambos modos
+  $txt = '';
+  if ($use_responses){
+    if (isset($body['output_text']) && is_string($body['output_text'])) {
+      $txt = trim($body['output_text']);
+    } elseif (!empty($body['output']) && is_array($body['output'])) {
+      $buf = '';
+      foreach ($body['output'] as $item){
+        if (!empty($item['content']) && is_array($item['content'])){
+          foreach ($item['content'] as $c){
+            if (isset($c['text'])) $buf .= (string)$c['text'];
+          }
+        }
+      }
+      $txt = trim($buf);
+    } else {
+      $txt = '';
+    }
+  } else {
+    $txt = trim((string)($body['choices'][0]['message']['content'] ?? ''));
+  }
+
+  $allow_html = !empty($chat['allow_html']) || !empty(phsbot_chat_opt(array('allow_html')));
+  $html       = $allow_html ? wp_kses_post($txt) : esc_html($txt); // saneado HTML seguro
+
+  wp_send_json(array(
+    'ok'   => true,
+    'text' => $allow_html ? '' : $txt,
+    'html' => $allow_html ? $html : '',
+  ));
+
+}
+/* ======== FIN phsbot_ajax_chat ======== */
+
+
+
+   
+
+/* =======================================================
+== Reset duro del cliente cuando cambia la versión (borra storages)
+======================================================= */
+add_action('wp_footer', function(){
+  /* ========Inserta JS que compara 'phsbot_client_reset_version' y resetea storages si cambia.========= */
+  if (!phsbot_setting('chat_active', 1)) return; ?>
+  <script>
+  (function(){
+    var KEY = 'phsbot_client_reset_version';
+    try{
+      var server = parseInt(<?php echo json_encode((int) get_option('phsbot_client_reset_version', 0)); ?>, 10) || 0;
+      var local  = parseInt(localStorage.getItem(KEY)||'0',10)||0;
+      if (server && server !== local){
+        try{ localStorage.removeItem('phsbot:cid'); }catch(e){}
+        try{ localStorage.removeItem('phsbot:ui'); }catch(e){}
+        try{ localStorage.removeItem('phsbot:conv'); }catch(e){}
+        sessionStorage.removeItem('phsbot:cid');
+        sessionStorage.removeItem('phsbot:ui');
+        sessionStorage.removeItem('phsbot:conv');
+        if (window.indexedDB){ try{ indexedDB.deleteDatabase('phsbot-db'); }catch(e){} }
+        document.cookie.split(';').forEach(function(c){
+          var name = c.split('=')[0].trim();
+          if (/phs|phsbot|chat/i.test(name)){
+            document.cookie = name+'=; Max-Age=0; path=/';
+          }
+        });
+        localStorage.setItem(KEY, String(server));
+      }
+    }catch(e){}
+  })();
+  </script>
+<?php
+  /* =======================================================
+  == Fin función anónima: reset cliente por versión
+  ======================================================= */
+}, 1);

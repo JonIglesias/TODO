@@ -1,0 +1,445 @@
+/* === PHSBOT chat.css — CLEAN (ORDENADO POR ELEMENTOS) === */
+
+
+
+/* ======== ESTADO: CERRADO/ABIERTO ======== */
+#phsbot-widget[data-open="0"] .phsbot-card { display: none; }
+#phsbot-widget[data-open="0"] .phsbot-body { display: none; }
+#phsbot-widget[data-open="1"] .phsbot-body { display: flex; }
+/* ======== FIN ESTADO: CERRADO/ABIERTO ======== */
+
+
+
+/* ======== TARJETA: CONTENEDOR PRINCIPAL (.phsbot-card) ======== */
+#phsbot-widget .phsbot-card{
+  background: var(--phsbot-bg, #fff);
+  color: var(--phsbot-text, #111);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.12);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+/* ======== FIN TARJETA: CONTENEDOR PRINCIPAL (.phsbot-card) ======== */
+
+
+
+/* ======== CABECERA: WRAPPER (.phsbot-head) ======== */
+#phsbot-widget .phsbot-head{
+  /* base */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background-color: var(--phsbot-primary) !important;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+
+  /* layout final (con X absoluta a la derecha) */
+  position: relative;
+  justify-content: flex-start;
+  padding-right: calc(var(--phsbot-head-btn, 26px) + 10px);
+}
+/* ======== FIN CABECERA: WRAPPER (.phsbot-head) ======== */
+
+
+
+/* ======== CABECERA: TÍTULO (.phsbot-head-title) E IMAGEN ======== */
+#phsbot-widget .phsbot-head-title{
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+#phsbot-widget .phsbot-head img{ display:block; }
+/* ======== FIN CABECERA: TÍTULO (.phsbot-head-title) E IMAGEN ======== */
+
+
+
+/* ======== CABECERA: CÍRCULO CON X (.phsbot-head-x) ======== */
+#phsbot-widget .phsbot-head-x{
+  --phsbot-head-btn: 26px;     /* diámetro del círculo */
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--phsbot-head-btn);
+  height: var(--phsbot-head-btn);
+  border-radius: 50%;
+  background:#fff;
+  color:#000;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;         /* no bloquea el click del header */
+  user-select:none;
+  z-index: 1;
+}
+#phsbot-widget .phsbot-head-x svg{
+  width: 60%;
+  height: 60%;
+  display:block;
+}
+#phsbot-widget .phsbot-head-x svg *{
+  stroke-width: 1px;           /* X fina; ajustable */
+  vector-effect: non-scaling-stroke;
+}
+/* ======== FIN CABECERA: CÍRCULO CON X (.phsbot-head-x) ======== */
+
+
+
+/* ======== BODY: WRAPPER (.phsbot-body) ======== */
+#phsbot-widget .phsbot-body{
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+/* ======== FIN BODY: WRAPPER (.phsbot-body) ======== */
+
+
+
+/* ======== MENSAJES: CONTENEDOR (#phsbot-messages) ======== */
+#phsbot-messages{
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 12px 8px;
+}
+/* ======== FIN MENSAJES: CONTENEDOR (#phsbot-messages) ======== */
+
+
+
+/* ======== MENSAJES: Burbujas (.phsbot-msg / .phsbot-bubble) ======== */
+.phsbot-msg{ display:flex; margin:6px 0; }
+.phsbot-msg.user{ justify-content:flex-end; }
+.phsbot-msg.bot{ justify-content:flex-start; }
+
+.phsbot-bubble{
+  max-width: 86%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  line-height: 1.35;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+.phsbot-msg.user .phsbot-bubble{
+  background: var(--phsbot-user-bubble, #1f7ae0);
+ color: var(--phsbot-text, #111);
+}
+.phsbot-msg.bot .phsbot-bubble, .phsbot-inject-block{
+  background: var(--phsbot-bot-bubble, #f1f1f2);
+  color: var(--phsbot-text, #111);
+}
+/* ======== FIN MENSAJES: Burbujas (.phsbot-msg / .phsbot-bubble) ======== */
+
+
+
+/* ======== MENSAJES: Indicador “escribiendo” (#phsbot-typing) ======== */
+#phsbot-typing{
+  padding: 0 12px 8px;
+  font-size: 12px;
+  color: rgba(0,0,0,.55);
+}
+/* ======== FIN MENSAJES: Indicador “escribiendo” (#phsbot-typing) ======== */
+
+
+
+/* ======== LAUNCHER (botón flotante) ======== */
+.phsbot-launcher{
+  position: fixed !important;
+  z-index: 2147483645 !important;
+  right: 18px; bottom: 18px;
+  background: transparent;
+  border: 0; padding: 0; cursor: pointer;
+}
+.phsbot-launcher svg circle{ fill: var(--phsbot-primary, #667a3a); }
+.phsbot-launcher svg{ display:block; }
+#phsbot-widget[data-open="1"] + .phsbot-launcher{ display: none !important; }
+/* ======== FIN LAUNCHER (botón flotante) ======== */
+
+
+
+/* ======== MENSAJES: Scrollbar opcional ======== */
+#phsbot-messages::-webkit-scrollbar{ width:8px; }
+#phsbot-messages::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.15); border-radius:8px; }
+#phsbot-messages::-webkit-scrollbar-corner{ background: transparent; }
+/* ======== FIN MENSAJES: Scrollbar opcional ======== */
+
+
+
+/* ======== INPUT: Composer inferior (.phsbot-input) ======== */
+.phsbot-input{
+  position: relative;               /* para overlays o voice viz */
+  display: flex;
+  gap: 10px;
+
+  align-items: flex-end;
+  border-top: 1px solid rgba(0,0,0,.08);
+  padding: 10px;
+background: var(--phsbot-footer, var(--phsbot-bg, #fff));
+
+}
+/* ======== FIN INPUT: Composer inferior (.phsbot-input) ======== */
+/* Chat real: tamaño de fuente de los globos */
+#phsbot-widget .phsbot-bubble {
+  font-size: var(--phsbot-bubble-fs, 15px);
+  line-height: 1.4;
+}
+
+
+/* ======== INPUT: Textarea (#phsbot-q) ======== */
+#phsbot-q{
+  order: 1;                 /* centro */
+  flex: 1 1 auto;
+  display: block;
+  width: auto;              /* antes 100% */
+  min-width: 0;             /* evita overflow en flex */
+  min-height: var(--phsbot-btn-h, 44px);
+  max-height: 120px;
+  resize: none;
+  border: 1px solid rgba(0,0,0,.1);
+  border-radius: 10px;
+  padding: 7px 12px;
+  font: inherit;
+  outline: none;
+  background: #fff;
+}
+/* ======== FIN INPUT: Textarea (#phsbot-q) ======== */
+
+
+
+
+
+
+
+/* ======== BOTONES: Base (.phsbot-btn) ======== */
+.phsbot-btn{
+  --phs-primary: var(--phsbot-primary, #667a3a);
+  --phs-black: #000;
+  --phs-green: var(--phsbot-whatsapp, #25D366);
+  --phsbot-btn-h: 44px;                /* altura común de mic y enviar */
+  height: var(--phsbot-btn-h, 44px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  cursor: pointer;
+  transition: background .18s ease, color .18s ease, transform .06s ease, border-color .18s ease;
+  user-select: none;
+  order: 2;                             /* Enviar al final por defecto */
+  outline: none !important;             /* quitar halo/línea azul sistema */
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+/* ======== FIN BOTONES: Base (.phsbot-btn) ======== */
+
+
+
+/* ======== MIC: Estado “grabando” + animación ======== */
+.phsbot-mic.is-recording{
+  background: #d93025;
+  border-color: #d93025;
+  color: #fff;
+  animation: phsbot-mic-pulse 1.1s ease-in-out infinite;
+}
+#phsbot-widget .phsbot-input #phsbot-mic.phsbot-mic.is-recording{
+  background:#d93025 !important;
+  color:#fff !important;
+  animation: phsbot-mic-pulse 1.1s ease-in-out infinite;
+}
+@keyframes phsbot-mic-pulse{
+  0%{ transform: scale(1); }
+  50%{ transform: scale(1.06); }
+  100%{ transform: scale(1); }
+}
+/* ======== FIN MIC: Estado “grabando” + animación ======== */
+
+
+
+/* ======== MIC: Botón (#phsbot-mic) ======== */
+#phsbot-widget .phsbot-input #phsbot-mic.phsbot-mic:active{ transform: translateY(1px); }
+#phsbot-widget .phsbot-input #phsbot-mic{
+  order: 0;                            /* mic primero */
+  width: var(--phsbot-btn-h, 44px) !important;
+  height: var(--phsbot-btn-h, 44px) !important;
+  aspect-ratio: 1 / 1;
+  background: #fff !important;
+  color: #000 !important;              /* trazo negro */
+  border: none !important;             /* sin borde */
+  border-radius: 50% !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  line-height: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  outline: none !important;            /* quitar halo/línea azul sistema */
+  -webkit-tap-highlight-color: transparent;
+}
+/* ======== FIN MIC: Botón (#phsbot-mic) ======== */
+
+
+
+/* ======== MIC: Icono SVG ======== */
+#phsbot-widget .phsbot-input #phsbot-mic svg{
+  width:  calc(var(--phsbot-btn-h, 44px) * .84) !important;
+  height: calc(var(--phsbot-btn-h, 44px) * .84) !important;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--mic-stroke-w, 1px);  /* grosor ajustable */
+  shape-rendering: geometricPrecision;
+}
+#phsbot-widget .phsbot-input #phsbot-mic svg *{
+  vector-effect: non-scaling-stroke;       /* mantiene 1px aunque escales el SVG */
+}
+/* ======== FIN MIC: Icono SVG ======== */
+
+
+
+/* ======== MIC: Hover ======== */
+#phsbot-widget .phsbot-input #phsbot-mic:hover{
+  background-color: var(--phsbot-secondary, #667a3a) !important; /* verde del tema */
+  color: #fff !important;                                 /* icono en blanco */
+}
+/* ======== FIN MIC: Hover ======== */
+
+
+
+/* ======== ENVIAR: Botón redondo sin texto (#phsbot-send) ======== */
+#phsbot-widget .phsbot-input #phsbot-send{
+  order: 2;                              /* a la derecha del footer */
+  width: var(--phsbot-btn-h, 44px);
+  height: var(--phsbot-btn-h, 44px);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: #fff ;        /* fondo blanco */
+  color: #000 !important;                /* color base para icono */
+  border: none !important;               /* sin bordes */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 0;
+  font-size: 0;                          /* oculta cualquier texto interior */
+  outline: none !important;              /* quitar halo/línea azul sistema */
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+#phsbot-widget .phsbot-input #phsbot-send .phsbot-send__label{
+  display: none !important;              /* ocultar cualquier label interno */
+}
+/* ======== FIN ENVIAR: Botón redondo sin texto (#phsbot-send) ======== */
+
+
+
+/* ======== ENVIAR: Icono (triángulo hacia arriba) ======== */
+#phsbot-widget .phsbot-input #phsbot-send::before{
+  content: '';
+  display: block;
+  width: 0; 
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 12px solid #000;        /* triángulo arriba negro */
+}
+/* ======== FIN ENVIAR: Icono (triángulo hacia arriba) ======== */
+
+
+
+/* ======== ENVIAR: Hover ======== */
+#phsbot-widget .phsbot-input #phsbot-send:hover{
+  background-color: var(--phsbot-secondary, #667a3a); /* verde del tema */
+  color: #fff !important;                                 /* por si hay SVG */
+}
+#phsbot-widget .phsbot-input #phsbot-send:hover::before{
+  border-bottom-color: #fff;                               /* triángulo blanco */
+}
+/* ======== FIN ENVIAR: Hover ======== */
+
+
+
+/* ======== AJUSTES PROPIOS (custom) ======== */
+.phsbot-card .phsbot-msg.bot p{ margin-bottom:20px !important; }
+.phsbot-bubble ul{ margin-bottom:20px; }
+.phsbot-bubble{ white-space:normal !important; }
+button#phsbot-launcher{
+  border-radius: 999px !important;
+  background-color: #fff !important;
+  width: 60px !important;
+  height: 60px !important;
+}
+/* ======== FIN AJUSTES PROPIOS (custom) ======== */
+.phsbot-input {
+ 
+    max-height: 65px;
+}
+
+ /* ======== TEXTAREA: radios dinámicos por nº de líneas ======== */
+#phsbot-widget .phsbot-input #phsbot-q{
+  /* Por defecto (vacío, 1 o 2 líneas) => píldora */
+  border-radius: 99px !important;
+  transition: border-radius .15s ease;
+}
+
+#phsbot-widget .phsbot-input #phsbot-q.phsbot-q--multi{
+  /* Más de 2 líneas => caja suavizada */
+  border-radius: 15px !important;
+}
+
+/* Ocultar SOLO el textarea mientras graba, sin colapsar el alto */
+#phsbot-widget .phsbot-input:has(#phsbot-mic.is-recording) #phsbot-q{
+  visibility: hidden;          /* lo oculta pero mantiene el espacio */
+  opacity: 0;                  /* por si hay transiciones */
+  pointer-events: none;        /* no interactuable */
+  caret-color: transparent;    /* oculta el cursor */
+}
+
+/* ======== TEXTAREA SCROLLBAR: más largo y más “dentro” ======== */
+#phsbot-widget .phsbot-input #phsbot-q{
+  /* Para Firefox y para separar el texto de la barra */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--phsbot-scroll-thumb, #0b4a2e) transparent;
+  padding-right: 14px; /* colchón de texto vs barra (también en Firefox) */
+}
+
+/* WebKit (Chrome/Edge/Safari) */
+#phsbot-widget .phsbot-input #phsbot-q::-webkit-scrollbar{
+  width: 22px; /* más ancho para poder “enterrar” el palito */
+  background: transparent;
+}
+#phsbot-widget .phsbot-input #phsbot-q::-webkit-scrollbar-track{
+  background: transparent !important;
+  border-radius: 999px;
+}
+
+/* Palito más dentro y más largo */
+#phsbot-widget .phsbot-input #phsbot-q::-webkit-scrollbar-thumb{
+  background-color: var(--phsbot-scroll-thumb, #0b4a2e);
+  border-radius: 999px;
+  border: 10px solid transparent;   /* ← inset adicional (~10px) */
+  background-clip: content-box;      /* solo se ve el palito */
+  max-height: 18px !important;                  /* ← palito algo más largo */
+}
+
+#phsbot-widget .phsbot-input #phsbot-q::-webkit-scrollbar-button{ display:none; }
+#phsbot-widget .phsbot-input #phsbot-q::-webkit-scrollbar-corner{ background:transparent; }
+/* Fija la altura del panel usando la variable que saca chat.php */
+#phsbot-widget .phsbot-card{
+  height: var(--phsbot-height, 720px);
+  /* opcional: límite por viewport si usas maxVH desde JS */
+  max-height: calc(var(--phsbot-max-vh, 70vh));
+}
+.phsbot-launcher svg {
+    display: block;
+    width: 50px !important;
+    float: left !important;
+    left: -15px !important;
+    position: relative !important;
+    top: -5px !important;
+}
