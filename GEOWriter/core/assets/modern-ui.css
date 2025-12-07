@@ -1,0 +1,599 @@
+/**
+ * AutoPost Modern UI - Global Styles
+ * Inspirado en iOS/macOS design
+ */
+
+/* Variables */
+:root {
+    --ap-primary: #000000;
+    --ap-primary-dark: #000000;
+    --ap-secondary: #000000;
+    --ap-success: #52C41A;
+    --ap-danger: #FF4D4F;
+    --ap-warning: #FAAD14;
+    --ap-bg: #F5F7FA;
+    --ap-card: #FFFFFF;
+    --ap-border: #E8ECEF;
+    --ap-text: #2C3E50;
+    --ap-text-light: #6B7A8F;
+    --ap-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    --ap-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+    --ap-radius: 12px;
+    --ap-radius-lg: 16px;
+}
+
+/* Contenedores principales */
+.ap-module-wrap {
+    background: var(--ap-bg);
+    padding: 24px;
+    margin: -20px -20px 0 -10px;
+}
+
+.ap-module-wrap h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ap-text);
+    margin-bottom: 24px;
+}
+
+/* Cards modernas */
+.ap-card {
+    background: var(--ap-card);
+    border-radius: var(--ap-radius-lg);
+    padding: 24px;
+    box-shadow: var(--ap-shadow);
+    margin-bottom: 20px;
+    border: 1px solid var(--ap-border);
+}
+
+.ap-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--ap-border);
+}
+
+.ap-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ap-text);
+    margin: 0;
+}
+
+/* Botones modernos */
+.ap-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ap-btn-primary {
+    background: linear-gradient(135deg, var(--ap-primary) 0%, var(--ap-secondary) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.ap-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.ap-btn-secondary {
+    background: var(--ap-card);
+    color: var(--ap-text);
+    border: 1px solid var(--ap-border);
+}
+
+.ap-btn-secondary:hover {
+    background: var(--ap-bg);
+    border-color: var(--ap-primary);
+}
+
+.ap-btn-success {
+    background: var(--ap-success);
+    color: white;
+}
+
+.ap-btn-danger {
+    background: var(--ap-danger);
+    color: white;
+}
+
+/* Tablas modernas */
+.ap-table-wrapper {
+    background: var(--ap-card);
+    border-radius: var(--ap-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--ap-shadow);
+}
+
+.ap-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ap-table thead {
+    background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+}
+
+.ap-table th {
+    padding: 16px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ap-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ap-table td {
+    padding: 16px;
+    border-top: 1px solid var(--ap-border);
+    color: var(--ap-text);
+}
+
+.ap-table tbody tr {
+    transition: background 0.15s;
+}
+
+.ap-table tbody tr:hover {
+    background: #F8FAFC;
+}
+
+/* Badges/Estado */
+.ap-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.ap-badge-success {
+    background: #F0F9FF;
+    color: #000000;
+}
+
+.ap-badge-warning {
+    background: #FFF7ED;
+    color: #EA580C;
+}
+
+.ap-badge-danger {
+    background: #FEF2F2;
+    color: #DC2626;
+}
+
+/* Inputs modernos */
+.ap-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--ap-border);
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.ap-input:focus {
+    outline: none;
+    border-color: var(--ap-primary);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Progress bar moderna */
+.ap-progress {
+    background: #E8ECEF;
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.ap-progress-bar {
+    background: linear-gradient(90deg, var(--ap-primary), var(--ap-secondary));
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s;
+}
+
+/* Drag handle moderno */
+.drag-handle {
+    cursor: grab;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.15s;
+}
+
+.drag-handle:hover {
+    background: var(--ap-bg);
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+/* Tooltips */
+.ap-tooltip {
+    position: relative;
+}
+
+.ap-tooltip:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 12px;
+    background: #1F2937;
+    color: white;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    margin-bottom: 8px;
+    z-index: 1000;
+}
+
+/* Animaciones */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ap-animate {
+    animation: slideIn 0.3s ease;
+}
+
+/* ============================================
+   SISTEMA UNIFICADO DE BOTONES CON MEJOR CONTRASTE
+   ============================================ */
+
+/* Botones primarios (azul) */
+.ap-btn-primary,
+button.ap-btn-primary,
+a.ap-btn-primary {
+    background: #000000 !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 500 !important;
+}
+
+.ap-btn-primary:hover,
+button.ap-btn-primary:hover,
+a.ap-btn-primary:hover {
+    background: #000000 !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Botones warning/naranja */
+.ap-btn-warning,
+button.ap-btn-warning,
+a.ap-btn-warning {
+    background: #f97316 !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 500 !important;
+}
+
+.ap-btn-warning:hover,
+button.ap-btn-warning:hover,
+a.ap-btn-warning:hover {
+    background: #ea580c !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3) !important;
+}
+
+/* Botones success/verde */
+.ap-btn-success,
+button.ap-btn-success,
+a.ap-btn-success,
+.ap-btn-execute {
+    background: #10b981 !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 500 !important;
+}
+
+.ap-btn-success:hover,
+button.ap-btn-success:hover,
+a.ap-btn-success:hover,
+.ap-btn-execute:hover {
+    background: #059669 !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
+}
+
+/* Botones danger/rojo */
+.ap-btn-danger,
+button.ap-btn-danger,
+a.ap-btn-danger {
+    background: #ef4444 !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 500 !important;
+}
+
+.ap-btn-danger:hover,
+button.ap-btn-danger:hover,
+a.ap-btn-danger:hover {
+    background: #dc2626 !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+}
+
+/* Botones secondary/gris */
+.ap-btn-secondary,
+button.ap-btn-secondary {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0 !important;
+    font-weight: 500 !important;
+}
+
+.ap-btn-secondary:hover,
+button.ap-btn-secondary:hover {
+    background: #e2e8f0 !important;
+    color: #334155 !important;
+    border-color: #cbd5e1 !important;
+}
+
+/* Botones edit/editar */
+.ap-btn-edit,
+button.ap-btn-edit,
+a.ap-btn-edit {
+    background: white !important;
+    color: #374151 !important;
+    border: 1px solid #d1d5db !important;
+    font-weight: 500 !important;
+}
+
+.ap-btn-edit:hover,
+button.ap-btn-edit:hover,
+a.ap-btn-edit:hover {
+    background: #f9fafb !important;
+    color: #1f2937 !important;
+    border-color: #9ca3af !important;
+}
+
+/* Botones clone/clonar */
+.ap-btn-clone,
+button.ap-btn-clone {
+    background: #3d4a5c !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 500 !important;
+}
+
+.ap-btn-clone:hover,
+button.ap-btn-clone:hover {
+    background: #2d3a4c !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(45, 58, 76, 0.3) !important;
+}
+
+/* Botones delete redondos */
+.ap-btn-delete-round,
+button.ap-btn-delete-round {
+    background: white !important;
+    color: #ef4444 !important;
+    border: 1px solid #ef4444 !important;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.ap-btn-delete-round:hover,
+button.ap-btn-delete-round:hover {
+    background: #ef4444 !important;
+    color: white !important;
+    transform: scale(1.1);
+}
+
+/* Botones de guardar */
+.ap-btn-save,
+button[type="submit"].ap-btn-save {
+    background: #10b981 !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 24px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+}
+
+.ap-btn-save:hover,
+button[type="submit"].ap-btn-save:hover {
+    background: #059669 !important;
+    color: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4) !important;
+}
+
+/* Botones de WordPress estándar en headers */
+.ap-header-actions .button,
+.ap-campaigns-header .button {
+    background: white !important;
+    color: #3d4a5c !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+}
+
+.ap-header-actions .button:hover,
+.ap-campaigns-header .button:hover {
+    background: #f0f4f8 !important;
+    color: #2d3a4c !important;
+}
+
+/* Estados disabled - sin hover */
+.ap-btn-primary:disabled,
+.ap-btn-warning:disabled,
+.ap-btn-success:disabled,
+.ap-btn-danger:disabled,
+button:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+.ap-btn-primary:disabled:hover,
+.ap-btn-warning:disabled:hover,
+.ap-btn-success:disabled:hover,
+.ap-btn-danger:disabled:hover,
+button:disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* ============================================
+   UNIFICACIÓN DE ALTURA Y PADDING EN BOTONES
+   ============================================ */
+
+/* Altura estándar para botones de headers */
+.ap-campaigns-header .button,
+.ap-campaigns-header button,
+.ap-campaigns-header a.button,
+.ap-header-actions .button,
+.ap-header-actions button,
+.ap-header-actions a.button,
+#ap-cancel-process-btn {
+    height: 36px !important;
+    padding: 0 16px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+    line-height: 1 !important;
+    min-width: auto !important;
+    box-sizing: border-box !important;
+}
+
+/* Altura estándar para botones de acción en contenido */
+.ap-btn-primary,
+.ap-btn-warning,
+.ap-btn-success,
+.ap-btn-danger,
+.ap-btn-secondary,
+.ap-btn-edit,
+.ap-btn-clone,
+button.ap-btn-primary,
+button.ap-btn-warning,
+button.ap-btn-success,
+button.ap-btn-danger,
+button.ap-btn-secondary,
+button.ap-btn-edit,
+button.ap-btn-clone,
+a.ap-btn-primary,
+a.ap-btn-warning,
+a.ap-btn-success,
+a.ap-btn-danger,
+a.ap-btn-execute {
+    height: 40px !important;
+    padding: 0 20px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+    min-width: auto !important;
+    box-sizing: border-box !important;
+    gap: 6px !important;
+}
+
+/* Botones en cola (Publicar, Eliminar seleccionados, etc) */
+#execute-queue,
+#execute-queue-bottom,
+#bulk-delete,
+#start-generate-queue,
+button#execute-selected-btn {
+    height: 40px !important;
+    padding: 0 20px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+    gap: 6px !important;
+}
+
+/* SVG dentro de botones - ajuste de tamaño */
+.ap-btn-primary svg,
+.ap-btn-warning svg,
+.ap-btn-success svg,
+.ap-btn-danger svg,
+.ap-btn-secondary svg,
+.ap-btn-edit svg,
+.ap-btn-clone svg,
+button svg,
+a.button svg {
+    width: 16px !important;
+    height: 16px !important;
+    flex-shrink: 0 !important;
+}
+
+/* Botón cancelar proceso específico */
+#ap-cancel-process-btn {
+    background: #ef4444 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+}
+
+#ap-cancel-process-btn:hover {
+    background: #dc2626 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+}
+
+/* Grupos de botones - mismo espaciado */
+.ap-btn-group,
+.ap-header-actions {
+    display: flex !important;
+    gap: 12px !important;
+    align-items: center !important;
+}
+
+/* Botones en lista de campañas - REMOVIDO padding que rompía círculos */
+/* Los estilos específicos para .ap-action-btn están en list-ui.php */
+
+/* Fix para botones submit grandes */
+button[type="submit"].ap-btn-save,
+.ap-btn-save {
+    height: 48px !important;
+    padding: 0 28px !important;
+    font-size: 16px !important;
+}
+
+/* ============================================
+   BOTONES EN LISTA DE CAMPAÑAS
+   ============================================ */
+/* Los estilos ahora están en list-ui.php con botones circulares expandibles */
