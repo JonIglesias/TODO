@@ -14,29 +14,41 @@ WP_DIR="/home/bocetosm/public_html"
 
 # 1. Actualizar plugin BOT
 echo "1. Actualizando plugin BOT..."
-cd "$WP_DIR/wp-content/plugins/BOT"
-git fetch origin
-git checkout claude/analyze-plugins-api-01BAECWTX2MWjBq9vo9FcYi3
-git pull origin claude/analyze-plugins-api-01BAECWTX2MWjBq9vo9FcYi3
-echo "   ✓ BOT actualizado"
+if [ -d "$WP_DIR/wp-content/plugins/BOT/.git" ]; then
+    cd "$WP_DIR/wp-content/plugins/BOT"
+    git fetch origin
+    git checkout claude/analyze-plugins-api-01BAECWTX2MWjBq9vo9FcYi3
+    git pull origin claude/analyze-plugins-api-01BAECWTX2MWjBq9vo9FcYi3
+    echo "   ✓ BOT actualizado"
+else
+    echo "   ✗ BOT no es un repositorio Git (copiar archivos manualmente)"
+fi
 echo ""
 
 # 2. Actualizar plugin GEOWriter
 echo "2. Actualizando plugin GEOWriter..."
-cd "$WP_DIR/wp-content/plugins/GEOWriter"
-git fetch origin
-git checkout claude/analyze-plugins-api-01BAECWTX2MWjBq9vo9FcYi3
-git pull origin claude/analyze-plugins-api-01BAECWTX2MWjBq9vo9FcYi3
-echo "   ✓ GEOWriter actualizado"
+if [ -d "$WP_DIR/wp-content/plugins/GEOWriter/.git" ]; then
+    cd "$WP_DIR/wp-content/plugins/GEOWriter"
+    git fetch origin
+    git checkout claude/analyze-plugins-api-01BAECWTX2MWjBq9vo9FcYi3
+    git pull origin claude/analyze-plugins-api-01BAECWTX2MWjBq9vo9FcYi3
+    echo "   ✓ GEOWriter actualizado"
+else
+    echo "   ✗ GEOWriter no es un repositorio Git (copiar archivos manualmente)"
+fi
 echo ""
 
 # 3. Actualizar API
 echo "3. Actualizando api_claude_5..."
-cd "$WP_DIR/api_claude_5"
-git fetch origin
-git checkout claude/analyze-plugins-api-01BAECWTX2MWjBq9vo9FcYi3
-git pull origin claude/analyze-plugins-api-01BAECWTX2MWjBq9vo9FcYi3
-echo "   ✓ API actualizada"
+if [ -d "$WP_DIR/api_claude_5/.git" ]; then
+    cd "$WP_DIR/api_claude_5"
+    git fetch origin
+    git checkout claude/analyze-plugins-api-01BAECWTX2MWjBq9vo9FcYi3
+    git pull origin claude/analyze-plugins-api-01BAECWTX2MWjBq9vo9FcYi3
+    echo "   ✓ API actualizada"
+else
+    echo "   ✗ api_claude_5 no es un repositorio Git (copiar archivos manualmente)"
+fi
 echo ""
 
 # 4. Verificar archivos críticos
