@@ -515,14 +515,7 @@ function phsbot_kb_ajax_generate() {
     // Prompt consolidado
     $full_prompt = phsbot_kb_build_prompt($base_prompt, $extra_prompt, $corpus, $base_host, array_keys($extra_hosts_used) ?: array_map(function($s){return $s['host'];}, $extra_specs));
 
-    // OpenAI
-    $api_key = phsbot_kb_get_openai_key();
-    if (!$api_key) {
-        phsbot_kb_record_error('Falta la API key de OpenAI.', ['reason'=>'no_api_key']);
-        phsbot_kb_job_set_idle();
-        wp_send_json_error(['message' => 'Falta la API key de OpenAI en ajustes.'], 400);
-    }
-
+    // Selección de modelo (se envía a la API, no se usa localmente)
     if (!$selected_model) { list($selected_model, $_) = phsbot_kb_choose_model_with_fallback('gpt-4o-mini', $available); }
     list($model_to_use, $fallback_note) = phsbot_kb_choose_model_with_fallback($selected_model, $available);
 
@@ -533,7 +526,8 @@ function phsbot_kb_ajax_generate() {
     $usage      = null;
     $http_code  = null;
 
-    $response = phsbot_kb_openai_chat($api_key, $used_model, $full_prompt, 12000, 0.2);
+    // Llamar a API (ya no usa api_key local, se maneja en la API)
+    $response = phsbot_kb_openai_chat(null, $used_model, $full_prompt, 12000, 0.2);
     if (is_wp_error($response)) {
         $error_note = $response->get_error_message();
         $http_code  = null;
@@ -548,15 +542,17 @@ function phsbot_kb_ajax_generate() {
             $ok = true;
         } else {
             $error_note = $body['error']['message'] ?? ('HTTP ' . $http_code);
-            // Fallback en cascada
-            $alts = (stripos($used_model,'gpt-5')!==false)
-                ? ['gpt-4.1','gpt-4o','gpt-4o-mini']
-                : ['gpt-4o','gpt-4o-mini','gpt-4-turbo','gpt-4','gpt-3.5-turbo'];
+            // Fallback en cascada (intentar modelos alternativos)
+            $alts = (stripos($used_model,'o1')!==false)
+                ? ['o1','gpt-5','gpt-4.1','gpt-4o','o1-mini','gpt-4o-mini']
+                : ((stripos($used_model,'gpt-5')!==false)
+                    ? ['gpt-4.1','gpt-4o','gpt-4o-mini']
+                    : ['gpt-4o','gpt-4o-mini','gpt-4-turbo','gpt-4','gpt-3.5-turbo']);
             foreach ($alts as $alt) {
                 $match = null; foreach ($available as $av) { if (strcasecmp($av,$alt)===0 || stripos($av,$alt)!==false) { $match = $av; break; } }
                 if (!$match) continue;
                 $used_model = $match;
-                $r2 = phsbot_kb_openai_chat($api_key, $used_model, $full_prompt, 12000, 0.2);
+                $r2 = phsbot_kb_openai_chat(null, $used_model, $full_prompt, 12000, 0.2);
                 if (!is_wp_error($r2) && wp_remote_retrieve_response_code($r2) === 200) {
                     $b2 = json_decode(wp_remote_retrieve_body($r2), true);
                     $t2 = $b2['choices'][0]['message']['content'] ?? '';

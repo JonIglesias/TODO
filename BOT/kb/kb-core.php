@@ -136,7 +136,7 @@ function phsbot_kb_get_models($force_refresh = false) {
             }
         }
     }
-    $fallback = ['gpt-5','gpt-4.1','gpt-4o','gpt-4o-mini','gpt-4-turbo','gpt-4','gpt-3.5-turbo'];
+    $fallback = ['o1-pro', 'o1', 'o1-preview', 'gpt-5', 'gpt-4.1', 'gpt-4o', 'o1-mini', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo'];
     phsbot_kb_update_option_noautoload('phsbot_kb_models_cache', ['ts'=>$now,'list'=>$fallback]);
     return $fallback;
 }
@@ -144,9 +144,12 @@ function phsbot_kb_choose_model_with_fallback($selected, $available) {
     $available = array_values(array_unique($available));
     if (in_array($selected, $available, true)) return [$selected, null];
 
-    $b = (stripos($selected,'gpt-5')!==false)
-        ? [['gpt-5'],['gpt-4.1','gpt-4o'],['gpt-4o-mini','gpt-4-turbo','gpt-4'],['gpt-3.5-turbo']]
-        : [['gpt-4.1','gpt-4o'],['gpt-4o-mini','gpt-4-turbo','gpt-4'],['gpt-3.5-turbo']];
+    // Prioridades de fallback: o1 > gpt-5 > gpt-4
+    $b = (stripos($selected,'o1')!==false)
+        ? [['o1-pro','o1','o1-preview'],['gpt-5'],['gpt-4.1','gpt-4o'],['o1-mini','gpt-4o-mini','gpt-4-turbo','gpt-4'],['gpt-3.5-turbo']]
+        : ((stripos($selected,'gpt-5')!==false)
+            ? [['gpt-5'],['o1-pro','o1'],['gpt-4.1','gpt-4o'],['o1-mini','gpt-4o-mini','gpt-4-turbo','gpt-4'],['gpt-3.5-turbo']]
+            : [['gpt-4.1','gpt-4o'],['o1-mini','gpt-4o-mini','gpt-4-turbo','gpt-4'],['gpt-3.5-turbo']]);
 
     foreach ($b as $bucket) {
         foreach ($bucket as $cand) foreach ($available as $av) if (strcasecmp($cand,$av)===0)

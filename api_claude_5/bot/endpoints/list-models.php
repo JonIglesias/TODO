@@ -89,8 +89,8 @@ class BotListModelsEndpoint {
         foreach ($data['data'] as $model) {
             $id = $model['id'] ?? '';
 
-            // Solo GPT-4 y GPT-5
-            if (!preg_match('/^gpt-(4|5)/i', $id)) {
+            // Solo GPT-4, GPT-5 y O1 (modelos de razonamiento)
+            if (!preg_match('/^(gpt-(4|5)|o1)/i', $id)) {
                 continue;
             }
 
@@ -105,9 +105,9 @@ class BotListModelsEndpoint {
             ];
         }
 
-        // Ordenar por relevancia
+        // Ordenar por relevancia (o1 primero por ser más potente)
         usort($models, function($a, $b) {
-            $order = ['gpt-5', 'gpt-4.1', 'gpt-4o', 'gpt-4o-mini', 'gpt-4'];
+            $order = ['o1-pro', 'o1', 'o1-preview', 'gpt-5', 'gpt-4.1', 'gpt-4o', 'o1-mini', 'gpt-4o-mini', 'gpt-4'];
             $aPos = $bPos = 999;
 
             foreach ($order as $i => $prefix) {
@@ -126,7 +126,11 @@ class BotListModelsEndpoint {
      */
     private function getFallbackModels() {
         return [
+            ['id' => 'o1-pro', 'name' => 'o1-pro'],
+            ['id' => 'o1', 'name' => 'o1'],
+            ['id' => 'o1-preview', 'name' => 'o1-preview'],
             ['id' => 'gpt-4o', 'name' => 'gpt-4o'],
+            ['id' => 'o1-mini', 'name' => 'o1-mini'],
             ['id' => 'gpt-4o-mini', 'name' => 'gpt-4o-mini'],
             ['id' => 'gpt-4-turbo', 'name' => 'gpt-4-turbo'],
             ['id' => 'gpt-4', 'name' => 'gpt-4']
