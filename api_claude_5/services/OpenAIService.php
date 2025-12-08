@@ -99,12 +99,12 @@ class OpenAIService {
             $responseFormat = $params['response_format'] ?? 'text';
             $model = $params['model'] ?? $this->model;
 
-            // Detectar si es modelo O1 (API diferente)
-            $isO1Model = preg_match('/^o1(-pro|-preview)?$/i', $model);
+            // Detectar si es modelo que usa la nueva API de Responses (O1 y GPT-5)
+            $usesResponsesAPI = preg_match('/^(o1(-pro|-preview)?|gpt-5)/i', $model);
 
-            if ($isO1Model) {
-                // Modelos O1 usan endpoint /v1/responses con API diferente
-                return $this->generateWithO1($model, $systemPrompt, $prompt, $maxTokens, $params);
+            if ($usesResponsesAPI) {
+                // Modelos O1 y GPT-5 usan endpoint /v1/responses con API diferente
+                return $this->generateWithResponsesAPI($model, $systemPrompt, $prompt, $maxTokens, $params);
             }
 
             // Construir mensajes para modelos GPT estándar
@@ -201,11 +201,12 @@ class OpenAIService {
     }
 
     /**
-     * Generar contenido con modelos O1 (API diferente)
+     * Generar contenido con modelos que usan la nueva Responses API (O1, GPT-5)
      */
-    private function generateWithO1($model, $systemPrompt, $userPrompt, $maxTokens, $params) {
-        // Modelos O1:
+    private function generateWithResponsesAPI($model, $systemPrompt, $userPrompt, $maxTokens, $params) {
+        // Modelos O1 y GPT-5:
         // - Usan endpoint /v1/responses
+        // - Parámetro 'input' en lugar de 'messages'
         // - NO soportan system_prompt (hay que combinarlo con user prompt)
         // - NO soportan temperature (siempre es 1)
         // - Usan max_completion_tokens en lugar de max_tokens
@@ -213,38 +214,41 @@ class OpenAIService {
         // Combinar system prompt con user prompt
         $fullPrompt = $systemPrompt . "\n\n" . $userPrompt;
 
-        // Preparar payload para O1
+        // Preparar payload para Responses API
         $payload = [
             'model' => $model,
-            'messages' => [
-                [
-                    'role' => 'user',
-                    'content' => $fullPrompt
-                ]
-            ],
+            'input' => $fullPrompt,  // ⭐ CLAVE: 'input' no 'messages'
             'max_completion_tokens' => $maxTokens
-            // NO incluir temperature para O1
+            // NO incluir temperature para estos modelos
         ];
 
-        // Realizar petición al endpoint específico de O1
+        // Realizar petición al endpoint de Responses API
         $response = $this->makeRequest('https://api.openai.com/v1/responses', $payload);
 
         if (!$response['success']) {
             return $response;
         }
 
-        // Procesar respuesta (mismo formato que chat/completions)
+        // Procesar respuesta
         $data = $response['data'];
 
-        if (!isset($data['choices'][0]['message']['content'])) {
+        // La respuesta puede venir en diferentes formatos
+        $content = null;
+        if (isset($data['choices'][0]['message']['content'])) {
+            $content = $data['choices'][0]['message']['content'];
+        } elseif (isset($data['output'])) {
+            $content = $data['output'];
+        } elseif (isset($data['content'])) {
+            $content = $data['content'];
+        }
+
+        if (!$content) {
             return [
                 'success' => false,
-                'error' => 'Respuesta inválida de OpenAI (O1)',
+                'error' => 'Respuesta inválida de OpenAI (Responses API)',
                 'code' => 'INVALID_OPENAI_RESPONSE'
             ];
         }
-
-        $content = $data['choices'][0]['message']['content'];
 
         // Limpiar bloques de código markdown
         $content = preg_replace('/```html\s*/i', '', $content);
@@ -258,7 +262,7 @@ class OpenAIService {
             'content' => $content,
             'usage' => $data['usage'] ?? null,
             'model' => $data['model'] ?? $model,
-            'finish_reason' => $data['choices'][0]['finish_reason'] ?? null
+            'finish_reason' => $data['choices'][0]['finish_reason'] ?? $data['finish_reason'] ?? null
         ];
     }
     
