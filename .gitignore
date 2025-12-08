@@ -1,0 +1,252 @@
+# ============================================================================
+# .gitignore para proyecto TODO (GEOWriter + BOT + API Claude 5)
+# ============================================================================
+
+# ============================================================================
+# Sistema Operativo
+# ============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================================================
+# IDEs y Editores
+# ============================================================================
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# PHPStorm / JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+.sublime-packages/
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-v][a-z]
+[._]sw[a-p]
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# ============================================================================
+# WordPress
+# ============================================================================
+
+# WordPress core files
+wp-config-local.php
+wp-config-*.php
+!wp-config-sample.php
+
+# Ignore wp-content except plugins
+wp-content/*
+!wp-content/plugins/
+!wp-content/themes/
+
+# Ignore everything in plugins except our plugins
+wp-content/plugins/*
+!wp-content/plugins/GEOWriter/
+!wp-content/plugins/BOT/
+
+# ============================================================================
+# Logs y Debugging
+# ============================================================================
+
+# Logs
+*.log
+logs/
+*.log.*
+error_log
+debug.log
+
+# PHP error logs
+php_errors.log
+php-error.log
+
+# Node.js logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ============================================================================
+# Archivos Temporales
+# ============================================================================
+
+*.tmp
+*.temp
+*.cache
+*.bak
+*.backup
+*.old
+*_old
+*_backup
+*-backup
+*.orig
+
+# ============================================================================
+# Archivos de Desarrollo y Test
+# ============================================================================
+
+# Scripts de test
+test-*.php
+*-test.php
+*/test.php
+*/tests/*.php
+test/
+tests/
+
+# Scripts de debug
+debug-*.php
+*-debug.php
+*/debug.php
+
+# Scripts temporales
+dd
+tmp.php
+temp.php
+sandbox.php
+
+# ============================================================================
+# Datos Sensibles
+# ============================================================================
+
+# Credenciales y configuración
+.env
+.env.*
+!.env.example
+credentials.json
+secrets.json
+*-credentials.php
+*-secrets.php
+
+# Claves y certificados
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Base de datos
+*.sql
+*.sqlite
+*.db
+
+# Backups de BD
+backup/
+backups/
+*.sql.gz
+dump.sql
+
+# ============================================================================
+# Dependencias
+# ============================================================================
+
+# Node.js
+node_modules/
+npm-debug.log
+package-lock.json
+yarn.lock
+
+# Composer
+vendor/
+composer.lock
+
+# Bower
+bower_components/
+
+# ============================================================================
+# Build y Distribución
+# ============================================================================
+
+# Archivos compilados
+*.min.js
+*.min.css
+!vendor/**/*.min.js
+!vendor/**/*.min.css
+
+# Distribuciones
+dist/
+build/
+release/
+
+# ============================================================================
+# Uploads y Media
+# ============================================================================
+
+# WordPress uploads
+wp-content/uploads/
+uploads/
+media/
+
+# Excepto archivos de ejemplo
+!**/example.*
+!**/sample.*
+
+# ============================================================================
+# Cache
+# ============================================================================
+
+# Cache de plugins
+cache/
+*.cache
+tmp/
+
+# WP Cache
+wp-content/cache/
+wp-content/advanced-cache.php
+wp-content/wp-cache-config.php
+
+# Object cache
+object-cache.php
+
+# ============================================================================
+# Específico del Proyecto
+# ============================================================================
+
+# API logs (logs dinámicos, no commitear)
+api_claude_5/logs/*.log
+api_claude_5/logs/*.txt
+api_claude_5/logs/*.json
+!api_claude_5/logs/.gitkeep
+
+# Archivos de diagnóstico generados
+api_claude_5/diagnose-output.txt
+api_claude_5/sync-report.txt
+api_claude_5/error-report.txt
