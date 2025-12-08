@@ -58,9 +58,9 @@ class OpenAIService {
     
     /**
      * Generar contenido con OpenAI
-     * 
+     *
      * Función genérica que recibe un prompt ya construido y lo envía a OpenAI
-     * 
+     *
      * @param array $params Parámetros de la petición
      *   - prompt: string (requerido) - Prompt para la IA
      *   - system_prompt: string (opcional) - Prompt del sistema
@@ -68,7 +68,7 @@ class OpenAIService {
      *   - temperature: float (opcional) - Creatividad (0-1)
      *   - response_format: string (opcional) - 'text' o 'json'
      *   - context: string (opcional) - Contexto adicional
-     * 
+     *
      * @return array Respuesta con 'success', 'content', 'usage', etc.
      */
     public function generateContent($params) {
@@ -80,7 +80,7 @@ class OpenAIService {
                 'code' => 'OPENAI_API_KEY_MISSING'
             ];
         }
-        
+
         // Validar parámetros requeridos
         if (empty($params['prompt'])) {
             return [
@@ -89,7 +89,7 @@ class OpenAIService {
                 'code' => 'PROMPT_REQUIRED'
             ];
         }
-        
+
         try {
             // Preparar parámetros
             $prompt = $params['prompt'];
@@ -97,9 +97,17 @@ class OpenAIService {
             $maxTokens = $params['max_tokens'] ?? $this->maxTokens;
             $temperature = $params['temperature'] ?? $this->temperature;
             $responseFormat = $params['response_format'] ?? 'text';
-            $model = $params['model'] ?? $this->model;  // ⭐ Permitir override del modelo
-            
-            // Construir mensajes
+            $model = $params['model'] ?? $this->model;
+
+            // Detectar si es modelo O1 (API diferente)
+            $isO1Model = preg_match('/^o1(-pro|-preview)?$/i', $model);
+
+            if ($isO1Model) {
+                // Modelos O1 usan endpoint /v1/responses con API diferente
+                return $this->generateWithO1($model, $systemPrompt, $prompt, $maxTokens, $params);
+            }
+
+            // Construir mensajes para modelos GPT estándar
             $messages = [
                 [
                     'role' => 'system',
@@ -110,7 +118,7 @@ class OpenAIService {
                     'content' => $prompt
                 ]
             ];
-            
+
             // Si hay contexto adicional
             if (!empty($params['context'])) {
                 $messages[] = [
@@ -118,30 +126,30 @@ class OpenAIService {
                     'content' => 'Contexto adicional: ' . $params['context']
                 ];
             }
-            
+
             // Preparar payload
             $payload = [
-                'model' => $model,  // ⭐ Usar modelo del parámetro o default
+                'model' => $model,
                 'messages' => $messages,
                 'max_tokens' => $maxTokens,
                 'temperature' => $temperature
             ];
-            
+
             // Si se solicita JSON
             if ($responseFormat === 'json') {
                 $payload['response_format'] = ['type' => 'json_object'];
             }
-            
+
             // Realizar petición a OpenAI
             $response = $this->makeRequest('https://api.openai.com/v1/chat/completions', $payload);
-            
+
             if (!$response['success']) {
                 return $response;
             }
-            
+
             // Procesar respuesta
             $data = $response['data'];
-            
+
             if (!isset($data['choices'][0]['message']['content'])) {
                 return [
                     'success' => false,
@@ -149,17 +157,17 @@ class OpenAIService {
                     'code' => 'INVALID_OPENAI_RESPONSE'
                 ];
             }
-            
+
             $content = $data['choices'][0]['message']['content'];
-            
+
             // Limpiar bloques de código markdown si existen
             $content = preg_replace('/```html\s*/i', '', $content);
             $content = preg_replace('/```\s*$/i', '', $content);
             $content = preg_replace('/```/i', '', $content);
-            
+
             // Eliminar frases introductorias comunes de la IA
             $content = preg_replace('/^(Aquí está|He generado|A continuación|Este es)[^\n]*\n*/i', '', $content);
-            
+
             // Si se solicita JSON, decodificar
             if ($responseFormat === 'json') {
                 $content = json_decode($content, true);
@@ -171,10 +179,10 @@ class OpenAIService {
                     ];
                 }
             }
-            
+
             // Trim final
             $content = trim($content);
-            
+
             return [
                 'success' => true,
                 'content' => $content,
@@ -182,7 +190,7 @@ class OpenAIService {
                 'model' => $data['model'] ?? $this->model,
                 'finish_reason' => $data['choices'][0]['finish_reason'] ?? null
             ];
-            
+
         } catch (Exception $e) {
             return [
                 'success' => false,
@@ -190,6 +198,68 @@ class OpenAIService {
                 'code' => 'OPENAI_EXCEPTION'
             ];
         }
+    }
+
+    /**
+     * Generar contenido con modelos O1 (API diferente)
+     */
+    private function generateWithO1($model, $systemPrompt, $userPrompt, $maxTokens, $params) {
+        // Modelos O1:
+        // - Usan endpoint /v1/responses
+        // - NO soportan system_prompt (hay que combinarlo con user prompt)
+        // - NO soportan temperature (siempre es 1)
+        // - Usan max_completion_tokens en lugar de max_tokens
+
+        // Combinar system prompt con user prompt
+        $fullPrompt = $systemPrompt . "\n\n" . $userPrompt;
+
+        // Preparar payload para O1
+        $payload = [
+            'model' => $model,
+            'messages' => [
+                [
+                    'role' => 'user',
+                    'content' => $fullPrompt
+                ]
+            ],
+            'max_completion_tokens' => $maxTokens
+            // NO incluir temperature para O1
+        ];
+
+        // Realizar petición al endpoint específico de O1
+        $response = $this->makeRequest('https://api.openai.com/v1/responses', $payload);
+
+        if (!$response['success']) {
+            return $response;
+        }
+
+        // Procesar respuesta (mismo formato que chat/completions)
+        $data = $response['data'];
+
+        if (!isset($data['choices'][0]['message']['content'])) {
+            return [
+                'success' => false,
+                'error' => 'Respuesta inválida de OpenAI (O1)',
+                'code' => 'INVALID_OPENAI_RESPONSE'
+            ];
+        }
+
+        $content = $data['choices'][0]['message']['content'];
+
+        // Limpiar bloques de código markdown
+        $content = preg_replace('/```html\s*/i', '', $content);
+        $content = preg_replace('/```\s*$/i', '', $content);
+        $content = preg_replace('/```/i', '', $content);
+        $content = preg_replace('/^(Aquí está|He generado|A continuación|Este es)[^\n]*\n*/i', '', $content);
+        $content = trim($content);
+
+        return [
+            'success' => true,
+            'content' => $content,
+            'usage' => $data['usage'] ?? null,
+            'model' => $data['model'] ?? $model,
+            'finish_reason' => $data['choices'][0]['finish_reason'] ?? null
+        ];
     }
     
     /**
