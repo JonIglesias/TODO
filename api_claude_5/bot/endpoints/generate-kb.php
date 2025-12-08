@@ -21,6 +21,15 @@ class BotGenerateKBEndpoint {
     public function handle() {
         // Obtener parámetros
         $input = Response::getJsonInput();
+
+        // DEBUG TEMPORAL: Log de input recibido
+        error_log('[DEBUG KB] Input recibido: ' . json_encode(array_keys($input)));
+        error_log('[DEBUG KB] user_prompt presente: ' . (isset($input['user_prompt']) ? 'SI' : 'NO'));
+        error_log('[DEBUG KB] prompt presente: ' . (isset($input['prompt']) ? 'SI' : 'NO'));
+        if (isset($input['user_prompt'])) {
+            error_log('[DEBUG KB] user_prompt length: ' . strlen($input['user_prompt']));
+        }
+
         $licenseKey = $input['license_key'] ?? null;
         $domain = $input['domain'] ?? null;
         $model = $input['model'] ?? 'gpt-4o-mini';
@@ -31,6 +40,9 @@ class BotGenerateKBEndpoint {
 
         $maxTokens = $input['max_tokens'] ?? 8000;
         $temperature = $input['temperature'] ?? 0.2;
+
+        // DEBUG TEMPORAL: Log de lo que se va a pasar a OpenAIService
+        error_log('[DEBUG KB] userPrompt final: ' . ($userPrompt ? 'SI (len=' . strlen($userPrompt) . ')' : 'NO/VACIO'));
 
         if (!$licenseKey) {
             Response::error('license_key is required', 400);
@@ -102,6 +114,10 @@ class BotGenerateKBEndpoint {
         $openAI = new OpenAIService();
 
         try {
+            // DEBUG TEMPORAL: Log parámetros antes de llamar a OpenAIService
+            error_log('[DEBUG KB] Llamando a OpenAIService con prompt length: ' . strlen($userPrompt));
+            error_log('[DEBUG KB] Modelo: ' . $model);
+
             // Llamar a generateContent con array de parámetros (como espera OpenAIService)
             $result = $openAI->generateContent([
                 'prompt' => $userPrompt,
@@ -110,6 +126,12 @@ class BotGenerateKBEndpoint {
                 'temperature' => $temperature,
                 'model' => $model
             ]);
+
+            // DEBUG TEMPORAL: Log resultado de OpenAIService
+            error_log('[DEBUG KB] Resultado de OpenAIService success: ' . ($result['success'] ? 'SI' : 'NO'));
+            if (!$result['success']) {
+                error_log('[DEBUG KB] Error de OpenAIService: ' . ($result['error'] ?? 'sin mensaje'));
+            }
 
             if (!$result['success']) {
                 return [
