@@ -22,7 +22,11 @@ class BotGenerateKBEndpoint {
         $licenseKey = $input['license_key'] ?? null;
         $domain = $input['domain'] ?? null;
         $model = $input['model'] ?? 'gpt-4o-mini';
-        $prompt = $input['prompt'] ?? null;
+
+        // Soportar tanto 'prompt' como 'user_prompt'/'system_prompt' (para KB)
+        $userPrompt = $input['user_prompt'] ?? $input['prompt'] ?? null;
+        $systemPrompt = $input['system_prompt'] ?? 'Eres un analista de contenidos web senior y redactas en español en HTML semántico válido, sin Markdown ni fences.';
+
         $maxTokens = $input['max_tokens'] ?? 8000;
         $temperature = $input['temperature'] ?? 0.2;
 
@@ -34,8 +38,8 @@ class BotGenerateKBEndpoint {
             Response::error('domain is required', 400);
         }
 
-        if (!$prompt || trim($prompt) === '') {
-            Response::error('prompt is required', 400);
+        if (!$userPrompt || trim($userPrompt) === '') {
+            Response::error('user_prompt is required', 400);
         }
 
         // Validar licencia
@@ -61,7 +65,7 @@ class BotGenerateKBEndpoint {
         }
 
         // Generar contenido KB usando OpenAI
-        $result = $this->generateKBContent($model, $prompt, $maxTokens, $temperature);
+        $result = $this->generateKBContent($model, $systemPrompt, $userPrompt, $maxTokens, $temperature);
 
         if (!$result['success']) {
             Response::error($result['error'] ?? 'KB generation failed', 500);
@@ -91,7 +95,7 @@ class BotGenerateKBEndpoint {
     /**
      * Generar contenido KB usando OpenAI
      */
-    private function generateKBContent($model, $prompt, $maxTokens, $temperature) {
+    private function generateKBContent($model, $systemPrompt, $userPrompt, $maxTokens, $temperature) {
         $apiKey = defined('OPENAI_API_KEY') ? OPENAI_API_KEY : getenv('OPENAI_API_KEY');
 
         if (!$apiKey) {
@@ -108,11 +112,11 @@ class BotGenerateKBEndpoint {
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => 'Eres un analista de contenidos web senior y redactas en español en HTML semántico válido, sin Markdown ni fences.'
+                    'content' => $systemPrompt
                 ],
                 [
                     'role' => 'user',
-                    'content' => $prompt
+                    'content' => $userPrompt
                 ]
             ]
         ];

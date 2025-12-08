@@ -206,8 +206,8 @@ $router->get('bot/usage', function() {
     $endpoint->handle();
 });
 
-// List models - GET /bot/list-models
-$router->get('bot/list-models', function() {
+// List models - POST /bot/list-models (acepta POST desde KB)
+$router->post('bot/list-models', function() {
     require_once API_BASE_DIR . '/bot/endpoints/list-models.php';
     $endpoint = new BotListModelsEndpoint();
     $endpoint->handle();
