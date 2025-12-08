@@ -1,9 +1,12 @@
-# API Claude V4 - Apache Configuration
+# API Claude V5 - Apache Configuration (Portable)
 
 # Habilitar RewriteEngine
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /api_claude_5/
+    # RewriteBase se detecta automáticamente desde la ubicación del .htaccess
+
+    # Proteger directorios sensibles (migrations, logs, cron)
+    RewriteRule ^(migrations|logs|cron)(/.*)?$ - [F,L]
 
     # Redirigir todo a index.php excepto archivos/directorios reales
     RewriteCond %{REQUEST_FILENAME} !-f
@@ -16,9 +19,6 @@
     Order allow,deny
     Deny from all
 </FilesMatch>
-
-# Proteger directorios sensibles
-RedirectMatch 403 ^/api_claude_5/(migrations|logs|cron)/
 
 # Habilitar CORS si es necesario
 <IfModule mod_headers.c>

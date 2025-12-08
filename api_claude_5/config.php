@@ -187,8 +187,36 @@ define('API_VERSION', '5.5');
 // Directorio base
 define('API_BASE_DIR', __DIR__);
 
-// URL base (ajustar según tu instalación)
-define('API_BASE_URL', 'https://bocetosmarketing.com/api_claude_5/');
+// ============================================================================
+// AUTO-DETECCIÓN DE URL BASE
+// ============================================================================
+
+// Detectar protocolo (http o https)
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+            (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+            (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on') ||
+            (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)
+            ? 'https' : 'http';
+
+// Detectar host
+$host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
+
+// Detectar directorio de la API
+// SCRIPT_NAME es algo como: /api_claude_5/index.php o /subdirectorio/api/index.php
+$scriptName = $_SERVER['SCRIPT_NAME'] ?? '/index.php';
+$apiDir = dirname($scriptName);
+
+// Normalizar: asegurar que termina con / pero no empieza con //
+$apiDir = '/' . trim($apiDir, '/');
+if ($apiDir === '/') {
+    $apiDir = '';
+}
+
+// Construir URL base completa
+$apiBaseUrl = $protocol . '://' . $host . $apiDir . '/';
+
+// Definir constante
+define('API_BASE_URL', $apiBaseUrl);
 
 // ============================================================================
 // TIMEZONE
