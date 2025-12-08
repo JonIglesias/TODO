@@ -101,16 +101,15 @@ class BotGenerateKBEndpoint {
         // Usar OpenAIService (lee API key de BD, igual que GEOWriter)
         $openAI = new OpenAIService();
 
-        // Construir prompt completo combinando system y user
-        $fullPrompt = $systemPrompt . "\n\n" . $userPrompt;
-
         try {
-            $result = $openAI->generateContent(
-                $fullPrompt,
-                $maxTokens,
-                $temperature,
-                $model
-            );
+            // Llamar a generateContent con array de parámetros (como espera OpenAIService)
+            $result = $openAI->generateContent([
+                'prompt' => $userPrompt,
+                'system_prompt' => $systemPrompt,
+                'max_tokens' => $maxTokens,
+                'temperature' => $temperature,
+                'model' => $model
+            ]);
 
             if (!$result['success']) {
                 return [
