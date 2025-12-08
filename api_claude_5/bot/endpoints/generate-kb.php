@@ -13,6 +13,8 @@ defined('API_ACCESS') or die('Direct access not permitted');
 require_once API_BASE_DIR . '/core/Response.php';
 require_once API_BASE_DIR . '/bot/services/BotLicenseValidator.php';
 require_once API_BASE_DIR . '/bot/services/BotTokenManager.php';
+require_once API_BASE_DIR . '/services/OpenAIService.php';
+require_once API_BASE_DIR . '/core/Database.php';
 
 class BotGenerateKBEndpoint {
 
@@ -96,67 +98,41 @@ class BotGenerateKBEndpoint {
      * Generar contenido KB usando OpenAI
      */
     private function generateKBContent($model, $systemPrompt, $userPrompt, $maxTokens, $temperature) {
-        $apiKey = defined('OPENAI_API_KEY') ? OPENAI_API_KEY : getenv('OPENAI_API_KEY');
+        // Usar OpenAIService (lee API key de BD, igual que GEOWriter)
+        $openAI = new OpenAIService();
 
-        if (!$apiKey) {
+        // Construir prompt completo combinando system y user
+        $fullPrompt = $systemPrompt . "\n\n" . $userPrompt;
+
+        try {
+            $result = $openAI->generateContent(
+                $fullPrompt,
+                $maxTokens,
+                $temperature,
+                $model
+            );
+
+            if (!$result['success']) {
+                return [
+                    'success' => false,
+                    'error' => $result['error'] ?? 'OpenAI generation failed'
+                ];
+            }
+
             return [
-                'success' => false,
-                'error' => 'OpenAI API key not configured on server'
-            ];
-        }
-
-        $payload = [
-            'model' => $model,
-            'temperature' => $temperature,
-            'max_tokens' => $maxTokens,
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => $systemPrompt
-                ],
-                [
-                    'role' => 'user',
-                    'content' => $userPrompt
+                'success' => true,
+                'content' => $result['content'],
+                'usage' => [
+                    'prompt_tokens' => $result['usage']['prompt_tokens'] ?? 0,
+                    'completion_tokens' => $result['usage']['completion_tokens'] ?? 0,
+                    'total_tokens' => $result['usage']['total_tokens'] ?? 0
                 ]
-            ]
-        ];
-
-        $ch = curl_init('https://api.openai.com/v1/chat/completions');
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_HTTPHEADER => [
-                'Authorization: Bearer ' . $apiKey,
-                'Content-Type: application/json'
-            ],
-            CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_TIMEOUT => 120 // KB generation puede ser lento
-        ]);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode !== 200 || !$response) {
+            ];
+        } catch (Exception $e) {
             return [
                 'success' => false,
-                'error' => 'OpenAI API request failed (HTTP ' . $httpCode . ')'
+                'error' => 'Exception: ' . $e->getMessage()
             ];
         }
-
-        $data = json_decode($response, true);
-
-        if (!isset($data['choices'][0]['message']['content'])) {
-            return [
-                'success' => false,
-                'error' => 'Invalid response format from OpenAI'
-            ];
-        }
-
-        return [
-            'success' => true,
-            'content' => $data['choices'][0]['message']['content'],
-            'usage' => $data['usage'] ?? []
-        ];
     }
 }

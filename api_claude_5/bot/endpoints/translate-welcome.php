@@ -13,6 +13,7 @@ defined('API_ACCESS') or die('Direct access not permitted');
 require_once API_BASE_DIR . '/core/Response.php';
 require_once API_BASE_DIR . '/bot/services/BotLicenseValidator.php';
 require_once API_BASE_DIR . '/bot/services/BotTokenManager.php';
+require_once API_BASE_DIR . '/core/Database.php';
 
 class BotTranslateWelcomeEndpoint {
 
@@ -85,7 +86,18 @@ class BotTranslateWelcomeEndpoint {
      * Traducir texto usando OpenAI
      */
     private function translateText($text, $languages) {
-        $apiKey = defined('OPENAI_API_KEY') ? OPENAI_API_KEY : getenv('OPENAI_API_KEY');
+        // Leer API key desde base de datos (igual que OpenAIService)
+        $apiKey = '';
+        try {
+            $db = Database::getInstance();
+            $stmt = $db->prepare("SELECT setting_value FROM " . DB_PREFIX . "settings WHERE setting_key = 'openai_api_key' LIMIT 1");
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $apiKey = $result['setting_value'] ?? '';
+        } catch (Exception $e) {
+            // Si falla la BD, intentar config como fallback
+            $apiKey = defined('OPENAI_API_KEY') ? OPENAI_API_KEY : getenv('OPENAI_API_KEY');
+        }
 
         if (!$apiKey) {
             return [
