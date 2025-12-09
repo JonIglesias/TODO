@@ -148,8 +148,8 @@ function ap_step_save_campaign_initial($form_data) {
             'success' => true,
             'data' => [
                 'message' => 'Campaña creada',
-                'campaign_id' => $db_id,
-                'campaign_unique_id' => $campaign_unique_id,
+                'campaign_id' => $campaign_unique_id,  // ✅ Usar campaign_unique_id para API tracking
+                'campaign_db_id' => $db_id,  // ID de BD WordPress (solo para referencia interna)
                 'campaign_name' => $data['name'] // AÑADIR para pasar a API
             ]
         ];
@@ -432,18 +432,20 @@ function ap_step_update_campaign_final($form_data, $results) {
         error_log('[AUTOPILOT FINAL] Iniciando actualización final de campaña');
         error_log('[AUTOPILOT FINAL] Results recibidos: ' . print_r(array_keys($results), true));
 
-        // Obtener campaign_id del primer paso
-        $campaign_id = $results['save_campaign_initial']['campaign_id'] ?? null;
+        // Obtener IDs del primer paso
+        $campaign_id = $results['save_campaign_initial']['campaign_id'] ?? null;  // campaign_unique_id para API
+        $campaign_db_id = $results['save_campaign_initial']['campaign_db_id'] ?? null;  // ID numérico de BD
 
-        if (!$campaign_id) {
-            error_log('[AUTOPILOT FINAL] ERROR: No se encontró campaign_id en results');
+        if (!$campaign_id || !$campaign_db_id) {
+            error_log('[AUTOPILOT FINAL] ERROR: No se encontró campaign_id o campaign_db_id en results');
             return [
                 'success' => false,
                 'error' => 'No se encontró el ID de la campaña'
             ];
         }
 
-        error_log('[AUTOPILOT FINAL] Campaign ID: ' . $campaign_id);
+        error_log('[AUTOPILOT FINAL] Campaign ID (unique): ' . $campaign_id);
+        error_log('[AUTOPILOT FINAL] Campaign DB ID: ' . $campaign_db_id);
 
         // Preparar datos para actualizar
         $update_data = [
@@ -564,8 +566,8 @@ function ap_step_save_campaign_improved($form_data, $results) {
             'success' => true,
             'data' => [
                 'message' => 'Campaña guardada correctamente',
-                'campaign_id' => $db_id,  // ID numérico de la BD
-                'campaign_unique_id' => $campaign_unique_id  // ID único tipo string
+                'campaign_id' => $campaign_unique_id,  // ✅ Usar campaign_unique_id para API tracking
+                'campaign_db_id' => $db_id  // ID de BD WordPress (solo para referencia interna)
             ]
         ];
     } catch (Exception $e) {

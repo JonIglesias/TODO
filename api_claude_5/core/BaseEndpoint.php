@@ -105,10 +105,14 @@ abstract class BaseEndpoint {
             $campaignName = $this->params['campaign_name'] ?? null;
             $batchId = $this->params['batch_id'] ?? null;
 
+            // ⭐ CRÍTICO: Obtener modelo real usado desde el resultado
+            $model = $result['model'] ?? $this->params['model'] ?? 'gpt-4o-mini';
+
             Logger::info('Tracking usage', [
                 'endpoint' => get_class($this),
                 'operation' => $operationType,
                 'tokens' => $tokensUsed,
+                'model' => $model,
                 'campaign_id' => $campaignId,
                 'batch_id' => $batchId,
                 'license_id' => $this->license['id']
@@ -122,7 +126,8 @@ abstract class BaseEndpoint {
                 $usage['completion_tokens'] ?? 0,
                 $campaignId,
                 $campaignName,
-                $batchId
+                $batchId,
+                $model  // ⭐ Pasar modelo real
             );
 
             // Actualizar contador de licencia
