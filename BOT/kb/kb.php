@@ -533,14 +533,15 @@ function phsbot_kb_ajax_generate() {
     } else {
         $http_code = wp_remote_retrieve_response_code($response);
         $body = json_decode(wp_remote_retrieve_body($response), true);
-        $txt  = $body['choices'][0]['message']['content'] ?? '';
-        $usage= $body['usage'] ?? null;
+        // La API devuelve: {success: true, data: {content, usage, model}}
+        $txt  = $body['data']['content'] ?? '';
+        $usage= $body['data']['usage'] ?? null;
         if ($http_code === 200 && $txt) {
             $raw_html = phsbot_kb_strip_fences($txt);
             $raw_html = phsbot_kb_remove_external_links($raw_html, $base_host);
             $ok = true;
         } else {
-            $error_note = $body['error']['message'] ?? ('HTTP ' . $http_code);
+            $error_note = $body['data']['error'] ?? $body['error'] ?? ('HTTP ' . $http_code);
             // Fallback en cascada (intentar modelos alternativos)
             $alts = ['gpt-4o','gpt-4o-mini','gpt-4-turbo','gpt-4','gpt-3.5-turbo'];
             foreach ($alts as $alt) {
@@ -550,8 +551,8 @@ function phsbot_kb_ajax_generate() {
                 $r2 = phsbot_kb_openai_chat(null, $used_model, $full_prompt, 12000, 0.2);
                 if (!is_wp_error($r2) && wp_remote_retrieve_response_code($r2) === 200) {
                     $b2 = json_decode(wp_remote_retrieve_body($r2), true);
-                    $t2 = $b2['choices'][0]['message']['content'] ?? '';
-                    $usage= $b2['usage'] ?? $usage;
+                    $t2 = $b2['data']['content'] ?? '';
+                    $usage= $b2['data']['usage'] ?? $usage;
                     if ($t2) { $raw_html = phsbot_kb_strip_fences($t2); $raw_html = phsbot_kb_remove_external_links($raw_html, $base_host); $ok = true; $fallback_note = 'Se aplicó fallback automático.'; break; }
                 } else {
                     // Mantener el último código de error para diagnóstico
