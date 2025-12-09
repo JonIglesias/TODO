@@ -25,14 +25,19 @@ function ap_config_save_handler() {
     foreach ($fields as $field) {
         if (isset($_POST[$field])) {
             $post_value = $_POST[$field] ?? '';
-            
+
             if ($field === 'ap_company_desc') {
                 $value = sanitize_textarea_field($post_value);
             } else {
                 $value = sanitize_text_field($post_value);
             }
-            
-            update_option($field, $value);
+
+            // Guardar licencia con encriptación
+            if ($field === 'ap_license_key') {
+                AP_Encryption::update_encrypted_option($field, $value);
+            } else {
+                update_option($field, $value);
+            }
         }
     }
 
