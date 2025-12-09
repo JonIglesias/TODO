@@ -467,7 +467,7 @@ function ap_step_update_campaign_final($form_data, $results) {
         $updated = $wpdb->update(
             $table_name,
             $update_data,
-            ['id' => $campaign_id],
+            ['id' => $campaign_db_id],  // ✅ Usar ID numérico de BD
             ['%s', '%s', '%s', '%s', '%s', '%s'],
             ['%d']
         );
@@ -486,7 +486,8 @@ function ap_step_update_campaign_final($form_data, $results) {
             'success' => true,
             'data' => [
                 'message' => 'Campaña actualizada correctamente',
-                'campaign_id' => $campaign_id
+                'campaign_id' => $campaign_db_id,  // ✅ Devolver ID numérico para edición
+                'campaign_unique_id' => $campaign_id  // Mantener unique_id por si se necesita
             ]
         ];
     } catch (Exception $e) {
