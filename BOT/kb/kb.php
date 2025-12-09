@@ -214,7 +214,12 @@ function phsbot_kb_admin_page() {
                                         <?php
                                         $printed = [];
                                         foreach ($models as $m) {
-                                            $m = (string)$m;
+                                            // Manejar tanto arrays (['id' => ...]) como strings
+                                            if (is_array($m)) {
+                                                $m = $m['id'] ?? (string)$m;
+                                            } else {
+                                                $m = (string)$m;
+                                            }
                                             if (isset($printed[$m])) continue;
                                             $printed[$m] = true;
                                             printf('<option value="%1$s"%2$s>%1$s</option>', esc_attr($m), selected($sel_model, $m, false));
@@ -343,7 +348,19 @@ add_action('wp_ajax_phsbot_kb_refresh_models', function(){
     check_ajax_referer('phsbot_kb_nonce', 'nonce');
     $list = phsbot_kb_get_models(true);
     if (empty($list)) wp_send_json_error(['message' => 'No hay modelos disponibles. Revisa tu API key.'], 500);
-    wp_send_json_success(['models' => array_values(array_unique($list))]);
+
+    // Normalizar: convertir arrays a strings
+    $normalized = [];
+    foreach ($list as $item) {
+        if (is_array($item)) {
+            $normalized[] = $item['id'] ?? '';
+        } else {
+            $normalized[] = (string)$item;
+        }
+    }
+    $normalized = array_filter($normalized); // Eliminar vacíos
+
+    wp_send_json_success(['models' => array_values(array_unique($normalized))]);
 });
 
 add_action('wp_ajax_phsbot_kb_default_prompt_live', function(){
