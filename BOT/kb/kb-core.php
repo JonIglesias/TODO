@@ -130,7 +130,16 @@ function phsbot_kb_get_models($force_refresh = false) {
         if (!is_wp_error($res) && wp_remote_retrieve_response_code($res) === 200) {
             $body = json_decode(wp_remote_retrieve_body($res), true);
             if (isset($body['success']) && $body['success'] && !empty($body['data']['models'])) {
-                $list = $body['data']['models'];
+                // Convertir array de objetos a array de IDs (strings)
+                $models = $body['data']['models'];
+                $list = [];
+                foreach ($models as $model) {
+                    if (is_array($model) && isset($model['id'])) {
+                        $list[] = $model['id'];
+                    } elseif (is_string($model)) {
+                        $list[] = $model;
+                    }
+                }
                 phsbot_kb_update_option_noautoload('phsbot_kb_models_cache', ['ts'=>$now,'list'=>$list]);
                 return $list;
             }
