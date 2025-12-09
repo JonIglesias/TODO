@@ -43,6 +43,11 @@ try {
             'bot_ai_max_history' => intval($_POST['bot_ai_max_history'] ?? 10)
         ];
 
+        // Guardar configuración de IA para Knowledge Base (BOT KB)
+        $botKBSettings = [
+            'bot_kb_ai_model' => $_POST['bot_kb_ai_model'] ?? 'gpt-4o'
+        ];
+
         // Validaciones GeoWrite
         if ($geoSettings['geowrite_ai_temperature'] < 0) $geoSettings['geowrite_ai_temperature'] = 0;
         if ($geoSettings['geowrite_ai_temperature'] > 2) $geoSettings['geowrite_ai_temperature'] = 2;
@@ -58,7 +63,7 @@ try {
         if ($botSettings['bot_ai_max_history'] > 50) $botSettings['bot_ai_max_history'] = 50;
 
         // Guardar todos los settings de IA
-        $allAISettings = array_merge($geoSettings, $botSettings);
+        $allAISettings = array_merge($geoSettings, $botSettings, $botKBSettings);
         foreach ($allAISettings as $key => $value) {
             $type = is_numeric($value) ? (is_float($value) ? 'float' : 'integer') : 'string';
             $stmt = $db->prepare("INSERT INTO " . DB_PREFIX . "settings (setting_key, setting_value, setting_type)
@@ -105,7 +110,8 @@ try {
     $stmt = $db->prepare("SELECT setting_key, setting_value, setting_type FROM " . DB_PREFIX . "settings WHERE setting_key IN (
         'openai_api_key',
         'geowrite_ai_model', 'geowrite_ai_temperature', 'geowrite_ai_max_tokens', 'geowrite_ai_tone',
-        'bot_ai_model', 'bot_ai_temperature', 'bot_ai_max_tokens', 'bot_ai_tone', 'bot_ai_max_history'
+        'bot_ai_model', 'bot_ai_temperature', 'bot_ai_max_tokens', 'bot_ai_tone', 'bot_ai_max_history',
+        'bot_kb_ai_model'
     )");
     $stmt->execute();
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -132,6 +138,9 @@ try {
     $bot_ai_tone = isset($settings['bot_ai_tone']) ? $settings['bot_ai_tone'] : 'profesional';
     $bot_ai_max_history = isset($settings['bot_ai_max_history']) ? $settings['bot_ai_max_history'] : '10';
 
+    // BOT KB defaults
+    $bot_kb_ai_model = isset($settings['bot_kb_ai_model']) ? (string)$settings['bot_kb_ai_model'] : 'gpt-4o';
+
     // Obtener lista de modelos disponibles
     $stmt = $db->prepare("SELECT DISTINCT model_name FROM " . DB_PREFIX . "model_prices WHERE is_active = 1 ORDER BY model_name");
     $stmt->execute();
@@ -157,6 +166,7 @@ try {
     $bot_ai_max_tokens = '1000';
     $bot_ai_tone = 'profesional';
     $bot_ai_max_history = '10';
+    $bot_kb_ai_model = 'gpt-4o';
     $availableModels = ['gpt-4o', 'gpt-4o-mini', 'gpt-4.1', 'gpt-4.1-mini', 'gpt-5', 'gpt-5-mini'];
 }
 ?>
@@ -408,6 +418,32 @@ try {
             <label>Mensajes de Historial</label>
             <input type="number" name="bot_ai_max_history" value="<?= htmlspecialchars($bot_ai_max_history) ?>" min="1" max="50" required>
             <small>Número de mensajes previos a incluir en el contexto. Recomendado: 10</small>
+        </div>
+    </div>
+
+    <!-- AI Configuration for Knowledge Base (BOT KB) -->
+    <div class="settings-card">
+        <h3>📚 Configuración de IA - Knowledge Base (BOT KB)</h3>
+
+        <div class="info-box">
+            <strong>ℹ️ Información:</strong> Esta configuración es <strong>exclusiva para la generación de Knowledge Base</strong> del plugin BOT.<br>
+            La KB generation suele requerir modelos más potentes debido a la complejidad y longitud del contenido generado.
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Importante:</strong> Esta configuración afecta <strong>solo al endpoint generate-kb</strong>. El chatbot usa la configuración anterior.
+        </div>
+
+        <div class="form-group">
+            <label>Modelo de IA para Knowledge Base *</label>
+            <select name="bot_kb_ai_model" required style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%;">
+                <?php foreach ($availableModels as $model): ?>
+                    <option value="<?= htmlspecialchars($model) ?>" <?= $model === $bot_kb_ai_model ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($model) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <small>Recomendado: gpt-4o o superior. La KB generation puede consumir 8000+ tokens por operación.</small>
         </div>
     </div>
 
