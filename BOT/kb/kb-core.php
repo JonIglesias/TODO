@@ -226,14 +226,13 @@ function phsbot_kb_openai_chat($api_key, $model, $user_prompt, $max_tokens = 800
     // Llamar a API5 para generar contenido (la API usa su propia API key de OpenAI)
     $api_endpoint = trailingslashit($license['api_url']) . '?route=bot/generate-kb';
 
-    $system_prompt = 'Eres un analista de contenidos web senior y redactas en español en HTML semántico válido, sin Markdown ni fences.';
+    // La API maneja el system_prompt internamente
+    // El modelo es decidido por la API, no por el plugin
 
     $payload = [
         'license_key'   => $license['license_key'],
         'domain'        => $license['domain'],
-        'model'         => $model,
-        'system_prompt' => $system_prompt,
-        'user_prompt'   => $user_prompt,
+        'prompt'        => $user_prompt,  // ⭐ La API espera 'prompt', no 'user_prompt'
         'max_tokens'    => $max_tokens,
         'temperature'   => $temperature
     ];

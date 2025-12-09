@@ -209,26 +209,8 @@ function phsbot_kb_admin_page() {
                         <div class="phsbot-kb-section" data-acc="1">
                             <h2 class="title acc-head">1) Modelo de ChatGPT para KB</h2>
                             <div class="acc-body">
-                                <div class="phsbot-kb-model-row">
-                                    <select name="phsbot_kb_model" id="phsbot_kb_model">
-                                        <?php
-                                        $printed = [];
-                                        foreach ($models as $m) {
-                                            // Manejar tanto arrays (['id' => ...]) como strings
-                                            if (is_array($m)) {
-                                                $m = $m['id'] ?? (string)$m;
-                                            } else {
-                                                $m = (string)$m;
-                                            }
-                                            if (isset($printed[$m])) continue;
-                                            $printed[$m] = true;
-                                            printf('<option value="%1$s"%2$s>%1$s</option>', esc_attr($m), selected($sel_model, $m, false));
-                                        }
-                                        if ($sel_model && !isset($printed[$sel_model])) printf('<option value="%1$s" selected>%1$s</option>', esc_attr($sel_model));
-                                        ?>
-                                    </select>
-                                    <button type="button" class="button" id="phsbot-kb-refresh-models">Actualizar lista</button>
-                                </div>
+                                <p class="description"><strong>ℹ️ El modelo es controlado automáticamente por la API</strong> (actualmente: gpt-4o)</p>
+                                <p class="mini-note">El sistema selecciona el mejor modelo según disponibilidad y rendimiento.</p>
                             </div>
                         </div>
 
