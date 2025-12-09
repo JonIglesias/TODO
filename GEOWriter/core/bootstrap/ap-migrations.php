@@ -454,6 +454,22 @@ function ap_run_migrations() {
         // La columna ya existe, solo actualizar versión
         update_option('ap_db_version', '1.9');
     }
+
+    // Migración v2.0: Aumentar tamaño del campo publish_days de varchar(50) a varchar(100)
+    // Soluciona bug: "Lunes,Martes,Miércoles,Jueves,Viernes,Sábado,Domingo" = 51 caracteres
+    if (version_compare($current_version, '2.0', '<')) {
+        $campaigns_table = $wpdb->prefix . 'ap_campaigns';
+
+        // Verificar estructura actual de la columna
+        $column_info = $wpdb->get_row("SHOW COLUMNS FROM $campaigns_table WHERE Field = 'publish_days'");
+
+        if ($column_info && stripos($column_info->Type, 'varchar(50)') !== false) {
+            // Solo modificar si aún es varchar(50)
+            $wpdb->query("ALTER TABLE $campaigns_table MODIFY COLUMN publish_days VARCHAR(100)");
+        }
+
+        update_option('ap_db_version', '2.0');
+    }
 }
 
 // Ejecutar al activar plugin

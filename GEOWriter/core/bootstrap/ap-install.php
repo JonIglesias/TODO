@@ -22,7 +22,7 @@ function ap_create_tables() {
         prompt_content text,
         keywords_seo text,
         keywords_images text,
-        publish_days varchar(50),
+        publish_days varchar(100),
         start_date datetime,
         publish_time time,
         num_posts int(11) NOT NULL DEFAULT 0,
