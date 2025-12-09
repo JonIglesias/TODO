@@ -25,12 +25,21 @@ class UsageTracking {
     /**
      * Registrar uso - método estático V5
      */
-    public static function record($licenseId, $operationType, $tokensTotal, $tokensInput = 0, $tokensOutput = 0, $campaignId = null, $campaignName = null, $batchId = null) {
+    public static function record($licenseId, $operationType, $tokensTotal, $tokensInput = 0, $tokensOutput = 0, $campaignId = null, $campaignName = null, $batchId = null, $model = 'gpt-4o-mini') {
         $instance = new self();
-        
-        // batch_type = 'queue' SOLO si viene batch_id
-        $batchType = $batchId ? 'queue' : null;
-        
+
+        // Determinar batch_type según contexto:
+        // - 'queue' si hay batch_id (operaciones de cola)
+        // - 'content' si hay campaign_id sin batch_id (operaciones de contenido)
+        // - null si no hay campaign_id (operaciones individuales/setup)
+        if ($batchId) {
+            $batchType = 'queue';
+        } elseif ($campaignId) {
+            $batchType = 'content';
+        } else {
+            $batchType = null;
+        }
+
         return $instance->track([
             'license_id' => $licenseId,
             'operation_type' => $operationType,
@@ -40,7 +49,8 @@ class UsageTracking {
             'campaign_id' => $campaignId,
             'campaign_name' => $campaignName,
             'batch_id' => $batchId,
-            'batch_type' => $batchType
+            'batch_type' => $batchType,
+            'model' => $model  // ⭐ CRÍTICO: Guardar modelo real usado
         ]);
     }
     
