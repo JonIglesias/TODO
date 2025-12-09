@@ -49,7 +49,7 @@
                                     <input type="text"
                                            id="ap_license_key"
                                            name="ap_license_key"
-                                           value="<?php echo esc_attr(get_option('ap_license_key', '')); ?>"
+                                           value="<?php echo esc_attr(AP_Encryption::get_encrypted_option('ap_license_key', '')); ?>"
                                            class="ap-input-field"
                                            placeholder="Introduce tu licencia">
                                     <span id="license-status" style="display: block; margin-top: 8px; font-size: 13px;"></span>
