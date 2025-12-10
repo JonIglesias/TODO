@@ -168,6 +168,9 @@ secrets.json
 *.sqlite
 *.db
 
+# EXCEPCIONES: Permitir archivos SQL de migraciones
+!**/migrations/*.sql
+
 # Backups de BD
 backup/
 backups/

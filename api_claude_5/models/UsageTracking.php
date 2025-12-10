@@ -90,30 +90,30 @@ class UsageTracking {
         $data['created_at'] = date('Y-m-d H:i:s');
         $data['sync_status_at_time'] = $data['sync_status_at_time'] ?? 'fresh';
         
-        // ⭐ CALCULAR COSTOS
+        // ⭐ CALCULAR COSTOS (precios por MILLÓN de tokens)
         $model = $data['model'] ?? 'gpt-4o-mini';
         require_once API_BASE_DIR . '/services/ModelPricingService.php';
         $prices = ModelPricingService::getPrices($model);
-        
+
         // Si tenemos tokens separados, usar esos
-        if (isset($data['tokens_input']) && isset($data['tokens_output']) 
+        if (isset($data['tokens_input']) && isset($data['tokens_output'])
             && ($data['tokens_input'] > 0 || $data['tokens_output'] > 0)) {
-            
-            $data['cost_input'] = ($data['tokens_input'] / 1000) * $prices['input'];
-            $data['cost_output'] = ($data['tokens_output'] / 1000) * $prices['output'];
+
+            $data['cost_input'] = ($data['tokens_input'] / 1000000) * $prices['input'];
+            $data['cost_output'] = ($data['tokens_output'] / 1000000) * $prices['output'];
             $data['cost_total'] = $data['cost_input'] + $data['cost_output'];
-            
-        } 
+
+        }
         // Si solo tenemos tokens_total, calcular 50/50
         elseif (isset($data['tokens_total']) && $data['tokens_total'] > 0) {
-            
+
             $tokensInput = floor($data['tokens_total'] / 2);
             $tokensOutput = ceil($data['tokens_total'] / 2);
-            
+
             $data['tokens_input'] = $tokensInput;
             $data['tokens_output'] = $tokensOutput;
-            $data['cost_input'] = ($tokensInput / 1000) * $prices['input'];
-            $data['cost_output'] = ($tokensOutput / 1000) * $prices['output'];
+            $data['cost_input'] = ($tokensInput / 1000000) * $prices['input'];
+            $data['cost_output'] = ($tokensOutput / 1000000) * $prices['output'];
             $data['cost_total'] = $data['cost_input'] + $data['cost_output'];
         }
         
