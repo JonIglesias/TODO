@@ -689,8 +689,14 @@ jQuery(document).ready(function($) {
 
                         // Guardar campaign_id cuando se crea la campaña
                         if (step.action === 'save_campaign' || step.action === 'save_campaign_initial') {
-                            formData.campaign_id = response.data.campaign_id;
-                            savedData.campaign_id = response.data.campaign_id;
+                            // ✅ Usar campaign_db_id (INT) para edición, no campaign_unique_id (STRING)
+                            formData.campaign_id = response.data.campaign_db_id || response.data.campaign_id;
+                            savedData.campaign_id = response.data.campaign_db_id || response.data.campaign_id;
+                        }
+
+                        // Actualizar campaign_id cuando se completa el guardado final
+                        if (step.action === 'update_campaign_final' && response.data.campaign_id) {
+                            savedData.campaign_id = response.data.campaign_id;  // Ya es el ID numérico
                         }
 
                         accumulatedProgress += step.weight;
