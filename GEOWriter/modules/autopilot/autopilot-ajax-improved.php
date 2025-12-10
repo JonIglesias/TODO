@@ -112,12 +112,8 @@ function ap_step_save_campaign_initial($form_data) {
             ];
         }
 
-        // Generar campaign_id único
-        $campaign_unique_id = 'campaign_' . time() . '_' . substr(md5(uniqid(rand(), true)), 0, 8);
-
-        // Datos mínimos para crear la campaña
+        // ✅ Datos mínimos para crear la campaña (sin campaign_id innecesario)
         $data = [
-            'campaign_id' => $campaign_unique_id,
             'name' => $campaign_name,
             'domain' => sanitize_text_field($form_data['domain']),
             'niche' => sanitize_text_field($form_data['niche']),
@@ -131,26 +127,25 @@ function ap_step_save_campaign_initial($form_data) {
             'queue_generated' => 0,
             'created_at' => current_time('mysql')
         ];
-        
+
         $inserted = $wpdb->insert($table_name, $data);
-        
+
         if ($inserted === false) {
             return [
                 'success' => false,
                 'error' => 'Error al crear la campaña: ' . $wpdb->last_error
             ];
         }
-        
-        $db_id = $wpdb->insert_id;
-        
-        
+
+        // ✅ Usar SOLO el ID auto-incremental de WordPress
+        $campaign_id = $wpdb->insert_id;
+
         return [
             'success' => true,
             'data' => [
                 'message' => 'Campaña creada',
-                'campaign_id' => $campaign_unique_id,  // ✅ Usar campaign_unique_id para API tracking
-                'campaign_db_id' => $db_id,  // ID de BD WordPress (solo para referencia interna)
-                'campaign_name' => $data['name'] // AÑADIR para pasar a API
+                'campaign_id' => $campaign_id,  // ✅ ID numérico para TODO
+                'campaign_name' => $data['name']
             ]
         ];
     } catch (Exception $e) {
@@ -432,20 +427,18 @@ function ap_step_update_campaign_final($form_data, $results) {
         error_log('[AUTOPILOT FINAL] Iniciando actualización final de campaña');
         error_log('[AUTOPILOT FINAL] Results recibidos: ' . print_r(array_keys($results), true));
 
-        // Obtener IDs del primer paso
-        $campaign_id = $results['save_campaign_initial']['campaign_id'] ?? null;  // campaign_unique_id para API
-        $campaign_db_id = $results['save_campaign_initial']['campaign_db_id'] ?? null;  // ID numérico de BD
+        // ✅ Obtener ID numérico del primer paso (ya es el ID de WordPress)
+        $campaign_id = $results['save_campaign_initial']['campaign_id'] ?? null;
 
-        if (!$campaign_id || !$campaign_db_id) {
-            error_log('[AUTOPILOT FINAL] ERROR: No se encontró campaign_id o campaign_db_id en results');
+        if (!$campaign_id) {
+            error_log('[AUTOPILOT FINAL] ERROR: No se encontró campaign_id en results');
             return [
                 'success' => false,
                 'error' => 'No se encontró el ID de la campaña'
             ];
         }
 
-        error_log('[AUTOPILOT FINAL] Campaign ID (unique): ' . $campaign_id);
-        error_log('[AUTOPILOT FINAL] Campaign DB ID: ' . $campaign_db_id);
+        error_log('[AUTOPILOT FINAL] Campaign ID: ' . $campaign_id);
 
         // Preparar datos para actualizar
         $update_data = [
@@ -467,7 +460,7 @@ function ap_step_update_campaign_final($form_data, $results) {
         $updated = $wpdb->update(
             $table_name,
             $update_data,
-            ['id' => $campaign_db_id],  // ✅ Usar ID numérico de BD
+            ['id' => $campaign_id],  // ✅ Usar ID numérico de WordPress
             ['%s', '%s', '%s', '%s', '%s', '%s'],
             ['%d']
         );
@@ -486,8 +479,7 @@ function ap_step_update_campaign_final($form_data, $results) {
             'success' => true,
             'data' => [
                 'message' => 'Campaña actualizada correctamente',
-                'campaign_id' => $campaign_db_id,  // ✅ Devolver ID numérico para edición
-                'campaign_unique_id' => $campaign_id  // Mantener unique_id por si se necesita
+                'campaign_id' => $campaign_id  // ✅ ID numérico para redirección
             ]
         ];
     } catch (Exception $e) {
@@ -780,12 +772,8 @@ function ap_autopilot_create_campaign_handler() {
             return;
         }
 
-        // Generar campaign_id único
-        $campaign_unique_id = 'campaign_' . time() . '_' . substr(md5(uniqid(rand(), true)), 0, 8);
-
-        // Crear campaña con datos mínimos
+        // ✅ Crear campaña con datos mínimos (sin campaign_unique_id)
         $data = [
-            'campaign_id' => $campaign_unique_id,
             'name' => $name,
             'domain' => $domain,
             'niche' => $niche,
@@ -802,11 +790,11 @@ function ap_autopilot_create_campaign_handler() {
             return;
         }
 
-        $db_id = $wpdb->insert_id;
+        // ✅ Devolver solo el ID numérico de WordPress
+        $campaign_id = $wpdb->insert_id;
 
         wp_send_json_success([
-            'campaign_id' => $db_id,
-            'campaign_unique_id' => $campaign_unique_id
+            'campaign_id' => $campaign_id
         ]);
 
     } catch (Exception $e) {

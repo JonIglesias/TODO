@@ -687,7 +687,7 @@ jQuery(document).ready(function($) {
                         results[step.action] = response.data;
                         savedData[step.action] = response.data;
 
-                        // Guardar campaign_id cuando se crea la campaña
+                        // ✅ Guardar campaign_id cuando se crea la campaña (ya es ID numérico)
                         if (step.action === 'save_campaign' || step.action === 'save_campaign_initial') {
                             formData.campaign_id = response.data.campaign_id;
                             savedData.campaign_id = response.data.campaign_id;
