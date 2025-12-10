@@ -75,17 +75,22 @@
         
         renderSummary: function() {
             const summary = this.data.summary;
-            
-            // Tokens
-            $('#ap-tokens-used').text(this.formatNumber(summary.total_tokens));
-            $('#ap-tokens-limit').text(this.formatNumber(summary.tokens_limit));
-            $('#ap-tokens-available').text(this.formatNumber(summary.tokens_available));
-            
+
+            // Convertir tokens a créditos (1 crédito = 10,000 tokens)
+            const creditsUsed = Math.floor(summary.total_tokens / 10000);
+            const creditsLimit = Math.floor(summary.tokens_limit / 10000);
+            const creditsAvailable = Math.floor(summary.tokens_available / 10000);
+
+            // Créditos
+            $('#ap-tokens-used').text(this.formatNumber(creditsUsed));
+            $('#ap-tokens-limit').text(this.formatNumber(creditsLimit));
+            $('#ap-tokens-available').text(this.formatNumber(creditsAvailable));
+
             // Porcentaje
             const percentage = Math.min(100, summary.usage_percentage);
             $('#ap-usage-percentage').text(percentage.toFixed(1) + '%');
             $('#ap-progress-fill').css('width', percentage + '%');
-            
+
             // Color del progress según uso
             const progressFill = $('#ap-progress-fill');
             if (percentage >= 90) {
@@ -95,7 +100,7 @@
             } else {
                 progressFill.css('background', 'white');
             }
-            
+
             // Operaciones
             $('#ap-total-operations').text(this.formatNumber(summary.total_operations));
         },
@@ -103,40 +108,46 @@
         renderChart: function() {
             const timeline = this.data.daily_timeline;
             const chartContainer = $('#ap-daily-chart');
-            
+
             if (!timeline || timeline.length === 0) {
                 chartContainer.html('<p style="text-align: center; color: #64748b; padding: 40px;">No hay datos disponibles</p>');
                 return;
             }
-            
+
+            // Convertir tokens a créditos
+            const creditsTimeline = timeline.map(function(d) {
+                return Math.floor(d.tokens / 10000);
+            });
+
             // Encontrar máximo para escalar
-            const maxTokens = Math.max.apply(null, timeline.map(function(d) { return d.tokens; })) || 1;
-            
+            const maxCredits = Math.max.apply(null, creditsTimeline) || 1;
+
             // Crear barras
             const self = this;
-            const bars = timeline.map(function(day) {
-                const heightPercent = (day.tokens / maxTokens) * 100;
-                
+            const bars = timeline.map(function(day, index) {
+                const dayCredits = creditsTimeline[index];
+                const heightPercent = (dayCredits / maxCredits) * 100;
+
                 return '<div class="ap-chart-bar">' +
                     '<div class="ap-chart-bar-fill" style="height: ' + heightPercent + '%">' +
-                        '<span class="ap-chart-bar-value">' + self.formatNumber(day.tokens) + '</span>' +
+                        '<span class="ap-chart-bar-value">' + self.formatNumber(dayCredits) + '</span>' +
                     '</div>' +
                     '<span class="ap-chart-bar-label">' + day.date_formatted + '</span>' +
                 '</div>';
             }).join('');
-            
+
             chartContainer.html('<div class="ap-chart-bars">' + bars + '</div>');
         },
         
         renderCampaigns: function() {
             const campaigns = this.data.campaigns;
             const container = $('#ap-campaigns-list');
-            
+
             if (!campaigns || campaigns.length === 0) {
                 container.html('<p style="text-align: center; color: #64748b; padding: 20px;">No hay campañas con actividad en este período</p>');
                 return;
             }
-            
+
             const self = this;
             const html = campaigns.map(function(campaign, index) {
                 let queuesHtml = '';
@@ -144,10 +155,11 @@
                     queuesHtml = '<div class="ap-campaign-section">' +
                         '<h4>📦 Colas Generadas (' + campaign.queues.length + ')</h4>' +
                         campaign.queues.map(function(queue) {
+                            const queueCredits = Math.floor(queue.tokens / 10000);
                             return '<div class="ap-queue-item">' +
                                 '<div class="ap-queue-header">' +
                                     '<span class="ap-queue-title">Cola ' + queue.number + ' - ' + queue.date + '</span>' +
-                                    '<span class="ap-queue-tokens">' + self.formatNumber(queue.tokens) + ' tokens</span>' +
+                                    '<span class="ap-queue-tokens">' + self.formatNumber(queueCredits) + ' créditos</span>' +
                                 '</div>' +
                                 '<div class="ap-queue-items">' +
                                     queue.items.map(function(item) {
@@ -158,7 +170,7 @@
                         }).join('') +
                     '</div>';
                 }
-                
+
                 let operationsHtml = '';
                 if (campaign.operations.length > 0) {
                     operationsHtml = '<div class="ap-campaign-section">' +
@@ -173,13 +185,15 @@
                         '</div>' +
                     '</div>';
                 }
-                
+
+                const campaignCredits = Math.floor(campaign.total_tokens / 10000);
+
                 return '<div class="ap-campaign-item" onclick="apStats.toggleCampaign(' + index + ')">' +
                     '<div class="ap-campaign-header">' +
                         '<p class="ap-campaign-name">🎯 ' + campaign.name + '</p>' +
                         '<div class="ap-campaign-stats">' +
                             '<span>' + campaign.total_operations + ' consultas</span>' +
-                            '<span>' + self.formatNumber(campaign.total_tokens) + ' tokens</span>' +
+                            '<span>' + self.formatNumber(campaignCredits) + ' créditos</span>' +
                         '</div>' +
                     '</div>' +
                     '<div class="ap-campaign-details" id="ap-campaign-' + index + '">' +
@@ -188,7 +202,7 @@
                     '</div>' +
                 '</div>';
             }).join('');
-            
+
             container.html(html);
         },
         

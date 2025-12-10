@@ -205,7 +205,7 @@ jQuery(document).ready(function($) {
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
                     <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">Límite mensual</span>
-                    <span style="color: #ffffff; font-weight: 600; font-size: 16px;">${formatNumber(summary.tokens_limit)}</span>
+                    <span style="color: #ffffff; font-weight: 600; font-size: 16px;">${formatNumber(Math.floor(summary.tokens_limit / 10000))} créditos</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
                     <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">Renovación</span>

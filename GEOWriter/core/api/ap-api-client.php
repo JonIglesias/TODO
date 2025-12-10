@@ -196,17 +196,21 @@ class AP_API_Client {
                     }
                 }
 
+                // Convertir tokens a créditos (1 crédito = 10,000 tokens)
+                $credits_used_raw = $tokens_used_raw !== null ? floor($tokens_used_raw / 10000) : null;
+                $credits_limit_raw = $tokens_limit_raw !== null ? floor($tokens_limit_raw / 10000) : null;
+
                 // Formatear para mostrar
-                $tokens_used = $tokens_used_raw !== null ? number_format($tokens_used_raw, 0, ',', '.') : 'N/A';
-                $tokens_limit = $tokens_limit_raw !== null ? number_format($tokens_limit_raw, 0, ',', '.') : 'N/A';
+                $credits_used = $credits_used_raw !== null ? number_format($credits_used_raw, 0, ',', '.') : 'N/A';
+                $credits_limit = $credits_limit_raw !== null ? number_format($credits_limit_raw, 0, ',', '.') : 'N/A';
 
                 // Crear mensaje personalizado en español (sin emojis)
-                $custom_msg = "LÍMITE DE TOKENS AGOTADO\n\n";
-                $custom_msg .= "Uso actual: {$tokens_used} / {$tokens_limit} tokens\n";
+                $custom_msg = "LÍMITE DE CRÉDITOS AGOTADO\n\n";
+                $custom_msg .= "Uso actual: {$credits_used} / {$credits_limit} créditos\n";
                 $custom_msg .= "Fecha de renovación: {$renewal_date}\n\n";
                 $custom_msg .= "Opciones disponibles:\n";
                 $custom_msg .= "- Esperar hasta la fecha de renovación\n";
-                $custom_msg .= "- Actualizar tu plan para obtener más tokens\n";
+                $custom_msg .= "- Actualizar tu plan para obtener más créditos\n";
                 $custom_msg .= "- Contactar con soporte para asistencia";
 
                 return [

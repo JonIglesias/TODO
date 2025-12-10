@@ -52,12 +52,12 @@
                     <!-- Texto azul (visible donde NO hay líquido) -->
                     <div id="tokens-available-blue">
                         <div class="tokens-number" id="tokens-number-blue">0</div>
-                        <div class="tokens-label">tokens disponibles</div>
+                        <div class="tokens-label">créditos disponibles</div>
                     </div>
                     <!-- Texto blanco (visible donde SÍ hay líquido) -->
                     <div id="tokens-available-white">
                         <div class="tokens-number" id="tokens-number-white">0</div>
-                        <div class="tokens-label">tokens disponibles</div>
+                        <div class="tokens-label">créditos disponibles</div>
                     </div>
                 </div>
             </div>
@@ -139,6 +139,9 @@ jQuery(document).ready(function($) {
         
         const renewalText = plan.renewal_date || 'No disponible';
         
+        // Convertir tokens a créditos (1 crédito = 10,000 tokens)
+        const credits_limit = Math.floor(summary.tokens_limit / 10000);
+
         let html = `
             <div class="ap-plan-row">
                 <span class="ap-plan-label">Plan</span>
@@ -146,7 +149,7 @@ jQuery(document).ready(function($) {
             </div>
             <div class="ap-plan-row">
                 <span class="ap-plan-label">Límite mensual</span>
-                <span class="ap-plan-value ap-number">${formatNumber(summary.tokens_limit)}</span>
+                <span class="ap-plan-value ap-number">${formatNumber(credits_limit)} créditos</span>
             </div>
             <div class="ap-plan-row">
                 <span class="ap-plan-label">Renovación</span>
@@ -168,15 +171,18 @@ jQuery(document).ready(function($) {
         const available = summary.tokens_available;
         const total = summary.tokens_limit;
         const percentage = summary.usage_percentage || 0;
-        
-        // Porcentaje de tokens DISPONIBLES (lo que queda)
+
+        // Porcentaje de créditos DISPONIBLES (lo que queda)
         const availablePercentage = 100 - percentage;
-        
+
+        // Convertir tokens a créditos (1 crédito = 10,000 tokens)
+        const creditsAvailable = Math.floor(available / 10000);
+
         // Mostrar número en AMBAS capas
-        const formattedNumber = formatNumber(available);
+        const formattedNumber = formatNumber(creditsAvailable);
         $('#tokens-number-blue').text(formattedNumber);
         $('#tokens-number-white').text(formattedNumber);
-        
+
         // Animar líquido
         animateLiquid(availablePercentage);
     }
@@ -313,7 +319,8 @@ jQuery(document).ready(function($) {
         }
 
         const labels = timeline.map(d => d.date_formatted);
-        const tokensData = timeline.map(d => d.tokens);
+        // Convertir tokens a créditos (1 crédito = 10,000 tokens)
+        const creditsData = timeline.map(d => Math.floor(d.tokens / 10000));
         const posts = postsData || timeline.map(() => 0);
 
         timelineChart = new Chart(ctx, {
@@ -332,14 +339,14 @@ jQuery(document).ready(function($) {
                         yAxisID: 'y-posts'
                     },
                     {
-                        label: 'Tokens utilizados',
-                        data: tokensData,
+                        label: 'Créditos utilizados',
+                        data: creditsData,
                         borderColor: '#000000',
                         backgroundColor: 'rgba(0, 0, 0, 0.1)',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.4,
-                        yAxisID: 'y-tokens'
+                        yAxisID: 'y-credits'
                     }
                 ]
             },
@@ -371,13 +378,13 @@ jQuery(document).ready(function($) {
                         },
                         beginAtZero: true
                     },
-                    'y-tokens': {
+                    'y-credits': {
                         type: 'linear',
                         display: true,
                         position: 'right',
                         title: {
                             display: true,
-                            text: 'Tokens'
+                            text: 'Créditos'
                         },
                         beginAtZero: true,
                         grid: {
@@ -404,24 +411,24 @@ jQuery(document).ready(function($) {
         html += '<th></th>'; // Columna para el icono
         html += '<th>Operación</th>';
         html += '<th class="ap-text-right">Posts Publicados</th>';
-        html += '<th class="ap-text-right">Tokens</th>';
+        html += '<th class="ap-text-right">Créditos</th>';
         html += '<th></th>'; // Columna para "Ver detalle"
         html += '</tr></thead><tbody>';
-        
+
         campaigns.forEach((campaign, index) => {
             const hasQueues = campaign.queues && campaign.queues.length > 0;
             const hasOperations = campaign.operations && campaign.operations.length > 0;
             const hasDetails = hasQueues || hasOperations;
-            
+
             html += '<tr>';
-            
+
             // Columna 1: Icono desplegable
             html += '<td class="ap-toggle-cell">';
             if (hasDetails) {
                 html += '<span class="ap-toggle-icon" data-campaign-index="' + index + '">▶</span>';
             }
             html += '</td>';
-            
+
             // Columna 2: Pastilla azul con nombre de campaña (clicable)
             html += '<td>';
             html += '<div class="ap-op-campaign">';
@@ -430,39 +437,42 @@ jQuery(document).ready(function($) {
             html += '</span>';
             html += '</div>';
             html += '</td>';
-            
+
             // Columna 3: Cantidad
             html += '<td class="ap-text-right ap-number">' + formatNumber(campaign.total_operations) + '</td>';
-            
-            // Columna 4: Tokens
-            html += '<td class="ap-text-right ap-number">' + formatNumber(campaign.total_tokens) + '</td>';
-            
+
+            // Columna 4: Créditos (convertir de tokens)
+            const campaignCredits = Math.floor(campaign.total_tokens / 10000);
+            html += '<td class="ap-text-right ap-number">' + formatNumber(campaignCredits) + '</td>';
+
             // Columna 5: Ver detalle (solo texto)
             html += '<td class="ap-text-right">';
             if (hasDetails) {
                 html += '<span class="ap-op-toggle" data-campaign-index="' + index + '">Ver detalle</span>';
             }
             html += '</td>';
-            
+
             html += '</tr>';
-            
+
             // Fila de detalles (oculta por defecto)
             if (hasDetails) {
                 html += '<tr class="ap-op-details-row" data-campaign-index="' + index + '" style="display: none;">';
                 html += '<td colspan="5" class="ap-op-details">';
-                
+
                 // Mostrar colas si existen
                 if (hasQueues) {
                     html += '<div style="margin-bottom: 16px;"><strong>Colas generadas (' + campaign.queues.length + '):</strong></div>';
                     campaign.queues.forEach((queue, qidx) => {
+                        const queueCredits = Math.floor(queue.tokens / 10000);
                         html += '<div class="ap-queue-item">';
-                        html += '<div class="ap-queue-header">Cola ' + (qidx + 1) + ' - ' + queue.date + ' (' + formatNumber(queue.tokens) + ' tokens)</div>';
+                        html += '<div class="ap-queue-header">Cola ' + (qidx + 1) + ' - ' + queue.date + ' (' + formatNumber(queueCredits) + ' créditos)</div>';
                         if (queue.items && queue.items.length > 0) {
                             html += '<div class="ap-queue-subitems">';
                             queue.items.forEach(item => {
+                                const itemCredits = Math.floor(item.tokens / 10000);
                                 html += '<div class="ap-subitem">';
                                 html += '<span>' + escapeHtml(item.display_name || item.type) + '</span>';
-                                html += '<span>' + item.count + ' ops, ' + formatNumber(item.tokens) + ' tokens</span>';
+                                html += '<span>' + item.count + ' ops, ' + formatNumber(itemCredits) + ' créditos</span>';
                                 html += '</div>';
                             });
                             html += '</div>';
@@ -470,21 +480,22 @@ jQuery(document).ready(function($) {
                         html += '</div>';
                     });
                 }
-                
+
                 // Mostrar operaciones individuales
                 if (hasOperations) {
                     html += '<div style="margin-top: 16px;"><strong>Operaciones individuales:</strong></div>';
                     html += '<table style="margin-top: 8px; width: 100%;"><tbody>';
                     campaign.operations.forEach(op => {
+                        const opCredits = Math.floor(op.tokens / 10000);
                         html += '<tr>';
                         html += '<td style="padding: 6px 12px;">' + escapeHtml(op.name) + '</td>';
                         html += '<td style="padding: 6px 12px; text-align: right;">' + op.count + ' ops</td>';
-                        html += '<td style="padding: 6px 12px; text-align: right;" class="ap-number">' + formatNumber(op.tokens) + ' tokens</td>';
+                        html += '<td style="padding: 6px 12px; text-align: right;" class="ap-number">' + formatNumber(opCredits) + ' créditos</td>';
                         html += '</tr>';
                     });
                     html += '</tbody></table>';
                 }
-                
+
                 html += '</td></tr>';
             }
         });

@@ -80,6 +80,9 @@ jQuery(document).ready(function($) {
         const postsPerCampaign = planLimits.posts_per_campaign || data.posts_limit || 'No especificado';
         const tokensMonthly = planLimits.tokens_monthly || data.tokens_limit || 'No especificado';
 
+        // Convertir tokens a créditos (1 crédito = 10,000 tokens)
+        const creditsMonthly = typeof tokensMonthly === 'number' ? Math.floor(tokensMonthly / 10000) : tokensMonthly;
+
         // Calcular fecha de renovación (próximo mes, día 1)
         const today = new Date();
         const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
@@ -111,13 +114,13 @@ jQuery(document).ready(function($) {
                     </div>
                 </div>
 
-                <!-- Tarjeta Límite Tokens Mensual -->
+                <!-- Tarjeta Límite Créditos Mensual -->
                 <div class="ap-stat-card ap-stat-tokens">
                     <div class="ap-stat-icon">⚡</div>
                     <div class="ap-stat-content">
-                        <div class="ap-stat-label">Límite Tokens Mensual</div>
-                        <div class="ap-stat-value">${typeof tokensMonthly === 'number' ? tokensMonthly.toLocaleString() : tokensMonthly}</div>
-                        <div class="ap-stat-detail">tokens/mes</div>
+                        <div class="ap-stat-label">Límite Créditos Mensual</div>
+                        <div class="ap-stat-value">${typeof creditsMonthly === 'number' ? creditsMonthly.toLocaleString() : creditsMonthly}</div>
+                        <div class="ap-stat-detail">créditos/mes</div>
                     </div>
                 </div>
 

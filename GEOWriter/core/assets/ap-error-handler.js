@@ -2,7 +2,7 @@
  * AutoPost - Manejador Centralizado de Errores
  *
  * Este archivo centraliza el manejo de errores de API,
- * especialmente los errores de límite de tokens excedido.
+ * especialmente los errores de límite de créditos excedido.
  */
 
 (function() {
@@ -12,7 +12,7 @@
     window.AutoPost = window.AutoPost || {};
 
     /**
-     * Detecta si un error es de tipo "límite de tokens excedido"
+     * Detecta si un error es de tipo "límite de créditos excedido"
      *
      * @param {Object} response - Respuesta de la API
      * @returns {boolean}
@@ -32,7 +32,8 @@
         if (response && response.data && response.data.error_details) {
             var hasTokenError = false;
             response.data.error_details.forEach(function(err) {
-                if (err.indexOf('LÍMITE DE TOKENS AGOTADO') !== -1 ||
+                if (err.indexOf('LÍMITE DE CRÉDITOS AGOTADO') !== -1 ||
+                    err.indexOf('LÍMITE DE TOKENS AGOTADO') !== -1 ||
                     err.indexOf('Token limit exceeded') !== -1) {
                     hasTokenError = true;
                 }
@@ -42,7 +43,8 @@
 
         // Verificar en mensaje de error directo
         var errorMsg = response?.error || response?.data?.message || '';
-        if (errorMsg.indexOf('LÍMITE DE TOKENS AGOTADO') !== -1 ||
+        if (errorMsg.indexOf('LÍMITE DE CRÉDITOS AGOTADO') !== -1 ||
+            errorMsg.indexOf('LÍMITE DE TOKENS AGOTADO') !== -1 ||
             errorMsg.indexOf('Token limit exceeded') !== -1) {
             return true;
         }
@@ -67,16 +69,17 @@
         }
 
         if (response && response.data && response.data.error_details) {
-            // Buscar mensaje de límite de tokens en error_details
-            var tokenMsg = null;
+            // Buscar mensaje de límite de créditos en error_details
+            var creditMsg = null;
             response.data.error_details.forEach(function(err) {
-                if (err.indexOf('LÍMITE DE TOKENS AGOTADO') !== -1) {
-                    tokenMsg = err;
+                if (err.indexOf('LÍMITE DE CRÉDITOS AGOTADO') !== -1 ||
+                    err.indexOf('LÍMITE DE TOKENS AGOTADO') !== -1) {
+                    creditMsg = err;
                 }
             });
-            if (tokenMsg) return tokenMsg;
+            if (creditMsg) return creditMsg;
 
-            // Si no es token error, devolver el primer error
+            // Si no es error de créditos, devolver el primer error
             return response.data.error_details[0] || 'Error desconocido';
         }
 
@@ -84,7 +87,7 @@
     };
 
     /**
-     * Muestra un error de límite de tokens en un contenedor específico
+     * Muestra un error de límite de créditos en un contenedor específico
      *
      * @param {string} containerId - ID del contenedor donde mostrar el error
      * @param {string} errorMessage - Mensaje de error a mostrar
@@ -106,7 +109,7 @@
     };
 
     /**
-     * Muestra un error de límite de tokens como alert
+     * Muestra un error de límite de créditos como alert
      *
      * @param {string} errorMessage - Mensaje de error a mostrar
      */
@@ -116,7 +119,7 @@
 
     /**
      * Maneja automáticamente un error de API
-     * Detecta si es error de tokens y lo muestra apropiadamente
+     * Detecta si es error de créditos y lo muestra apropiadamente
      *
      * @param {Object} response - Respuesta de la API
      * @param {string|null} containerId - ID del contenedor (opcional, si no se proporciona usa alert)
@@ -126,7 +129,7 @@
         var errorMessage = this.extractErrorMessage(response);
 
         if (this.isTokenLimitError(response)) {
-            // Es error de límite de tokens
+            // Es error de límite de créditos
             if (containerId) {
                 this.showTokenLimitError(containerId, errorMessage);
             } else {
