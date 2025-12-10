@@ -22,6 +22,50 @@ header('Content-Type: text/html; charset=UTF-8');
 $preview = isset($_GET['preview']) && $_GET['preview'] == '1';
 $execute = isset($_GET['execute']) && $_GET['execute'] == '1';
 $confirm = isset($_GET['confirm']) && $_GET['confirm'] == 'yes';
+$debug = isset($_GET['debug']) && $_GET['debug'] == '1';
+
+/**
+ * Obtener precios para un modelo específico
+ * Replica la lógica de ModelPricingService pero sin depender de BD
+ */
+function getPricesForModel($model) {
+    // Precios actualizados (Dic 2024) - por MILLÓN de tokens
+    $all_prices = [
+        // OpenAI Models - ordenados por especificidad
+        'gpt-4o-mini' => ['input' => 0.15, 'output' => 0.60],
+        'gpt-4-turbo' => ['input' => 10.00, 'output' => 30.00],
+        'gpt-4.1' => ['input' => 2.00, 'output' => 8.00],
+        'gpt-4o' => ['input' => 2.50, 'output' => 10.00],
+        'gpt-4' => ['input' => 30.00, 'output' => 60.00],
+        'gpt-3.5-turbo' => ['input' => 0.50, 'output' => 1.50],
+        // Anthropic Models
+        'claude-3-5-sonnet' => ['input' => 3.00, 'output' => 15.00],
+        'claude-3-5-haiku' => ['input' => 0.80, 'output' => 4.00],
+        'claude-3-opus' => ['input' => 15.00, 'output' => 75.00],
+        'claude-3-sonnet' => ['input' => 3.00, 'output' => 15.00],
+        'claude-3-haiku' => ['input' => 0.25, 'output' => 1.25],
+    ];
+
+    // Buscar precio exacto
+    if (isset($all_prices[$model])) {
+        return $all_prices[$model];
+    }
+
+    // Ordenar por longitud (más largos primero) para match específico
+    uksort($all_prices, function($a, $b) {
+        return strlen($b) - strlen($a);
+    });
+
+    // Detectar familia del modelo
+    foreach ($all_prices as $modelName => $price) {
+        if (strpos($model, $modelName) !== false) {
+            return $price;
+        }
+    }
+
+    // Precio por defecto (gpt-4o-mini)
+    return ['input' => 0.15, 'output' => 0.60];
+}
 
 ?>
 <!DOCTYPE html>
@@ -66,6 +110,68 @@ $confirm = isset($_GET['confirm']) && $_GET['confirm'] == 'yes';
 
 <?php
 
+// Modo DEBUG
+if ($debug) {
+    echo '<h2>🔍 Modo DEBUG - Modelos en BD</h2>';
+
+    try {
+        $db = Database::getInstance();
+        $models = $db->query("
+            SELECT DISTINCT model, COUNT(*) as count
+            FROM " . DB_PREFIX . "usage_tracking
+            WHERE model IS NOT NULL AND model != ''
+            GROUP BY model
+            ORDER BY count DESC
+        ");
+
+        echo '<table>';
+        echo '<tr><th>Modelo en BD</th><th>Registros</th><th>Precio Detectado</th><th>Input/Output</th></tr>';
+
+        foreach ($models as $m) {
+            $prices = getPricesForModel($m['model']);
+            echo '<tr>';
+            echo '<td>' . htmlspecialchars($m['model']) . '</td>';
+            echo '<td>' . $m['count'] . '</td>';
+            echo '<td>$' . $prices['input'] . '/$' . $prices['output'] . ' /millón</td>';
+            echo '<td>';
+
+            // Detectar qué patrón hizo match
+            $all_prices = [
+                'gpt-4o-mini' => ['input' => 0.15, 'output' => 0.60],
+                'gpt-4-turbo' => ['input' => 10.00, 'output' => 30.00],
+                'gpt-4.1' => ['input' => 2.00, 'output' => 8.00],
+                'gpt-4o' => ['input' => 2.50, 'output' => 10.00],
+                'gpt-4' => ['input' => 30.00, 'output' => 60.00],
+            ];
+
+            uksort($all_prices, function($a, $b) {
+                return strlen($b) - strlen($a);
+            });
+
+            $matched = 'default';
+            foreach ($all_prices as $modelName => $price) {
+                if (strpos($m['model'], $modelName) !== false) {
+                    $matched = $modelName;
+                    break;
+                }
+            }
+
+            echo 'Detectado como: <strong>' . $matched . '</strong>';
+            echo '</td>';
+            echo '</tr>';
+        }
+
+        echo '</table>';
+        echo '<div style="margin: 20px 0;"><a href="?" class="button">← Volver a Vista Normal</a></div>';
+
+    } catch (Exception $e) {
+        echo '<div class="warning">Error: ' . htmlspecialchars($e->getMessage()) . '</div>';
+    }
+
+    echo '</div></body></html>';
+    exit;
+}
+
 try {
     $db = Database::getInstance();
 
@@ -99,8 +205,8 @@ try {
         $tokens_output = floatval($record['tokens_output']);
         $old_cost_total = floatval($record['cost_total']);
 
-        // Obtener precios correctos
-        $prices = ModelPricingService::getPrices($model);
+        // Obtener precios correctos (usar método directo sin BD)
+        $prices = getPricesForModel($model);
 
         // Calcular costes correctos
         $new_cost_input = ($tokens_input / 1000000) * $prices['input'];
