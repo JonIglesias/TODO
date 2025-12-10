@@ -89,6 +89,8 @@ class ModelPricingService {
     
     /**
      * Obtener precio de un modelo específico con detección de familia
+     * IMPORTANTE: Ordena modelos por longitud (más específicos primero) para evitar
+     * que 'gpt-4' haga match con 'gpt-4.1-2025-04-14'
      */
     private static function getFallbackPrices($model) {
         $prices = self::getAllFallbackPrices();
@@ -97,6 +99,12 @@ class ModelPricingService {
         if (isset($prices[$model])) {
             return $prices[$model];
         }
+
+        // Ordenar modelos por longitud (más largos primero) para detectar más específicos
+        // Esto asegura que 'gpt-4.1' se compruebe antes que 'gpt-4'
+        uksort($prices, function($a, $b) {
+            return strlen($b) - strlen($a);
+        });
 
         // Detectar familia del modelo
         foreach ($prices as $modelName => $price) {
