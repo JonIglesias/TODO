@@ -73,6 +73,13 @@ jQuery(document).ready(function($) {
         });
     }
     
+    // Convertir tokens a créditos con decimales
+    function tokensToCredits(tokens) {
+        const credits = tokens / 10000;
+        // Redondear a 1 decimal
+        return Math.round(credits * 10) / 10;
+    }
+
     // Renderizar widget de información del plan
     function renderStatsWidget(data) {
         // Extraer límites del plan
@@ -80,8 +87,8 @@ jQuery(document).ready(function($) {
         const postsPerCampaign = planLimits.posts_per_campaign || data.posts_limit || 'No especificado';
         const tokensMonthly = planLimits.tokens_monthly || data.tokens_limit || 'No especificado';
 
-        // Convertir tokens a créditos (1 crédito = 10,000 tokens)
-        const creditsMonthly = typeof tokensMonthly === 'number' ? Math.floor(tokensMonthly / 10000) : tokensMonthly;
+        // Convertir tokens a créditos (1 crédito = 10,000 tokens) con decimales
+        const creditsMonthly = typeof tokensMonthly === 'number' ? tokensToCredits(tokensMonthly) : tokensMonthly;
 
         // Calcular fecha de renovación (próximo mes, día 1)
         const today = new Date();
@@ -119,7 +126,7 @@ jQuery(document).ready(function($) {
                     <div class="ap-stat-icon">⚡</div>
                     <div class="ap-stat-content">
                         <div class="ap-stat-label">Límite Créditos Mensual</div>
-                        <div class="ap-stat-value">${typeof creditsMonthly === 'number' ? creditsMonthly.toLocaleString() : creditsMonthly}</div>
+                        <div class="ap-stat-value">${typeof creditsMonthly === 'number' ? creditsMonthly.toLocaleString('es-ES', {minimumFractionDigits: 0, maximumFractionDigits: 1}) : creditsMonthly}</div>
                         <div class="ap-stat-detail">créditos/mes</div>
                     </div>
                 </div>

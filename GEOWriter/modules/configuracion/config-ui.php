@@ -205,7 +205,7 @@ jQuery(document).ready(function($) {
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
                     <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">Límite mensual</span>
-                    <span style="color: #ffffff; font-weight: 600; font-size: 16px;">${formatNumber(Math.floor(summary.tokens_limit / 10000))} créditos</span>
+                    <span style="color: #ffffff; font-weight: 600; font-size: 16px;">${formatNumber(tokensToCredits(summary.tokens_limit))} créditos</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
                     <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">Renovación</span>
@@ -227,8 +227,18 @@ jQuery(document).ready(function($) {
         $('#license-stats-info').html(html);
     }
 
+    // Convertir tokens a créditos con decimales
+    function tokensToCredits(tokens) {
+        const credits = tokens / 10000;
+        // Redondear a 1 decimal
+        return Math.round(credits * 10) / 10;
+    }
+
     function formatNumber(num) {
-        return new Intl.NumberFormat('es-ES').format(num);
+        return new Intl.NumberFormat('es-ES', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 1
+        }).format(num);
     }
 
     function escapeHtml(text) {

@@ -76,10 +76,10 @@
         renderSummary: function() {
             const summary = this.data.summary;
 
-            // Convertir tokens a créditos (1 crédito = 10,000 tokens)
-            const creditsUsed = Math.floor(summary.total_tokens / 10000);
-            const creditsLimit = Math.floor(summary.tokens_limit / 10000);
-            const creditsAvailable = Math.floor(summary.tokens_available / 10000);
+            // Convertir tokens a créditos (1 crédito = 10,000 tokens) con decimales
+            const creditsUsed = this.tokensToCredits(summary.total_tokens);
+            const creditsLimit = this.tokensToCredits(summary.tokens_limit);
+            const creditsAvailable = this.tokensToCredits(summary.tokens_available);
 
             // Créditos
             $('#ap-tokens-used').text(this.formatNumber(creditsUsed));
@@ -114,16 +114,16 @@
                 return;
             }
 
-            // Convertir tokens a créditos
+            // Convertir tokens a créditos con decimales
+            const self = this;
             const creditsTimeline = timeline.map(function(d) {
-                return Math.floor(d.tokens / 10000);
+                return self.tokensToCredits(d.tokens);
             });
 
             // Encontrar máximo para escalar
             const maxCredits = Math.max.apply(null, creditsTimeline) || 1;
 
             // Crear barras
-            const self = this;
             const bars = timeline.map(function(day, index) {
                 const dayCredits = creditsTimeline[index];
                 const heightPercent = (dayCredits / maxCredits) * 100;
@@ -155,7 +155,7 @@
                     queuesHtml = '<div class="ap-campaign-section">' +
                         '<h4>📦 Colas Generadas (' + campaign.queues.length + ')</h4>' +
                         campaign.queues.map(function(queue) {
-                            const queueCredits = Math.floor(queue.tokens / 10000);
+                            const queueCredits = self.tokensToCredits(queue.tokens);
                             return '<div class="ap-queue-item">' +
                                 '<div class="ap-queue-header">' +
                                     '<span class="ap-queue-title">Cola ' + queue.number + ' - ' + queue.date + '</span>' +
@@ -186,7 +186,7 @@
                     '</div>';
                 }
 
-                const campaignCredits = Math.floor(campaign.total_tokens / 10000);
+                const campaignCredits = self.tokensToCredits(campaign.total_tokens);
 
                 return '<div class="ap-campaign-item" onclick="apStats.toggleCampaign(' + index + ')">' +
                     '<div class="ap-campaign-header">' +
@@ -209,12 +209,22 @@
         toggleCampaign: function(index) {
             $('#ap-campaign-' + index).toggleClass('open');
         },
-        
+
+        tokensToCredits: function(tokens) {
+            const credits = tokens / 10000;
+            // Redondear a 1 decimal
+            return Math.round(credits * 10) / 10;
+        },
+
         formatNumber: function(num) {
             if (num >= 1000000) {
                 return (num / 1000000).toFixed(1) + 'M';
             } else if (num >= 1000) {
                 return (num / 1000).toFixed(1) + 'K';
+            }
+            // Para números con decimales, mostrar máximo 1 decimal
+            if (num % 1 !== 0) {
+                return num.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             }
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }

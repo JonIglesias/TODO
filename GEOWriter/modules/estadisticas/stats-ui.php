@@ -138,9 +138,9 @@ jQuery(document).ready(function($) {
         }
         
         const renewalText = plan.renewal_date || 'No disponible';
-        
+
         // Convertir tokens a créditos (1 crédito = 10,000 tokens)
-        const credits_limit = Math.floor(summary.tokens_limit / 10000);
+        const credits_limit = tokensToCredits(summary.tokens_limit);
 
         let html = `
             <div class="ap-plan-row">
@@ -175,8 +175,8 @@ jQuery(document).ready(function($) {
         // Porcentaje de créditos DISPONIBLES (lo que queda)
         const availablePercentage = 100 - percentage;
 
-        // Convertir tokens a créditos (1 crédito = 10,000 tokens)
-        const creditsAvailable = Math.floor(available / 10000);
+        // Convertir tokens a créditos (1 crédito = 10,000 tokens) con decimales
+        const creditsAvailable = tokensToCredits(available);
 
         // Mostrar número en AMBAS capas
         const formattedNumber = formatNumber(creditsAvailable);
@@ -319,8 +319,8 @@ jQuery(document).ready(function($) {
         }
 
         const labels = timeline.map(d => d.date_formatted);
-        // Convertir tokens a créditos (1 crédito = 10,000 tokens)
-        const creditsData = timeline.map(d => Math.floor(d.tokens / 10000));
+        // Convertir tokens a créditos (1 crédito = 10,000 tokens) con decimales
+        const creditsData = timeline.map(d => tokensToCredits(d.tokens));
         const posts = postsData || timeline.map(() => 0);
 
         timelineChart = new Chart(ctx, {
@@ -441,8 +441,8 @@ jQuery(document).ready(function($) {
             // Columna 3: Cantidad
             html += '<td class="ap-text-right ap-number">' + formatNumber(campaign.total_operations) + '</td>';
 
-            // Columna 4: Créditos (convertir de tokens)
-            const campaignCredits = Math.floor(campaign.total_tokens / 10000);
+            // Columna 4: Créditos (convertir de tokens con decimales)
+            const campaignCredits = tokensToCredits(campaign.total_tokens);
             html += '<td class="ap-text-right ap-number">' + formatNumber(campaignCredits) + '</td>';
 
             // Columna 5: Ver detalle (solo texto)
@@ -463,13 +463,13 @@ jQuery(document).ready(function($) {
                 if (hasQueues) {
                     html += '<div style="margin-bottom: 16px;"><strong>Colas generadas (' + campaign.queues.length + '):</strong></div>';
                     campaign.queues.forEach((queue, qidx) => {
-                        const queueCredits = Math.floor(queue.tokens / 10000);
+                        const queueCredits = tokensToCredits(queue.tokens);
                         html += '<div class="ap-queue-item">';
                         html += '<div class="ap-queue-header">Cola ' + (qidx + 1) + ' - ' + queue.date + ' (' + formatNumber(queueCredits) + ' créditos)</div>';
                         if (queue.items && queue.items.length > 0) {
                             html += '<div class="ap-queue-subitems">';
                             queue.items.forEach(item => {
-                                const itemCredits = Math.floor(item.tokens / 10000);
+                                const itemCredits = tokensToCredits(item.tokens);
                                 html += '<div class="ap-subitem">';
                                 html += '<span>' + escapeHtml(item.display_name || item.type) + '</span>';
                                 html += '<span>' + item.count + ' ops, ' + formatNumber(itemCredits) + ' créditos</span>';
@@ -486,7 +486,7 @@ jQuery(document).ready(function($) {
                     html += '<div style="margin-top: 16px;"><strong>Operaciones individuales:</strong></div>';
                     html += '<table style="margin-top: 8px; width: 100%;"><tbody>';
                     campaign.operations.forEach(op => {
-                        const opCredits = Math.floor(op.tokens / 10000);
+                        const opCredits = tokensToCredits(op.tokens);
                         html += '<tr>';
                         html += '<td style="padding: 6px 12px;">' + escapeHtml(op.name) + '</td>';
                         html += '<td style="padding: 6px 12px; text-align: right;">' + op.count + ' ops</td>';
@@ -534,11 +534,21 @@ jQuery(document).ready(function($) {
             $toggle.html('Ocultar detalle');
         }
     }
-    
-    function formatNumber(num) {
-        return new Intl.NumberFormat('es-ES').format(num);
+
+    // Convertir tokens a créditos con decimales
+    function tokensToCredits(tokens) {
+        const credits = tokens / 10000;
+        // Redondear a 1 decimal
+        return Math.round(credits * 10) / 10;
     }
-    
+
+    function formatNumber(num) {
+        return new Intl.NumberFormat('es-ES', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 1
+        }).format(num);
+    }
+
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
