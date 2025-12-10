@@ -58,8 +58,12 @@ $confirm = isset($_GET['confirm']) && $_GET['confirm'] == 'yes';
 
     <div class="warning">
         <strong>⚠️ PROBLEMA IDENTIFICADO:</strong><br><br>
-        El modelo <strong>gpt-4.1</strong> NO EXISTE en OpenAI.<br>
-        Este modelo ficticio está causando que se apliquen precios de gpt-4 (20x más caros que gpt-4o).<br><br>
+        Los modelos <strong>gpt-4.1, gpt-4.1-mini, gpt-4.1-nano</strong> NO EXISTEN en OpenAI.<br>
+        Estos modelos ficticios están causando que se apliquen precios de gpt-4 (12x más caros que gpt-4o).<br><br>
+        <strong>¿Por qué aparecen?</strong><br>
+        • OpenAI lista estos modelos en su API /v1/models pero NO SON REALES<br>
+        • El script de sincronización los importó automáticamente<br>
+        • Aparecen en Settings y se seleccionan por error<br><br>
         <strong>Ejemplo de sobrecosto:</strong><br>
         • gpt-4.1 (ficticio): $0.03/$0.06 por 1K tokens<br>
         • gpt-4o (real): $0.0025/$0.01 por 1K tokens<br>
@@ -71,12 +75,12 @@ $confirm = isset($_GET['confirm']) && $_GET['confirm'] == 'yes';
 try {
     $db = Database::getInstance();
 
-    // 1. Buscar modelo gpt-4.1 en model_prices
-    echo '<h2>1. Modelo gpt-4.1 en api_model_prices</h2>';
+    // 1. Buscar modelos gpt-4.1* en model_prices
+    echo '<h2>1. Modelos gpt-4.1* en api_model_prices</h2>';
 
     $gpt41_models = $db->query("
         SELECT * FROM " . DB_PREFIX . "model_prices
-        WHERE model_name LIKE '%gpt-4.1%'
+        WHERE model_name LIKE 'gpt-4.1%'
         ORDER BY is_active DESC, model_name
     ");
 
@@ -138,7 +142,7 @@ try {
             MIN(created_at) as first_use,
             MAX(created_at) as last_use
         FROM " . DB_PREFIX . "usage_tracking
-        WHERE model LIKE '%gpt-4.1%'
+        WHERE model LIKE 'gpt-4.1%'
         GROUP BY model
     ");
 

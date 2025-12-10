@@ -74,6 +74,20 @@ function syncOpenAIPrices($db) {
                 continue;
             }
 
+            // FILTRAR MODELOS FICTICIOS QUE NO EXISTEN EN OPENAI
+            // gpt-4.1, gpt-4.1-mini, gpt-4.1-nano NO SON MODELOS REALES
+            $invalidModels = ['gpt-4.1', 'gpt-4.1-mini', 'gpt-4.1-nano'];
+            $isInvalid = false;
+            foreach ($invalidModels as $invalidPrefix) {
+                if (strpos($modelId, $invalidPrefix) === 0) {
+                    $isInvalid = true;
+                    break;
+                }
+            }
+            if ($isInvalid) {
+                continue; // Saltar modelos ficticios
+            }
+
             // Buscar precio conocido
             $prices = null;
             if (isset($knownPrices[$modelId])) {
