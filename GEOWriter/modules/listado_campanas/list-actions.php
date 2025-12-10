@@ -108,9 +108,7 @@ class AP_Campaign_Actions {
         unset($campaign['id']);
         unset($campaign['created_at']);
         unset($campaign['updated_at']);
-
-        // Generar nuevo campaign_id único
-        $campaign['campaign_id'] = 'campaign_' . time() . '_' . substr(md5(uniqid(rand(), true)), 0, 8);
+        unset($campaign['campaign_id']);  // ✅ También eliminar campaign_id - WordPress asignará nuevo ID
 
         // Cambiar nombre
         $campaign['name'] = $campaign['name'] . ' (Copia)';

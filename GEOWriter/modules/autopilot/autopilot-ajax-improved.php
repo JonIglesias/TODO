@@ -772,12 +772,8 @@ function ap_autopilot_create_campaign_handler() {
             return;
         }
 
-        // Generar campaign_id único
-        $campaign_unique_id = 'campaign_' . time() . '_' . substr(md5(uniqid(rand(), true)), 0, 8);
-
-        // Crear campaña con datos mínimos
+        // ✅ Crear campaña con datos mínimos (sin campaign_unique_id)
         $data = [
-            'campaign_id' => $campaign_unique_id,
             'name' => $name,
             'domain' => $domain,
             'niche' => $niche,
@@ -794,11 +790,11 @@ function ap_autopilot_create_campaign_handler() {
             return;
         }
 
-        $db_id = $wpdb->insert_id;
+        // ✅ Devolver solo el ID numérico de WordPress
+        $campaign_id = $wpdb->insert_id;
 
         wp_send_json_success([
-            'campaign_id' => $db_id,
-            'campaign_unique_id' => $campaign_unique_id
+            'campaign_id' => $campaign_id
         ]);
 
     } catch (Exception $e) {
