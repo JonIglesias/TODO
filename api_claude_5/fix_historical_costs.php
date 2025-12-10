@@ -31,11 +31,10 @@ $debug = isset($_GET['debug']) && $_GET['debug'] == '1';
 function getPricesForModel($model) {
     // Precios actualizados (Dic 2024) - por MILLÓN de tokens
     $all_prices = [
-        // OpenAI Models - ordenados por especificidad
+        // OpenAI Models
         'gpt-4o-mini' => ['input' => 0.15, 'output' => 0.60],
-        'gpt-4-turbo' => ['input' => 10.00, 'output' => 30.00],
-        'gpt-4.1' => ['input' => 2.00, 'output' => 8.00],
         'gpt-4o' => ['input' => 2.50, 'output' => 10.00],
+        'gpt-4-turbo' => ['input' => 10.00, 'output' => 30.00],
         'gpt-4' => ['input' => 30.00, 'output' => 60.00],
         'gpt-3.5-turbo' => ['input' => 0.50, 'output' => 1.50],
         // Anthropic Models
@@ -46,21 +45,73 @@ function getPricesForModel($model) {
         'claude-3-haiku' => ['input' => 0.25, 'output' => 1.25],
     ];
 
-    // Buscar precio exacto
+    // Normalizar modelo para detección
+    $model_lower = strtolower($model);
+
+    // Buscar precio exacto primero
     if (isset($all_prices[$model])) {
         return $all_prices[$model];
     }
 
-    // Ordenar por longitud (más largos primero) para match específico
-    uksort($all_prices, function($a, $b) {
-        return strlen($b) - strlen($a);
-    });
+    // REGLAS ESPECÍFICAS (orden importante):
 
-    // Detectar familia del modelo
-    foreach ($all_prices as $modelName => $price) {
-        if (strpos($model, $modelName) !== false) {
-            return $price;
+    // 1. Detectar "mini" antes que cualquier otra cosa
+    if (strpos($model_lower, 'mini') !== false) {
+        // gpt-4.1-mini, gpt-4-mini, etc → gpt-4o-mini
+        if (strpos($model_lower, 'gpt-4') !== false || strpos($model_lower, 'gpt-3') !== false) {
+            return $all_prices['gpt-4o-mini'];
         }
+    }
+
+    // 2. Detectar "turbo"
+    if (strpos($model_lower, 'turbo') !== false) {
+        if (strpos($model_lower, 'gpt-4') !== false) {
+            return $all_prices['gpt-4-turbo'];
+        }
+        if (strpos($model_lower, 'gpt-3.5') !== false || strpos($model_lower, 'gpt-35') !== false) {
+            return $all_prices['gpt-3.5-turbo'];
+        }
+    }
+
+    // 3. Detectar modelos Claude específicos
+    if (strpos($model_lower, 'claude-3-5-sonnet') !== false || strpos($model_lower, 'claude-3.5-sonnet') !== false) {
+        return $all_prices['claude-3-5-sonnet'];
+    }
+    if (strpos($model_lower, 'claude-3-5-haiku') !== false || strpos($model_lower, 'claude-3.5-haiku') !== false) {
+        return $all_prices['claude-3-5-haiku'];
+    }
+    if (strpos($model_lower, 'claude-3-opus') !== false) {
+        return $all_prices['claude-3-opus'];
+    }
+    if (strpos($model_lower, 'claude-3-sonnet') !== false) {
+        return $all_prices['claude-3-sonnet'];
+    }
+    if (strpos($model_lower, 'claude-3-haiku') !== false) {
+        return $all_prices['claude-3-haiku'];
+    }
+
+    // 4. Detectar "gpt-4o" (ANTES que gpt-4 genérico)
+    if (strpos($model_lower, 'gpt-4o') !== false) {
+        return $all_prices['gpt-4o'];
+    }
+
+    // 5. Detectar "gpt-4.1" - NOTA: Este modelo NO existe en OpenAI real
+    // Si aparece en tu BD, probablemente sea un error de nomenclatura
+    // Dejar esto comentado para que caiga en gpt-4 genérico
+    /*
+    if (strpos($model_lower, 'gpt-4.1') !== false) {
+        return ['input' => 2.00, 'output' => 8.00]; // Precio hipotético
+    }
+    */
+
+    // 6. Detectar "gpt-4" genérico (último)
+    if (strpos($model_lower, 'gpt-4') !== false) {
+        return $all_prices['gpt-4'];
+    }
+
+    // 7. Detectar "gpt-3.5" o "gpt-35"
+    if (strpos($model_lower, 'gpt-3.5') !== false || strpos($model_lower, 'gpt-35') !== false) {
+        return $all_prices['gpt-3.5-turbo'];
     }
 
     // Precio por defecto (gpt-4o-mini)
