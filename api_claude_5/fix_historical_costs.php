@@ -389,21 +389,61 @@ try {
     } else if ($execute && $confirm === 'yes') {
         echo '<h2>⚙️ Ejecutando Actualización...</h2>';
 
+        echo '<div class="info">';
+        echo '<strong>📋 Debug Info:</strong><br>';
+        echo 'Modo Execute: ' . ($execute ? 'SÍ' : 'NO') . '<br>';
+        echo 'Confirmado: ' . ($confirm === 'yes' ? 'SÍ' : 'NO') . '<br>';
+        echo 'Registros a actualizar: ' . count($records_with_diff) . '<br>';
+        echo 'DB Prefix: ' . DB_PREFIX . '<br>';
+        echo '</div>';
+
         $updated = 0;
         $errors = 0;
         $error_details = [];
 
+        // Verificar que tenemos conexión a BD
+        try {
+            $test = $db->query("SELECT COUNT(*) as cnt FROM " . DB_PREFIX . "usage_tracking");
+            echo '<div class="info">✅ Conexión a BD verificada: ' . $test[0]['cnt'] . ' registros en tracking</div>';
+        } catch (Exception $e) {
+            echo '<div class="warning">❌ Error de conexión: ' . htmlspecialchars($e->getMessage()) . '</div>';
+            exit;
+        }
+
         // Usar prepare/execute directamente en lugar del método query()
-        $stmt = $db->prepare("
-            UPDATE " . DB_PREFIX . "usage_tracking
+        $updateSQL = "UPDATE " . DB_PREFIX . "usage_tracking
             SET
                 cost_input = ?,
                 cost_output = ?,
                 cost_total = ?
-            WHERE id = ?
-        ");
+            WHERE id = ?";
 
-        foreach ($records_with_diff as $rec) {
+        echo '<div class="info"><strong>SQL a ejecutar:</strong><pre>' . htmlspecialchars($updateSQL) . '</pre></div>';
+
+        try {
+            $stmt = $db->prepare($updateSQL);
+            echo '<div class="info">✅ Statement preparado correctamente</div>';
+        } catch (Exception $e) {
+            echo '<div class="warning">❌ Error al preparar statement: ' . htmlspecialchars($e->getMessage()) . '</div>';
+            exit;
+        }
+
+        // Mostrar primeros 3 registros que se van a actualizar
+        echo '<div class="info">';
+        echo '<strong>Primeros 3 registros a actualizar:</strong><br>';
+        foreach (array_slice($records_with_diff, 0, 3) as $rec) {
+            echo sprintf('ID %d: $%.5f → $%.5f (diff: $%.5f)<br>',
+                $rec['id'],
+                $rec['cost_total'],
+                $rec['new_cost_total'],
+                $rec['diff']
+            );
+        }
+        echo '</div>';
+
+        $start_time = microtime(true);
+
+        foreach ($records_with_diff as $idx => $rec) {
             try {
                 $success = $stmt->execute([
                     $rec['new_cost_input'],
@@ -412,17 +452,29 @@ try {
                     $rec['id']
                 ]);
 
-                if ($success && $stmt->rowCount() > 0) {
+                $rowCount = $stmt->rowCount();
+
+                // Debug primeros 5
+                if ($idx < 5) {
+                    echo '<div class="info" style="font-size: 11px;">ID ' . $rec['id'] . ': success=' . ($success ? 'true' : 'false') . ', rowCount=' . $rowCount . '</div>';
+                }
+
+                if ($success && $rowCount > 0) {
                     $updated++;
                 } else {
                     $errors++;
-                    $error_details[] = "ID {$rec['id']}: No se actualizó ninguna fila";
+                    $error_details[] = "ID {$rec['id']}: Execute devolvió success=$success, rowCount=$rowCount";
                 }
             } catch (Exception $e) {
                 $errors++;
                 $error_details[] = "ID {$rec['id']}: " . $e->getMessage();
+                if ($idx < 5) {
+                    echo '<div class="warning">❌ Error en ID ' . $rec['id'] . ': ' . htmlspecialchars($e->getMessage()) . '</div>';
+                }
             }
         }
+
+        $elapsed = round(microtime(true) - $start_time, 2);
 
         if ($updated > 0) {
             echo '<div class="success">';
@@ -430,11 +482,13 @@ try {
             echo '<strong>Registros actualizados:</strong> ' . $updated . '<br>';
             echo '<strong>Errores:</strong> ' . $errors . '<br>';
             echo '<strong>Corrección total:</strong> $' . number_format($total_correction, 5) . '<br>';
+            echo '<strong>Tiempo:</strong> ' . $elapsed . 's<br>';
             echo '</div>';
         } else {
             echo '<div class="warning">';
             echo '<strong>⚠️ NO SE ACTUALIZÓ NINGÚN REGISTRO</strong><br><br>';
             echo '<strong>Errores encontrados:</strong> ' . $errors . '<br>';
+            echo '<strong>Tiempo:</strong> ' . $elapsed . 's<br>';
             echo '</div>';
         }
 
@@ -443,11 +497,11 @@ try {
             echo '<div class="warning">';
             echo '<strong>Detalles de errores:</strong><br>';
             echo '<pre style="background: #fff3cd; padding: 10px; overflow-x: auto;">';
-            foreach (array_slice($error_details, 0, 10) as $detail) {
+            foreach (array_slice($error_details, 0, 20) as $detail) {
                 echo htmlspecialchars($detail) . "\n";
             }
-            if (count($error_details) > 10) {
-                echo '... y ' . (count($error_details) - 10) . ' errores más';
+            if (count($error_details) > 20) {
+                echo '... y ' . (count($error_details) - 20) . ' errores más';
             }
             echo '</pre>';
             echo '</div>';
