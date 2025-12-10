@@ -32,8 +32,8 @@ class ModelPricingService {
 
                 if ($price) {
                     return [
-                        'input' => floatval($price['price_input_per_1m']),
-                        'output' => floatval($price['price_output_per_1m'])
+                        'input' => floatval($price['price_input_per_1m'] ?? 0),
+                        'output' => floatval($price['price_output_per_1m'] ?? 0)
                     ];
                 }
             }
@@ -49,8 +49,8 @@ class ModelPricingService {
                 $result = [];
                 foreach ($prices as $p) {
                     $result[$p['model_name']] = [
-                        'input' => floatval($p['price_input_per_1m']),
-                        'output' => floatval($p['price_output_per_1m'])
+                        'input' => floatval($p['price_input_per_1m'] ?? 0),
+                        'output' => floatval($p['price_output_per_1m'] ?? 0)
                     ];
                 }
                 return $model ? self::getFallbackPrices($model) : $result;

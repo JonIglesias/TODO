@@ -11,7 +11,11 @@
  */
 
 define('API_ACCESS', true);
-define('API_BASE_DIR', __DIR__);
+
+// No redefinir API_BASE_DIR para evitar warning
+if (!defined('API_BASE_DIR')) {
+    define('API_BASE_DIR', __DIR__);
+}
 
 require_once API_BASE_DIR . '/config.php';
 require_once API_BASE_DIR . '/core/Database.php';
@@ -23,6 +27,13 @@ $preview = isset($_GET['preview']) && $_GET['preview'] == '1';
 $execute = isset($_GET['execute']) && $_GET['execute'] == '1';
 $confirm = isset($_GET['confirm']) && $_GET['confirm'] == 'yes';
 $debug = isset($_GET['debug']) && $_GET['debug'] == '1';
+
+/**
+ * Wrapper seguro para htmlspecialchars que maneja null
+ */
+function safe_html($value) {
+    return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
+}
 
 /**
  * Obtener precios para un modelo específico
@@ -181,7 +192,7 @@ if ($debug) {
         foreach ($models as $m) {
             $prices = getPricesForModel($m['model']);
             echo '<tr>';
-            echo '<td>' . htmlspecialchars($m['model']) . '</td>';
+            echo '<td>' . safe_html($m['model']) . '</td>';
             echo '<td>' . $m['count'] . '</td>';
             echo '<td>$' . $prices['input'] . '/$' . $prices['output'] . ' /millón</td>';
             echo '<td>';
@@ -216,7 +227,7 @@ if ($debug) {
         echo '<div style="margin: 20px 0;"><a href="?" class="button">← Volver a Vista Normal</a></div>';
 
     } catch (Exception $e) {
-        echo '<div class="warning">Error: ' . htmlspecialchars($e->getMessage()) . '</div>';
+        echo '<div class="warning">Error: ' . safe_html($e->getMessage()) . '</div>';
     }
 
     echo '</div></body></html>';
@@ -343,8 +354,8 @@ try {
 
             echo '<tr>';
             echo '<td>' . $rec['id'] . '</td>';
-            echo '<td>' . htmlspecialchars($rec['campaign_id']) . '</td>';
-            echo '<td>' . htmlspecialchars($rec['model']) . '</td>';
+            echo '<td>' . safe_html($rec['campaign_id']) . '</td>';
+            echo '<td>' . safe_html($rec['model']) . '</td>';
             echo '<td>' . number_format($rec['tokens_input']) . 'i / ' . number_format($rec['tokens_output']) . 'o</td>';
             echo '<td>$' . $rec['prices']['input'] . '/$' . $rec['prices']['output'] . '</td>';
             echo '<td>$' . number_format($rec['cost_total'], 5) . '</td>';
@@ -370,7 +381,7 @@ try {
         foreach ($affected_campaigns as $camp_id => $data) {
             $diff = $data['old_total'] - $data['new_total'];
             echo '<tr>';
-            echo '<td>' . htmlspecialchars($camp_id) . '</td>';
+            echo '<td>' . safe_html($camp_id) . '</td>';
             echo '<td>' . $data['count'] . '</td>';
             echo '<td>$' . number_format($data['old_total'], 4) . '</td>';
             echo '<td>$' . number_format($data['new_total'], 4) . '</td>';
@@ -406,7 +417,7 @@ try {
             $test = $db->query("SELECT COUNT(*) as cnt FROM " . DB_PREFIX . "usage_tracking");
             echo '<div class="info">✅ Conexión a BD verificada: ' . $test[0]['cnt'] . ' registros en tracking</div>';
         } catch (Exception $e) {
-            echo '<div class="warning">❌ Error de conexión: ' . htmlspecialchars($e->getMessage()) . '</div>';
+            echo '<div class="warning">❌ Error de conexión: ' . safe_html($e->getMessage()) . '</div>';
             exit;
         }
 
@@ -418,13 +429,13 @@ try {
                 cost_total = ?
             WHERE id = ?";
 
-        echo '<div class="info"><strong>SQL a ejecutar:</strong><pre>' . htmlspecialchars($updateSQL) . '</pre></div>';
+        echo '<div class="info"><strong>SQL a ejecutar:</strong><pre>' . safe_html($updateSQL) . '</pre></div>';
 
         try {
             $stmt = $db->prepare($updateSQL);
             echo '<div class="info">✅ Statement preparado correctamente</div>';
         } catch (Exception $e) {
-            echo '<div class="warning">❌ Error al preparar statement: ' . htmlspecialchars($e->getMessage()) . '</div>';
+            echo '<div class="warning">❌ Error al preparar statement: ' . safe_html($e->getMessage()) . '</div>';
             exit;
         }
 
@@ -469,7 +480,7 @@ try {
                 $errors++;
                 $error_details[] = "ID {$rec['id']}: " . $e->getMessage();
                 if ($idx < 5) {
-                    echo '<div class="warning">❌ Error en ID ' . $rec['id'] . ': ' . htmlspecialchars($e->getMessage()) . '</div>';
+                    echo '<div class="warning">❌ Error en ID ' . $rec['id'] . ': ' . safe_html($e->getMessage()) . '</div>';
                 }
             }
         }
@@ -498,7 +509,7 @@ try {
             echo '<strong>Detalles de errores:</strong><br>';
             echo '<pre style="background: #fff3cd; padding: 10px; overflow-x: auto;">';
             foreach (array_slice($error_details, 0, 20) as $detail) {
-                echo htmlspecialchars($detail) . "\n";
+                echo safe_html($detail) . "\n";
             }
             if (count($error_details) > 20) {
                 echo '... y ' . (count($error_details) - 20) . ' errores más';
@@ -531,7 +542,7 @@ try {
 } catch (Exception $e) {
     echo '<div class="warning">';
     echo '<strong>❌ ERROR:</strong><br>';
-    echo htmlspecialchars($e->getMessage());
+    echo safe_html($e->getMessage());
     echo '</div>';
 }
 
