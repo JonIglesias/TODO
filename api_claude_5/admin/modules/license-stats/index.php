@@ -987,7 +987,7 @@ function refreshStats() {
 function resetStats() {
     if (!currentLicenseKey) return;
     
-    if (!confirm(`¿Estás seguro de resetear TODAS las estadísticas de la licencia ${currentLicenseKey}?\n\nEsta acción NO se puede deshacer.`)) {
+    if (!confirm(`¿Estás seguro de resetear las estadísticas de la licencia ${currentLicenseKey}?\n\nSe eliminarán SOLO las estadísticas de esta licencia.\n\nEsta acción NO se puede deshacer.`)) {
         return;
     }
     

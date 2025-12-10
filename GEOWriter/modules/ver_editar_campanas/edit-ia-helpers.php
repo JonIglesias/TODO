@@ -65,7 +65,8 @@ class AP_IA_Helpers {
         }
         
         // Todo OK - Establecer contexto global
-        $GLOBALS['ap_current_campaign_id'] = 'campaign_' . $campaign->id;
+        // ✅ Usar SOLO el ID numérico
+        $GLOBALS['ap_current_campaign_id'] = (string)$campaign->id;
         $GLOBALS['ap_current_campaign_name'] = $campaign->name;
 
         return ['success' => true];

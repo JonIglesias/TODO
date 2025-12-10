@@ -205,7 +205,7 @@ if ($module !== 'dashboard') {
                         ?></h1>
                         <div class="user-info">
                             <span class="user-name"><?= htmlspecialchars($user['username']) ?></span>
-                            <a href="logout.php" class="btn-logout">Cerrar Sesión</a>
+                            <a href="../logout.php" class="btn-logout">Cerrar Sesión</a>
                         </div>
                     </div>
 
@@ -459,7 +459,7 @@ try {
                 <h1>Dashboard</h1>
                 <div class="user-info">
                     <span class="user-name"><?= htmlspecialchars($user['username']) ?></span>
-                    <a href="logout.php" class="btn-logout">Cerrar Sesión</a>
+                    <a href="../logout.php" class="btn-logout">Cerrar Sesión</a>
                 </div>
             </div>
             

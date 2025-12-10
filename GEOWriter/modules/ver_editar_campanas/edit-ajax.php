@@ -23,7 +23,8 @@ if (wp_doing_ajax() || (defined('DOING_AJAX') && DOING_AJAX)) {
             ));
             
             if ($campaign) {
-                $GLOBALS['ap_current_campaign_id'] = 'campaign_' . $campaign->id;
+                // ✅ Usar SOLO el ID numérico
+                $GLOBALS['ap_current_campaign_id'] = (string)$campaign->id;
                 $GLOBALS['ap_current_campaign_name'] = $campaign->name ?? 'Sin nombre';
             }
         }

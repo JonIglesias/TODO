@@ -943,8 +943,11 @@ function ap_execute_queue_ajax() {
         ));
         
         if ($campaign) {
-            $GLOBALS['ap_current_campaign_id'] = 'campaign_' . $campaign->id;
+            // ✅ Usar SOLO el ID numérico, sin prefijo 'campaign_'
+            $GLOBALS['ap_current_campaign_id'] = (string)$campaign->id;
             $GLOBALS['ap_current_campaign_name'] = $campaign->name ?? 'Sin nombre';
+            // ✅ Generar batch_id para operaciones de content
+            $GLOBALS['ap_current_batch_id'] = 'content_' . $campaign->id . '_' . time();
         }
     }
 

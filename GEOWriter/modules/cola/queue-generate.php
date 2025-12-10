@@ -33,7 +33,8 @@ class AP_Queue_Generator {
         $batch_id = 'queue_' . $this->campaign_id . '_' . time();
         
         // ⭐ ESTABLECER campaign_id, campaign_name Y batch_id en variables globales
-        $GLOBALS['ap_current_campaign_id'] = 'campaign_' . $this->campaign_id;
+        // ✅ Usar SOLO el ID numérico
+        $GLOBALS['ap_current_campaign_id'] = (string)$this->campaign_id;
         $GLOBALS['ap_current_campaign_name'] = $this->campaign->name;
         $GLOBALS['ap_current_batch_id'] = $batch_id;
         
