@@ -28,22 +28,13 @@ class UsageTracking {
     public static function record($licenseId, $operationType, $tokensTotal, $tokensInput = 0, $tokensOutput = 0, $campaignId = null, $campaignName = null, $batchId = null, $model = 'gpt-4o-mini', $endpoint = null) {
         $instance = new self();
 
-        // Determinar batch_type según contexto:
-        // - 'queue' si hay batch_id (operaciones de cola)
-        // - 'content' si hay campaign_id sin batch_id (operaciones de contenido)
-        // - null si no hay campaign_id (operaciones individuales/setup)
-        if ($batchId) {
-            $batchType = 'queue';
-        } elseif ($campaignId) {
-            $batchType = 'content';
-        } else {
-            $batchType = null;
-        }
+        // ⭐ Determinar batch_type según el ENDPOINT usado
+        $batchType = self::getBatchTypeFromEndpoint($endpoint, $batchId, $campaignId);
 
         return $instance->track([
             'license_id' => $licenseId,
             'operation_type' => $operationType,
-            'endpoint' => $endpoint,  // ⭐ Guardar endpoint usado
+            'endpoint' => $endpoint,
             'tokens_total' => $tokensTotal,
             'tokens_input' => $tokensInput,
             'tokens_output' => $tokensOutput,
@@ -51,8 +42,45 @@ class UsageTracking {
             'campaign_name' => $campaignName,
             'batch_id' => $batchId,
             'batch_type' => $batchType,
-            'model' => $model  // ⭐ CRÍTICO: Guardar modelo real usado
+            'model' => $model
         ]);
+    }
+
+    /**
+     * Mapear endpoint a batch_type (proceso principal)
+     *
+     * @param string|null $endpoint Nombre del endpoint
+     * @param string|null $batchId Batch ID (para fallback)
+     * @param string|null $campaignId Campaign ID (para fallback)
+     * @return string|null batch_type: 'SETUP', 'COLA', 'CONTENIDO', o null
+     */
+    private static function getBatchTypeFromEndpoint($endpoint, $batchId = null, $campaignId = null) {
+        if (!$endpoint) {
+            // Fallback a lógica anterior si no hay endpoint
+            if ($batchId) return 'COLA';
+            if ($campaignId) return 'CONTENIDO';
+            return null;
+        }
+
+        // Mapeo de endpoints a procesos principales
+        $endpointMap = [
+            // SETUP - Configuración inicial de campaña
+            'descripcion-empresa' => 'SETUP',
+            'keywords-campana' => 'SETUP',
+            'keywords-seo' => 'SETUP',
+            'prompt-titulos' => 'SETUP',
+            'prompt-contenido' => 'SETUP',
+
+            // COLA - Generación de cola de posts
+            'keywords-imagenes' => 'COLA',
+            'generar-titulo' => 'COLA',
+
+            // CONTENIDO - Generación de contenido
+            'generar-contenido' => 'CONTENIDO',
+            'post-completo' => 'CONTENIDO'
+        ];
+
+        return $endpointMap[$endpoint] ?? null;
     }
     
     /**

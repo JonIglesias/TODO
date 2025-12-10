@@ -59,12 +59,13 @@ class StatsController {
         // ==============================================================================
         $db = Database::getInstance();
 
-        // 1. Obtener registros agrupados por campaña y operation_type
+        // 1. Obtener registros agrupados por campaña, batch_type, endpoint y operation_type
         $rawData = $db->query("
             SELECT
                 COALESCE(campaign_id, 'sin_campana') as campaign_group,
                 COALESCE(campaign_name, 'Operaciones Individuales') as campaign_display_name,
-                COALESCE(batch_id, '') as batch_id,
+                COALESCE(batch_type, 'otros') as batch_type,
+                COALESCE(endpoint, operation_type) as endpoint,
                 operation_type,
                 COUNT(*) as count,
                 SUM(tokens_total) as tokens,
@@ -74,8 +75,15 @@ class StatsController {
             FROM " . DB_PREFIX . "usage_tracking
             WHERE license_id = ?
             AND DATE(created_at) BETWEEN ? AND ?
-            GROUP BY campaign_group, campaign_display_name, batch_id, operation_type
-            ORDER BY MAX(created_at) DESC, campaign_group, operation_type
+            GROUP BY campaign_group, campaign_display_name, batch_type, endpoint, operation_type
+            ORDER BY MAX(created_at) DESC, campaign_group,
+                CASE batch_type
+                    WHEN 'SETUP' THEN 1
+                    WHEN 'COLA' THEN 2
+                    WHEN 'CONTENIDO' THEN 3
+                    ELSE 4
+                END,
+                endpoint
         ", [$license['id'], $dateFrom, $dateTo]);
         
         // Si no hay datos, devolver estructura vacía
@@ -94,20 +102,28 @@ class StatsController {
             ]);
         }
         
-        // 2. Construir estructura agrupada por CAMPAÑA
+        // 2. Construir estructura jerárquica: Campaña → batch_type → endpoint
         // $campaignData = [
         //   'campaign_123' => [
         //     'campaign_name' => 'Mi Campaña',
-        //     'batch_id' => 'autopilot_123_...',
         //     'first_operation' => '2025-12-09 10:00:00',
         //     'last_operation' => '2025-12-09 12:30:00',
         //     'operations_count' => 50,
         //     'tokens_total' => 18000,
         //     'cost_total' => 0.18,
-        //     'by_type' => [
-        //       'title' => ['count' => 10, 'tokens' => 2000, 'cost' => 0.02],
-        //       'image_keywords' => ['count' => 10, 'tokens' => 1500, 'cost' => 0.015],
-        //       'content' => ['count' => 10, 'tokens' => 14500, 'cost' => 0.145]
+        //     'processes' => [
+        //       'SETUP' => [
+        //         'operations_count' => 5,
+        //         'tokens_total' => 3000,
+        //         'cost_total' => 0.03,
+        //         'endpoints' => [
+        //           'descripcion-empresa' => ['count' => 1, 'tokens' => 500, 'cost' => 0.005],
+        //           'keywords-seo' => ['count' => 1, 'tokens' => 400, 'cost' => 0.004],
+        //           ...
+        //         ]
+        //       ],
+        //       'COLA' => [...],
+        //       'CONTENIDO' => [...]
         //     ]
         //   ]
         // ]
@@ -115,19 +131,29 @@ class StatsController {
         foreach ($rawData as $row) {
             $campaignGroup = $row['campaign_group'];
             $campaignName = $row['campaign_display_name'];
-            $batchId = $row['batch_id'];
-            $opType = $row['operation_type'];
+            $batchType = $row['batch_type'];
+            $endpoint = $row['endpoint'];
 
+            // Inicializar campaña si no existe
             if (!isset($campaignData[$campaignGroup])) {
                 $campaignData[$campaignGroup] = [
                     'campaign_name' => $campaignName,
-                    'batch_id' => $batchId,
                     'first_operation' => $row['first_operation'],
                     'last_operation' => $row['last_operation'],
                     'operations_count' => 0,
                     'tokens_total' => 0,
                     'cost_total' => 0,
-                    'by_type' => []
+                    'processes' => []
+                ];
+            }
+
+            // Inicializar batch_type si no existe
+            if (!isset($campaignData[$campaignGroup]['processes'][$batchType])) {
+                $campaignData[$campaignGroup]['processes'][$batchType] = [
+                    'operations_count' => 0,
+                    'tokens_total' => 0,
+                    'cost_total' => 0,
+                    'endpoints' => []
                 ];
             }
 
@@ -135,53 +161,82 @@ class StatsController {
             $tokens = intval($row['tokens']);
             $cost = floatval($row['cost']);
 
+            // Actualizar totales de campaña
             $campaignData[$campaignGroup]['operations_count'] += $count;
             $campaignData[$campaignGroup]['tokens_total'] += $tokens;
             $campaignData[$campaignGroup]['cost_total'] += $cost;
 
-            $campaignData[$campaignGroup]['by_type'][$opType] = [
+            // Actualizar totales de batch_type
+            $campaignData[$campaignGroup]['processes'][$batchType]['operations_count'] += $count;
+            $campaignData[$campaignGroup]['processes'][$batchType]['tokens_total'] += $tokens;
+            $campaignData[$campaignGroup]['processes'][$batchType]['cost_total'] += $cost;
+
+            // Agregar endpoint al batch_type
+            $campaignData[$campaignGroup]['processes'][$batchType]['endpoints'][$endpoint] = [
                 'count' => $count,
                 'tokens' => $tokens,
                 'cost' => $cost
             ];
+
+            // Actualizar fechas
+            if ($row['first_operation'] < $campaignData[$campaignGroup]['first_operation']) {
+                $campaignData[$campaignGroup]['first_operation'] = $row['first_operation'];
+            }
+            if ($row['last_operation'] > $campaignData[$campaignGroup]['last_operation']) {
+                $campaignData[$campaignGroup]['last_operation'] = $row['last_operation'];
+            }
         }
         
-        // 3. Construir respuesta agrupada por CAMPAÑA
+        // 3. Construir respuesta con estructura jerárquica
         $campaigns = [];
         $totalOps = 0;
         $totalTokens = 0;
         $totalCost = 0;
 
         foreach ($campaignData as $campaignId => $campaign) {
-            // Convertir operations by_type a array
-            $operations = [];
-            foreach ($campaign['by_type'] as $opType => $stats) {
-                $operations[] = [
-                    'operation' => $opType,
-                    'quantity' => $stats['count'],
-                    'tokens' => $stats['tokens'],
-                    'cost' => round($stats['cost'], 6)
-                ];
+            // Construir array de procesos (SETUP, COLA, CONTENIDO)
+            $processes = [];
+            foreach ($campaign['processes'] as $processType => $processData) {
+                // Construir array de endpoints dentro del proceso
+                $endpoints = [];
+                foreach ($processData['endpoints'] as $endpointName => $endpointStats) {
+                    $endpoints[] = [
+                        'endpoint' => $endpointName,
+                        'quantity' => $endpointStats['count'],
+                        'tokens' => $endpointStats['tokens'],
+                        'cost' => round($endpointStats['cost'], 6)
+                    ];
+                }
 
-                $totalOps += $stats['count'];
-                $totalTokens += $stats['tokens'];
-                $totalCost += $stats['cost'];
+                $processes[] = [
+                    'process_type' => $processType,
+                    'totals' => [
+                        'total_operations' => $processData['operations_count'],
+                        'total_tokens' => $processData['tokens_total'],
+                        'total_cost' => round($processData['cost_total'], 6)
+                    ],
+                    'endpoints' => $endpoints
+                ];
             }
+
+            // Actualizar totales globales
+            $totalOps += $campaign['operations_count'];
+            $totalTokens += $campaign['tokens_total'];
+            $totalCost += $campaign['cost_total'];
 
             $campaigns[] = [
                 'campaign_id' => $campaignId,
                 'campaign_name' => $campaign['campaign_name'],
-                'batch_id' => $campaign['batch_id'],
                 'period' => [
                     'from' => $campaign['first_operation'],
                     'to' => $campaign['last_operation']
                 ],
-                'operations' => $operations,
                 'totals' => [
                     'total_operations' => $campaign['operations_count'],
                     'total_tokens' => $campaign['tokens_total'],
                     'total_cost' => round($campaign['cost_total'], 6)
-                ]
+                ],
+                'processes' => $processes
             ];
         }
 
