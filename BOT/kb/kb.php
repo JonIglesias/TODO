@@ -158,10 +158,17 @@ function phsbot_kb_admin_page() {
         </div>
 
         <!-- Texto informativo (fuera del header) -->
-        <p style="margin: 15px 0 10px 0; color: #000; font-size: 13px; line-height: 1.5;">
-            Este documento es el cerebro de tu Chatbot. La IA lee tu sitio web y genera un documento maestro para responder a tus clientes.
-            <strong>Revísalo y edítalo</strong> para añadir precios, promociones, políticas, horarios y datos de contacto relevantes.
-        </p>
+        <div style="margin: 15px 0 10px 0; color: #000; font-size: 13px; line-height: 1.5;">
+            <p style="margin: 0 0 10px 0;">
+                Este documento constituye la base de conocimiento central de su Chatbot con IA. El sistema analizará automáticamente su sitio web para generar un documento maestro que le permitirá ofrecer respuestas precisas a sus clientes.
+            </p>
+            <p style="margin: 0 0 10px 0;">
+                Le recomendamos revisar y personalizar este contenido incluyendo información actualizada sobre precios, promociones vigentes, políticas comerciales, horarios de atención y datos de contacto.
+            </p>
+            <p style="margin: 0; color: #666; font-size: 12px;">
+                <strong>Nota técnica:</strong> En caso de sitios web con gran volumen de contenido, el proceso de análisis puede exceder el tiempo límite establecido. Si esto ocurre, por favor solicite asistencia a través de nuestro <a href="https://bocetosmarketing.com/enviar-ticket/" target="_blank" style="color: #2271b1; text-decoration: none;">sistema de tickets</a>.
+            </p>
+        </div>
 
         <!-- Aviso informativo de generación (bajo el texto informativo) -->
         <div id="phsbot-kb-gen-notice" class="notice" style="display:none; margin: 15px 0; padding: 12px; background: #f5f5f5; border-left: 3px solid #000; color: #000;">
