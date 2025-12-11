@@ -318,11 +318,11 @@ function phsbot_kb_collect_urls_for_base($scheme, $host, $path, $limit = 60, $pa
                     if (phsbot_kb_is_blocked_url($u)) continue;
                     if ($posts_q===0 && phsbot_kb_is_likely_post($u, $post_exclude_set)) continue;
 
-                    // Heurística simple de “página de servicio” por slug (neutra)
+                    // Heurística simple de "página de servicio" por slug (neutra)
                     $slug = trim(parse_url($nu, PHP_URL_PATH), '/');
                     $score = 0;
-                    if (preg_match('~/(servicios?|services?|productos?|products?|especies?|species?)($|/)~i', $nu)) $score += 2;
-                    if (preg_match('~/(ibex|montes|rececho|caza|hunt|grand\-slam|vacaciones|familia|trofeo|trophy)~i', $nu)) $score += 1;
+                    if (preg_match('~/(servicios?|services?|productos?|products?)($|/)~i', $nu)) $score += 2;
+                    if (preg_match('~/(ofertas?|offers?|promociones?|promotions?|soluciones?|solutions?|caracteristicas?|features?|categorias?|categories?)~i', $nu)) $score += 1;
 
                     if ($pages_room > 0 && $score >= 1) {
                         $urls_pages[] = $u;
