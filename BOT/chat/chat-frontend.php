@@ -102,7 +102,6 @@ add_action('wp_enqueue_scripts', function(){
       --phsbot-user-bubble: <?php echo esc_html($cu); ?>;
       --phsbot-width: <?php echo esc_html($w); ?>;
       --phsbot-height: <?php echo esc_html($h); ?>;
-      --phsbot-whatsapp: <?php echo esc_html( phsbot_setting('color_whatsapp', '#25D366') ); ?>;
       --phsbot-btn-h:    <?php echo (int) phsbot_setting('btn_height', 44); ?>px;
       --phsbot-head-btn: <?php echo (int) phsbot_setting('head_btn_size', 26); ?>px;
       --mic-stroke-w:    <?php echo (int) phsbot_setting('mic_stroke_w', 1); ?>px;

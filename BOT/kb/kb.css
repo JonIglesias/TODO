@@ -36,8 +36,38 @@
 .phsbot-kb-help{ background:#f8fafc; border:1px solid #e5e7eb; padding:10px 12px; margin:10px 0 14px; }
 .phsbot-kb-help-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
 
-/* Tabs */
-.phsbot-kb-tabs{ margin-top:10px; }
+/* Tabs - estilo redondeado */
+.phsbot-kb-tabs.nav-tab-wrapper {
+  border-bottom: none !important;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  padding-top: 0 !important;
+  display: flex;
+  gap: 8px;
+}
+
+.phsbot-kb-tabs .nav-tab {
+  background: #f0f0f0;
+  color: #2c3338;
+  border: none !important;
+  border-radius: 8px 8px 0 0;
+  padding: 10px 20px;
+  margin: 0 !important;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.phsbot-kb-tabs .nav-tab:hover {
+  background: #e5e5e5;
+}
+
+.phsbot-kb-tabs .nav-tab-active,
+.phsbot-kb-tabs .nav-tab-active:hover {
+  background: #ffffff !important;
+  color: #000000;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
 
 /* Infobar chips */
 .phsbot-kb-infobar{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; margin-bottom:10px; }

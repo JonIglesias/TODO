@@ -1,4 +1,37 @@
 /* PHSBOT – Leads Admin Styles (accordion detail) */
+
+/* Tabs - estilo redondeado */
+.nav-tab-wrapper {
+  border-bottom: none !important;
+  margin-bottom: 20px;
+  padding-top: 0 !important;
+  display: flex;
+  gap: 8px;
+}
+
+.nav-tab-wrapper .nav-tab {
+  background: #f0f0f0;
+  color: #2c3338;
+  border: none !important;
+  border-radius: 8px 8px 0 0;
+  padding: 10px 20px;
+  margin: 0 !important;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-tab-wrapper .nav-tab:hover {
+  background: #e5e5e5;
+}
+
+.nav-tab-wrapper .nav-tab-active,
+.nav-tab-wrapper .nav-tab-active:hover {
+  background: #ffffff !important;
+  color: #000000;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
 .phsbot-wrap .phsbot-leads-toolbar{display:flex;gap:10px;align-items:center;margin:12px 0 16px;flex-wrap:wrap}
 #phsbot-leads-search{min-width:320px;max-width:520px;padding:6px 8px}
 .phsbot-switch{display:inline-flex;gap:8px;align-items:center}

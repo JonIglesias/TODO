@@ -218,9 +218,8 @@ background: var(--phsbot-footer, var(--phsbot-bg, #fff));
 
 /* ======== BOTONES: Base (.phsbot-btn) ======== */
 .phsbot-btn{
-  --phs-primary: var(--phsbot-primary, #667a3a);
+  --phs-primary: var(--phsbot-primary, #1e1e1e);
   --phs-black: #000;
-  --phs-green: var(--phsbot-whatsapp, #25D366);
   --phsbot-btn-h: 44px;                /* altura común de mic y enviar */
   height: var(--phsbot-btn-h, 44px);
   display: inline-flex;

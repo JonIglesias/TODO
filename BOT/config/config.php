@@ -78,7 +78,6 @@ function phsbot_config_handle_save(){
   $g['color_text']        = isset($_POST['color_text'])        ? sanitize_hex_color($_POST['color_text'])        : ($g['color_text']        ?? '#000000');
   $g['color_bot_bubble']  = isset($_POST['color_bot_bubble'])  ? sanitize_hex_color($_POST['color_bot_bubble'])  : ($g['color_bot_bubble']  ?? '#f3f3f3');
   $g['color_user_bubble'] = isset($_POST['color_user_bubble']) ? sanitize_hex_color($_POST['color_user_bubble']) : ($g['color_user_bubble'] ?? '#ffffff');
-  $g['color_whatsapp']    = isset($_POST['color_whatsapp'])    ? sanitize_hex_color($_POST['color_whatsapp'])    : ($g['color_whatsapp']    ?? '#25D366');
   $g['color_footer']      = isset($_POST['color_footer'])      ? sanitize_hex_color($_POST['color_footer'])      : ($g['color_footer']      ?? '#1e1e1e');
 
   $g['btn_height']     = isset($_POST['btn_height'])     ? max(36, min(56, intval($_POST['btn_height'])))           : ($g['btn_height']     ?? 44);
@@ -242,7 +241,6 @@ function phsbot_config_render_page(){
   $color_text         = isset($g['color_text'])         ? $g['color_text']         : '#000000';
   $color_bot_bubble   = isset($g['color_bot_bubble'])   ? $g['color_bot_bubble']   : '#f3f3f3';
   $color_user_bubble  = isset($g['color_user_bubble'])  ? $g['color_user_bubble']  : '#ffffff';
-  $color_whatsapp     = isset($g['color_whatsapp'])     ? $g['color_whatsapp']     : '#25D366';
 
   // Footer (preview)
   $color_footer_saved   = isset($g['color_footer']) ? $g['color_footer'] : '#1e1e1e';
@@ -600,7 +598,6 @@ PHSBOT_DEF;
                 <h2 class="phsbot-section-title">Colores</h2>
 
                 <!-- Mantener campos ocultos para compatibilidad backend -->
-                <input type="hidden" name="color_whatsapp" value="<?php echo esc_attr($color_whatsapp);?>">
                 <input type="hidden" name="btn_height" value="<?php echo esc_attr($btn_height);?>">
                 <input type="hidden" name="head_btn_size" value="<?php echo esc_attr($head_btn_size);?>">
                 <input type="hidden" name="mic_stroke_w" value="<?php echo esc_attr($mic_stroke_w);?>">
@@ -663,7 +660,6 @@ PHSBOT_DEF;
                         --phsbot-user-bubble: <?php echo esc_attr($color_user_bubble); ?>;
                         --phsbot-primary: <?php echo esc_attr($color_primary); ?>;
                         --phsbot-secondary: <?php echo esc_attr($color_secondary); ?>;
-                        --phsbot-whatsapp: <?php echo esc_attr($color_whatsapp); ?>;
                         --phsbot-footer: <?php echo esc_attr($color_footer_preview); ?>;
                         --phsbot-btn-h: <?php echo esc_attr(intval($btn_height)); ?>px;
                         --phsbot-head-btn: <?php echo esc_attr(intval($head_btn_size)); ?>px;
