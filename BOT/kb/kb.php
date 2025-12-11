@@ -144,10 +144,20 @@ function phsbot_kb_admin_page() {
 
         <!-- Header gris estilo GeoWriter -->
         <div class="phsbot-module-header" style="display: flex; justify-content: space-between; align-items: center;">
-            <h1 style="margin: 0;">Base de Conocimiento</h1>
+            <h1 style="margin: 0; color: rgba(0, 0, 0, 0.8);">Base de Conocimiento</h1>
             <div>
+                <button type="button" class="button" id="phsbot-kb-generate" style="background: #2c3338; color: #fff; border-color: #2c3338; font-size: 14px; padding: 6px 20px; margin-right: 10px;">
+                    <span class="dashicons dashicons-update" style="vertical-align: middle;"></span> Generar documento
+                </button>
+                <?php if ($is_admin_mode): ?>
                 <button type="button" class="button button-primary" id="phsbot-kb-save-config-global">Guardar configuración</button>
+                <?php endif; ?>
             </div>
+        </div>
+
+        <!-- Aviso informativo de generación (bajo el header) -->
+        <div id="phsbot-kb-gen-notice" class="notice notice-warning" style="display:none; margin: 15px 0; padding: 12px;">
+            <strong>⏳ Generando documento...</strong> Este proceso puede tardar varios minutos. Por favor, no cierres esta ventana.
         </div>
 
         <!-- Barra de progreso bajo el título (visible al generar) -->
@@ -182,7 +192,8 @@ function phsbot_kb_admin_page() {
             </div>
             <?php endif; ?>
 
-            <div class="phsbot-kb-grid">
+            <div class="phsbot-kb-grid" <?php if (!$is_admin_mode) echo 'style="display: block;"'; ?>>
+                <?php if ($is_admin_mode): ?>
                 <div class="phsbot-kb-col phsbot-kb-col-left">
 
                     <form method="post" class="phsbot-kb-form">
@@ -217,12 +228,8 @@ function phsbot_kb_admin_page() {
                                 <textarea name="phsbot_kb_prompt" id="phsbot_kb_prompt" class="large-text code" rows="10"><?php echo esc_textarea($prompt ?: phsbot_kb_get_default_prompt()); ?></textarea>
                             </div>
                         </div>
-                        <?php else: ?>
-                        <!-- MODO NORMAL: Prompt base oculto pero funcional -->
-                        <input type="hidden" name="phsbot_kb_prompt" id="phsbot_kb_prompt" value="<?php echo esc_attr($prompt ?: phsbot_kb_get_default_prompt()); ?>" />
-                        <?php endif; ?>
 
-                        <!-- Paso 3 - Prompt adicional (siempre visible, sin acordeón) -->
+                        <!-- Paso 3 - Prompt adicional (modo admin) -->
                         <div class="phsbot-kb-section">
                             <h2 class="title">Prompt adicional (opcional)</h2>
                             <div>
@@ -230,7 +237,7 @@ function phsbot_kb_admin_page() {
                             </div>
                         </div>
 
-                        <!-- Paso 4 - Dominios adicionales (siempre visible, sin acordeón) -->
+                        <!-- Paso 4 - Dominios adicionales (modo admin) -->
                         <div class="phsbot-kb-section">
                             <h2 class="title">Dominios adicionales (opcional)</h2>
                             <div>
@@ -239,8 +246,7 @@ function phsbot_kb_admin_page() {
                             </div>
                         </div>
 
-                        <?php if ($is_admin_mode): ?>
-                        <!-- MODO ADMIN: Paso 5 - Límite de URLs -->
+                        <!-- Paso 5 - Límite de URLs -->
                         <div class="phsbot-kb-section" data-acc="1">
                             <h2 class="title acc-head">5) Límite de URLs a leer</h2>
                             <div class="acc-body">
@@ -255,31 +261,25 @@ function phsbot_kb_admin_page() {
                                 </p>
                             </div>
                         </div>
-                        <?php else: ?>
-                        <!-- MODO NORMAL: Límites ocultos pero funcionales con valores por defecto -->
-                        <input type="hidden" name="phsbot_kb_max_urls" value="<?php echo esc_attr($max_urls); ?>" />
-                        <input type="hidden" name="phsbot_kb_max_pages_main" value="<?php echo esc_attr($max_pages_main); ?>" />
-                        <input type="hidden" name="phsbot_kb_max_posts_main" value="<?php echo esc_attr($max_posts_main); ?>" />
-                        <?php endif; ?>
 
-                        <!-- Botón Generar (siempre visible, FUERA de persiana) -->
-                        <div class="phsbot-kb-section" style="border-top: 2px solid #ddd; padding-top: 20px; margin-top: 20px;">
-                            <p>
-                                <button type="button" class="button button-primary button-hero" id="phsbot-kb-generate" style="font-size: 16px; padding: 10px 30px;">
-                                    <span class="dashicons dashicons-update" style="vertical-align: middle;"></span> Generar documento
-                                </button>
-                                <span class="phsbot-kb-badge" style="margin-left: 15px; font-size: 14px;">v<span id="phsbot-kb-version-badge"><?php echo esc_html($version); ?></span></span>
-                                <span id="phsbot-kb-status" class="phsbot-kb-status" style="display: block; margin-top: 10px; font-style: italic; color: #666;"><?php echo $last_run ? 'Última generación: ' . esc_html($last_run) : ''; ?></span>
-                            </p>
-                            <p id="phsbot-kb-gen-notice" class="description" style="display:none; background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-top: 15px;">
-                                <strong>⏳ Generando documento...</strong> Este proceso puede tardar varios minutos. Por favor, no cierres esta ventana.
-                            </p>
-                            <textarea id="phsbot_kb_document" style="display:none;"><?php echo esc_textarea($document); ?></textarea>
-                        </div>
+                        <textarea id="phsbot_kb_document" style="display:none;"><?php echo esc_textarea($document); ?></textarea>
                     </form>
                 </div>
+                <?php else: ?>
+                <!-- MODO NORMAL: Solo campos hidden necesarios -->
+                <form method="post" class="phsbot-kb-form" style="display:none;">
+                    <?php wp_nonce_field('phsbot_kb_save_nonce', 'phsbot_kb_save_nonce'); ?>
+                    <input type="hidden" name="phsbot_kb_prompt" id="phsbot_kb_prompt" value="<?php echo esc_attr($prompt ?: phsbot_kb_get_default_prompt()); ?>" />
+                    <input type="hidden" name="phsbot_kb_extra_prompt" id="phsbot_kb_extra_prompt" value="<?php echo esc_attr($extra_prompt); ?>" />
+                    <input type="hidden" name="phsbot_kb_extra_domains" id="phsbot_kb_extra_domains" value="<?php echo esc_attr($extra_domains); ?>" />
+                    <input type="hidden" name="phsbot_kb_max_urls" value="<?php echo esc_attr($max_urls); ?>" />
+                    <input type="hidden" name="phsbot_kb_max_pages_main" value="<?php echo esc_attr($max_pages_main); ?>" />
+                    <input type="hidden" name="phsbot_kb_max_posts_main" value="<?php echo esc_attr($max_posts_main); ?>" />
+                    <textarea id="phsbot_kb_document" style="display:none;"><?php echo esc_textarea($document); ?></textarea>
+                </form>
+                <?php endif; ?>
 
-                <div class="phsbot-kb-col phsbot-kb-col-right">
+                <div class="phsbot-kb-col phsbot-kb-col-right" <?php if (!$is_admin_mode) echo 'style="width: 100%; max-width: 100%;"'; ?>>
                     <div class="phsbot-kb-section phsbot-kb-docbox">
                         <div class="phsbot-kb-right-head">
                             <h2 class="title">Base de Conocimiento</h2>
