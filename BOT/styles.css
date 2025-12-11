@@ -1,11 +1,10 @@
 
 button#phsbot-send:hover {
-       background-color: #808080;
-    color: white;
-
+    background-color: #dbdbdb;
+    color: #000;
 }
 button#phsbot-send {
-    background-color: #ffffff ;
+    background-color: #ffffff;
 }
 
 button#phsbot-send {

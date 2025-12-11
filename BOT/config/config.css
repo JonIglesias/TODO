@@ -88,8 +88,10 @@
   cursor:pointer; transition: background .18s ease, color .18s ease, transform .06s ease;
 }
 #phsbot-preview .phsbot-mic svg{ width:18px; height:18px; display:block; }
-#phsbot-preview .phsbot-mic:hover{background:var(--phsbot-whatsapp,#25D366);color:#fff}
+#phsbot-preview .phsbot-mic:hover{background:var(--phsbot-secondary,#dbdbdb);color:#000}
 #phsbot-preview .phsbot-mic:active{ transform: translateY(1px); }
+#phsbot-preview #phsbot-send:hover{background:var(--phsbot-secondary,#dbdbdb);color:#000}
+#phsbot-preview #phsbot-send:active{ transform: translateY(1px); }
 /* --- FIX: el tamaño de fuente de las burbujas siempre usa la variable --- */
 #phsbot-preview .phs-msg .phsbot-bubble {
   font-size: var(--phsbot-bubble-fs, 15px);

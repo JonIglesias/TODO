@@ -80,13 +80,13 @@ add_action('wp_enqueue_scripts', function(){
   $w     = (string) phsbot_setting('chat_width',  '360px');
   $h     = (string) phsbot_setting('chat_height', '720px');
 
-  $c1  = (string) phsbot_setting('color_primary',    'rgba(0, 0, 0, 0.8)');
-  $c2  = (string) phsbot_setting('color_secondary',  '#808080');
-  $cbg = (string) phsbot_setting('color_background', '#ffffff');
-  $ctx = (string) phsbot_setting('color_text',       '#111111');
-  $cb  = (string) phsbot_setting('color_bot_bubble', '#f1f1f2');
-  $cu  = (string) phsbot_setting('color_user_bubble','#1f7ae0');
-  $cfoot = (string) phsbot_setting('color_footer', $cbg);
+  $c1  = (string) phsbot_setting('color_primary',    '#1e1e1e');
+  $c2  = (string) phsbot_setting('color_secondary',  '#dbdbdb');
+  $cbg = (string) phsbot_setting('color_background', '#e8e8e8');
+  $ctx = (string) phsbot_setting('color_text',       '#000000');
+  $cb  = (string) phsbot_setting('color_bot_bubble', '#f3f3f3');
+  $cu  = (string) phsbot_setting('color_user_bubble','#ffffff');
+  $cfoot = (string) phsbot_setting('color_footer', '#1e1e1e');
 
   wp_localize_script('phsbot-chat','PHSBOT_CHAT',$payload);
   wp_localize_script('phsbot-chat','PHSBOT_CHAT_UI',$UI);
