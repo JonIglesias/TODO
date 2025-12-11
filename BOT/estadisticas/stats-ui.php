@@ -2,7 +2,7 @@
 
 <div class="wrap phsbot-module-wrap phsbot-stats-wrapper">
     <div class="phsbot-module-header" style="display: flex; justify-content: space-between; align-items: center;">
-        <h1 style="margin: 0; font-size: 24px; font-weight: 600;">Estadísticas de Uso del Chatbot</h1>
+        <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: rgba(0, 0, 0, 0.8);">Estadísticas de Uso del Chatbot</h1>
         <div style="display: flex; gap: 12px; align-items: center;">
             <select id="stats-period" class="phsbot-period-select">
                 <option value="current">Período actual de facturación</option>

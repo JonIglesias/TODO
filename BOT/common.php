@@ -58,7 +58,6 @@ $__phsbot_modules = array(
     'kb',
     'leads',
     'estadisticas',
-    'integrations',
     'inject',
     'formuchat',
     'voice_ui',

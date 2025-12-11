@@ -121,7 +121,7 @@ if (!function_exists('phsbot_leads_admin_page')) {
 
         // Header gris estilo GeoWriter
         echo '  <div class="phsbot-module-header" style="display: flex; justify-content: space-between; align-items: center;">';
-        echo '    <h1 style="margin: 0;">'.esc_html__('Leads & Scoring','phsbot').'</h1>';
+        echo '    <h1 style="margin: 0; color: rgba(0, 0, 0, 0.8);">'.esc_html__('Leads & Scoring','phsbot').'</h1>';
         echo '  </div>';
 
         if (!empty($_GET['phsbot_saved'])) {

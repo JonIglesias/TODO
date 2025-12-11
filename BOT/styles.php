@@ -82,7 +82,6 @@ add_action('admin_enqueue_scripts', function ($hook) {
 /* Fallback de comprobación: si ves este borde azul, el hook funciona,
    pero el archivo admin-inject.css no se encontró en las rutas previstas. */
 #phsbot-inject-table { outline: 3px solid #5a8dee !important; border-radius: 10px; }
-.wrap h1::after { content: " (fallback CSS)"; color:#c00; font-size:12px; margin-left:6px; }
 CSS;
     wp_add_inline_style('phsbot-inject-admin-fallback', $inline);
 }, 99);

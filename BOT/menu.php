@@ -123,18 +123,6 @@ add_action('admin_menu', function () {
         );
     }
 
-    // Submenú: Integraciones
-    if (function_exists('phsbot_render_integrations_page')) {
-        add_submenu_page(
-            $menu_slug,
-            'Integraciones',
-            'Integraciones',
-            $cap_settings,
-            'phsbot-integrations',
-            'phsbot_render_integrations_page'
-        );
-    }
-
     // Submenú: Estadísticas
     if (function_exists('phsbot_stats_page')) {
         add_submenu_page(
