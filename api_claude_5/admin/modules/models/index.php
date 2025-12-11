@@ -43,20 +43,32 @@ function syncOpenAIPrices($db) {
             return ['success' => false, 'error' => 'Respuesta inválida de OpenAI'];
         }
 
-        // Precios conocidos de OpenAI (Diciembre 2024) - USD por 1.000 tokens
+        // Precios conocidos de OpenAI (Actualizado Diciembre 2025) - USD por 1.000 tokens
         $knownPrices = [
+            // GPT-4.1 Series (April 2025) - MUST be BEFORE gpt-4 to avoid wrong matching
+            'gpt-4.1' => ['input' => 0.002, 'output' => 0.008],
+            'gpt-4.1-mini' => ['input' => 0.0004, 'output' => 0.0016],
+            'gpt-4.1-nano' => ['input' => 0.0002, 'output' => 0.0008],
+
+            // GPT-4o Series
             'gpt-4o' => ['input' => 0.0025, 'output' => 0.01],
             'gpt-4o-2024-11-20' => ['input' => 0.0025, 'output' => 0.01],
             'gpt-4o-2024-08-06' => ['input' => 0.0025, 'output' => 0.01],
             'gpt-4o-2024-05-13' => ['input' => 0.005, 'output' => 0.015],
             'gpt-4o-mini' => ['input' => 0.00015, 'output' => 0.0006],
             'gpt-4o-mini-2024-07-18' => ['input' => 0.00015, 'output' => 0.0006],
+
+            // GPT-4 Turbo & Legacy
             'gpt-4-turbo' => ['input' => 0.01, 'output' => 0.03],
             'gpt-4-turbo-2024-04-09' => ['input' => 0.01, 'output' => 0.03],
             'gpt-4' => ['input' => 0.03, 'output' => 0.06],
             'gpt-4-0613' => ['input' => 0.03, 'output' => 0.06],
+
+            // GPT-3.5
             'gpt-3.5-turbo' => ['input' => 0.0005, 'output' => 0.0015],
             'gpt-3.5-turbo-0125' => ['input' => 0.0005, 'output' => 0.0015],
+
+            // Other Models
             'chatgpt-4o-latest' => ['input' => 0.005, 'output' => 0.015],
             'o1' => ['input' => 0.015, 'output' => 0.06],
             'o1-preview' => ['input' => 0.015, 'output' => 0.06],
@@ -72,20 +84,6 @@ function syncOpenAIPrices($db) {
             // Solo procesar modelos GPT y O1
             if (!preg_match('/^(gpt-|o1|chatgpt)/i', $modelId)) {
                 continue;
-            }
-
-            // FILTRAR MODELOS FICTICIOS QUE NO EXISTEN EN OPENAI
-            // gpt-4.1, gpt-4.1-mini, gpt-4.1-nano NO SON MODELOS REALES
-            $invalidModels = ['gpt-4.1', 'gpt-4.1-mini', 'gpt-4.1-nano'];
-            $isInvalid = false;
-            foreach ($invalidModels as $invalidPrefix) {
-                if (strpos($modelId, $invalidPrefix) === 0) {
-                    $isInvalid = true;
-                    break;
-                }
-            }
-            if ($isInvalid) {
-                continue; // Saltar modelos ficticios
             }
 
             // Buscar precio conocido

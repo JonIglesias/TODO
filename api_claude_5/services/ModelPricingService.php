@@ -66,15 +66,21 @@ class ModelPricingService {
     /**
      * Precios por defecto actualizados manualmente
      *
-     * @return array Precios en USD por 1.000 tokens (Dic 2024)
+     * @return array Precios en USD por 1.000 tokens (Dic 2025)
      */
     private static function getAllFallbackPrices() {
         return [
             // OpenAI Models (precios por 1K tokens)
-            'gpt-4' => ['input' => 0.03, 'output' => 0.06],
-            'gpt-4-turbo' => ['input' => 0.01, 'output' => 0.03],
+            // GPT-4.1 Series (April 2025) - MUST be BEFORE gpt-4
+            'gpt-4.1' => ['input' => 0.002, 'output' => 0.008],
+            'gpt-4.1-mini' => ['input' => 0.0004, 'output' => 0.0016],
+            'gpt-4.1-nano' => ['input' => 0.0002, 'output' => 0.0008],
+
+            // GPT-4o & GPT-4 Turbo
             'gpt-4o' => ['input' => 0.0025, 'output' => 0.01],
             'gpt-4o-mini' => ['input' => 0.00015, 'output' => 0.0006],
+            'gpt-4-turbo' => ['input' => 0.01, 'output' => 0.03],
+            'gpt-4' => ['input' => 0.03, 'output' => 0.06],
             'gpt-3.5-turbo' => ['input' => 0.0005, 'output' => 0.0015],
 
             // Anthropic Claude Models (precios por 1K tokens)
