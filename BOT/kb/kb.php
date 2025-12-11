@@ -199,8 +199,7 @@ function phsbot_kb_admin_page() {
                     <form method="post" class="phsbot-kb-form">
                         <?php wp_nonce_field('phsbot_kb_save_nonce', 'phsbot_kb_save_nonce'); ?>
 
-                        <?php if ($is_admin_mode): ?>
-                        <!-- MODO ADMIN: Paso 0 - Override de dominio -->
+                        <!-- Paso 0 - Override de dominio -->
                         <div class="phsbot-kb-section" data-acc="1">
                             <h2 class="title acc-head">0) Override de dominio/carpeta (opcional)</h2>
                             <div class="acc-body">
