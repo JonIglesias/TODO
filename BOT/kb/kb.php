@@ -145,11 +145,7 @@ function phsbot_kb_admin_page() {
         <!-- Header gris estilo GeoWriter -->
         <div class="phsbot-module-header" style="display: flex; justify-content: space-between; align-items: center;">
             <div>
-                <h1 style="margin: 0 0 8px 0; color: rgba(0, 0, 0, 0.8);">Base de Conocimiento</h1>
-                <p style="margin: 0; color: #666; font-size: 12px; line-height: 1.4;">
-                    Este documento es el cerebro de tu Chatbot. La IA lee tu sitio web y genera un documento maestro para responder a tus clientes.
-                    <strong>Revísalo y edítalo</strong> para añadir precios, promociones, políticas, horarios y datos de contacto relevantes.
-                </p>
+                <h1 style="margin: 0; color: rgba(0, 0, 0, 0.8);">Base de Conocimiento</h1>
             </div>
             <div>
                 <button type="button" class="button" id="phsbot-kb-generate" style="background: #2c3338; color: #fff; border-color: #2c3338; font-size: 14px; padding: 6px 20px; margin-right: 10px;">
@@ -161,9 +157,15 @@ function phsbot_kb_admin_page() {
             </div>
         </div>
 
-        <!-- Aviso informativo de generación (bajo el header) -->
-        <div id="phsbot-kb-gen-notice" class="notice notice-warning" style="display:none; margin: 15px 0; padding: 12px;">
-            <strong>⏳ Generando documento...</strong> Este proceso puede tardar varios minutos. Por favor, no cierres esta ventana.
+        <!-- Texto informativo (fuera del header) -->
+        <p style="margin: 15px 0 10px 0; color: #000; font-size: 13px; line-height: 1.5;">
+            Este documento es el cerebro de tu Chatbot. La IA lee tu sitio web y genera un documento maestro para responder a tus clientes.
+            <strong>Revísalo y edítalo</strong> para añadir precios, promociones, políticas, horarios y datos de contacto relevantes.
+        </p>
+
+        <!-- Aviso informativo de generación (bajo el texto informativo) -->
+        <div id="phsbot-kb-gen-notice" class="notice" style="display:none; margin: 15px 0; padding: 12px; background: #f5f5f5; border-left: 3px solid #000; color: #000;">
+            <strong>Generando documento...</strong> Este proceso puede tardar varios minutos. Por favor, no cierres esta ventana.
         </div>
 
         <!-- Barra de progreso bajo el título (visible al generar) -->
