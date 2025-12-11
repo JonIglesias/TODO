@@ -420,6 +420,16 @@ add_action('admin_enqueue_scripts', function(){
     if($screen && !empty($screen->id)){ $sid=strtolower($screen->id); if(strpos($sid,'phsbot')!==false && strpos($sid,'inject')!==false)$is=true; }
     if(!$is && isset($_GET['page'])){ $p=strtolower(sanitize_text_field(wp_unslash($_GET['page']))); if($p==='phsbot-inject')$is=true; }
     if(!$is) return;
+
+    // Cargar CSS unificado de módulos (header gris, tabs, etc.)
+    $main_file = dirname(dirname(__FILE__)) . '/phsbot.php';
+    wp_enqueue_style(
+        'phsbot-modules-unified',
+        plugins_url('core/assets/modules-unified.css', $main_file),
+        array(),
+        filemtime(dirname(dirname(__FILE__)) . '/core/assets/modules-unified.css')
+    );
+
     $u=plugin_dir_url(__FILE__); $d=plugin_dir_path(__FILE__);
     if(file_exists($d.'inject.css')) wp_enqueue_style('phsbot-inject',$u.'inject.css',array(),@filemtime($d.'inject.css')?:null);
     if(file_exists($d.'inject.js')) {

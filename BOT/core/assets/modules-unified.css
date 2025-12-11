@@ -26,7 +26,7 @@
 
 /* Cuando el header es un contenedor con H1 y botones */
 .phsbot-module-header h1 {
-    color: white;
+    color: rgba(0, 0, 0, 0.8);
     margin: 0;
     font-size: 24px;
     font-weight: 600;
