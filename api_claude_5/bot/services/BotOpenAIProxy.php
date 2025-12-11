@@ -142,19 +142,29 @@ class BotOpenAIProxy {
 
     /**
      * Construir array de mensajes para OpenAI
+     *
+     * ORDEN OPTIMIZADO PARA PROMPT CACHING:
+     * - OpenAI cachea automáticamente el prefijo estático de los mensajes
+     * - Contenido que se repite (system prompt, KB) va primero → se cachea
+     * - Contenido que cambia (historial, mensaje) va al final → no afecta caché
+     * - Esto reduce costos y mejora latencia en conversaciones consecutivas
      */
     private function buildMessages($systemPrompt, $context, $currentMessage) {
         $messages = [];
 
         // 1. System prompt principal
+        // Se cachea: contenido estático que se repite en cada request
         $messages[] = [
             'role' => 'system',
             'content' => $systemPrompt
         ];
 
         // 2. Knowledge Base (si existe)
+        // Se cachea: contenido grande y estático, ideal para caché
+        // Límite: 100,000 caracteres (~33,333 tokens)
+        // Para GPT-4/GPT-4o con context window de 128K tokens, esto usa ~26% del contexto
         if (!empty($context['kb_content'])) {
-            $kbContent = $this->truncateContent($context['kb_content'], 4000);
+            $kbContent = $this->truncateContent($context['kb_content'], 100000);
             $messages[] = [
                 'role' => 'system',
                 'content' => "Knowledge Base about this website:\n\n" . $kbContent
@@ -162,6 +172,8 @@ class BotOpenAIProxy {
         }
 
         // 3. Contexto de la página actual (si existe)
+        // Semi-dinámico: cambia cuando el usuario navega a otra página
+        // No se cachea, pero es contenido pequeño (~100 chars)
         if (!empty($context['page_url']) || !empty($context['page_title'])) {
             $pageContext = "Current page context:\n";
             if (!empty($context['page_title'])) {
@@ -177,6 +189,8 @@ class BotOpenAIProxy {
         }
 
         // 4. Historial de conversación (limitado a últimos N mensajes)
+        // Dinámico: crece con cada mensaje nuevo
+        // No se cachea, pero permite continuidad conversacional
         if (!empty($context['history']) && is_array($context['history'])) {
             $history = array_slice($context['history'], -BOT_MAX_HISTORY_MESSAGES);
             foreach ($history as $msg) {
@@ -190,6 +204,7 @@ class BotOpenAIProxy {
         }
 
         // 5. Mensaje actual del usuario
+        // Siempre único: nunca se cachea
         $messages[] = [
             'role' => 'user',
             'content' => $currentMessage
@@ -200,6 +215,14 @@ class BotOpenAIProxy {
 
     /**
      * Truncar contenido a un máximo de caracteres
+     *
+     * Usado principalmente para limitar el tamaño de la Knowledge Base.
+     * El límite de 100K caracteres (~33K tokens) permite KBs extensas
+     * sin sobrepasar la ventana de contexto de los modelos GPT-4/GPT-4o (128K tokens).
+     *
+     * @param string $content Contenido a truncar
+     * @param int $maxChars Máximo de caracteres permitidos
+     * @return string Contenido truncado si excede el límite
      */
     private function truncateContent($content, $maxChars) {
         if (strlen($content) <= $maxChars) {
