@@ -127,7 +127,7 @@ class BotTokenManager {
                 AND operation_type = ?
                 AND created_at >= ?";
 
-        $summary = $db->queryOne($sql, [$licenseId, BOT_OPERATION_TYPE, $startDate]);
+        $summary = $db->fetchOne($sql, [$licenseId, BOT_OPERATION_TYPE, $startDate]);
 
         // Obtener datos diarios
         $sqlDaily = "SELECT
