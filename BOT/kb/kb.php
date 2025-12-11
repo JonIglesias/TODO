@@ -144,7 +144,13 @@ function phsbot_kb_admin_page() {
 
         <!-- Header gris estilo GeoWriter -->
         <div class="phsbot-module-header" style="display: flex; justify-content: space-between; align-items: center;">
-            <h1 style="margin: 0; color: rgba(0, 0, 0, 0.8);">Base de Conocimiento</h1>
+            <div>
+                <h1 style="margin: 0 0 8px 0; color: rgba(0, 0, 0, 0.8);">Base de Conocimiento</h1>
+                <p style="margin: 0; color: #666; font-size: 12px; line-height: 1.4;">
+                    Este documento es el cerebro de tu Chatbot. La IA lee tu sitio web y genera un documento maestro para responder a tus clientes.
+                    <strong>Revísalo y edítalo</strong> para añadir precios, promociones, políticas, horarios y datos de contacto relevantes.
+                </p>
+            </div>
             <div>
                 <button type="button" class="button" id="phsbot-kb-generate" style="background: #2c3338; color: #fff; border-color: #2c3338; font-size: 14px; padding: 6px 20px; margin-right: 10px;">
                     <span class="dashicons dashicons-update" style="vertical-align: middle;"></span> Generar documento
@@ -170,16 +176,6 @@ function phsbot_kb_admin_page() {
 
         <!-- Barra de error visible -->
         <div class="phsbot-kb-errorbar" id="phsbot-kb-errorbar" style="display:none;"></div>
-
-        <!-- Información sobre el proceso -->
-        <div class="notice" style="margin: 20px 0 15px; padding: 12px 15px; background: #f5f5f5; border-left: 3px solid #333;">
-            <p style="margin: 0 0 8px 0; color: #333; font-size: 13px;">
-                <strong>Base de Conocimiento:</strong> Este documento es el cerebro de tu Chatbot. La IA lee la información de tu sitio web y genera automáticamente un documento maestro que el chatbot utilizará para responder a tus clientes con información precisa y personalizada de tu negocio.
-            </p>
-            <p style="margin: 0; padding: 8px 12px; background: #fff; border-left: 2px solid #666; font-size: 12px; color: #555;">
-                <strong>Importante:</strong> Una vez generado, revísalo y edítalo para añadir <strong>precios, promociones, políticas de envío/devoluciones, horarios de atención, datos de contacto</strong> y cualquier otra información clave que mejore la atención al cliente.
-            </p>
-        </div>
 
         <h2 class="nav-tab-wrapper phsbot-kb-tabs">
             <a href="#" class="nav-tab nav-tab-active" data-tab="main">Generación</a>
