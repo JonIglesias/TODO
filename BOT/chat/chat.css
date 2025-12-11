@@ -156,7 +156,7 @@
   background: transparent;
   border: 0; padding: 0; cursor: pointer;
 }
-.phsbot-launcher svg circle{ fill: var(--phsbot-primary, rgba(0, 0, 0, 0.8)); }
+.phsbot-launcher svg circle{ fill: var(--phsbot-primary, #1e1e1e); }
 .phsbot-launcher svg{ display:block; }
 #phsbot-widget[data-open="1"] + .phsbot-launcher{ display: none !important; }
 /* ======== FIN LAUNCHER (botón flotante) ======== */
@@ -303,8 +303,8 @@ background: var(--phsbot-footer, var(--phsbot-bg, #fff));
 
 /* ======== MIC: Hover ======== */
 #phsbot-widget .phsbot-input #phsbot-mic:hover{
-  background-color: var(--phsbot-secondary, #808080) !important; /* gris hover */
-  color: #fff !important;                                 /* icono en blanco */
+  background-color: var(--phsbot-secondary, #dbdbdb) !important; /* gris hover */
+  color: #000 !important;                                 /* icono en negro */
 }
 /* ======== FIN MIC: Hover ======== */
 
@@ -353,11 +353,11 @@ background: var(--phsbot-footer, var(--phsbot-bg, #fff));
 
 /* ======== ENVIAR: Hover ======== */
 #phsbot-widget .phsbot-input #phsbot-send:hover{
-  background-color: var(--phsbot-secondary, #808080); /* gris hover */
-  color: #fff !important;                                 /* por si hay SVG */
+  background-color: var(--phsbot-secondary, #dbdbdb); /* gris hover */
+  color: #000 !important;                                 /* por si hay SVG */
 }
 #phsbot-widget .phsbot-input #phsbot-send:hover::before{
-  border-bottom-color: #fff;                               /* triángulo blanco */
+  border-bottom-color: #000;                               /* triángulo negro */
 }
 /* ======== FIN ENVIAR: Hover ======== */
 
