@@ -238,13 +238,23 @@ function phsbot_inject_admin_page(){
     if(!current_user_can(PHSBOT_CAP_SETTINGS)) wp_die('No tienes permisos',403);
     $opt=phsbot_inject_get(); $items=$opt['items']; ?>
 
-    <div class="wrap phsbot-inject-admin">
-        <h1>PHSBot — Inyecciones (Triggers) <small style="font-weight:normal;color:#888;">(fallback CSS)</small></h1>
+    <div class="wrap phsbot-module-wrap">
+        <!-- Header estilo moderno -->
+        <div class="phsbot-module-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="margin: 0; color: rgba(0, 0, 0, 0.8);">Inyecciones (Triggers)</h1>
+        </div>
 
-        <p class="phs-help"><strong>Posición de la respuesta:</strong> 
-            <em>Antes</em> → se inserta justo después del mensaje del usuario. 
-            <em>Después</em> → se espera a la siguiente respuesta del bot y se inserta debajo. 
-            <em>Sólo trigger</em> → se muestra lo inyectado y se suprime la siguiente respuesta del bot.</p>
+        <!-- Texto de ayuda fuera del header -->
+        <div style="margin: 15px 0 20px 0; color: #000; font-size: 13px; line-height: 1.5;">
+            <p style="margin: 0 0 10px 0;">
+                Este módulo permite inyectar contenido automático (HTML, shortcodes o vídeos) cuando el usuario escribe determinadas palabras clave en el chat.
+            </p>
+            <p style="margin: 0; color: #666; font-size: 12px;">
+                <strong>Posiciones disponibles:</strong> <em>Antes</em> = se inserta justo después del mensaje del usuario.
+                <em>Después</em> = se espera a la siguiente respuesta del bot y se inserta debajo.
+                <em>Sólo trigger</em> = se muestra solo el contenido inyectado (sin respuesta del bot).
+            </p>
+        </div>
 
         <?php if(!empty($_GET['deleted'])): ?>
             <div class="updated notice is-dismissible"><p><?php echo intval($_GET['deleted']); ?> trigger(s) eliminados.</p></div>
@@ -386,8 +396,10 @@ function phsbot_inject_admin_page(){
 endif;
 
 /* ============================================================================
- * Menú
+ * Menú (DESHABILITADO - menu.php ya registra el submenú de Inyecciones)
+ * El registro del menú se hace desde menu.php (líneas 85-97) para evitar duplicados
  * ========================================================================== */
+/*
 if (!function_exists('phsbot_inject_menu_exists')) :
 function phsbot_inject_menu_exists($parent,$slug){ global $menu,$submenu; if($parent){ if(!isset($submenu[$parent]))return false; foreach($submenu[$parent] as $it){ if(isset($it[2])&&$it[2]===$slug)return true; } return false; } foreach($menu as $it){ if(isset($it[2])&&$it[2]===$slug)return true; } return false; }
 endif;
@@ -398,6 +410,7 @@ add_action('admin_menu', function(){
     if($parent){ if(!phsbot_inject_menu_exists($parent,$slug)) add_submenu_page($parent,'Inyecciones','Inyecciones',PHSBOT_CAP_SETTINGS,$slug,'phsbot_inject_admin_page'); }
     else{ if(!phsbot_inject_menu_exists(null,$slug)) add_menu_page('PHS Inject','PHS Inject',PHSBOT_CAP_SETTINGS,$slug,'phsbot_inject_admin_page','dashicons-admin-generic',60); }
 },99);
+*/
 
 /* ============================================================================
  * Enqueue
