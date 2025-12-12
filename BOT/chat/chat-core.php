@@ -109,48 +109,60 @@ function phsbot_chat_translate_welcome_runtime($lang){
 
   if (!empty($map[$lang])) return (string)$map[$lang];
 
-  $api = (string) phsbot_setting('openai_api_key', '');
-  if (!$api) return $base;
+  // Obtener configuración de la API5
+  $bot_license = (string) phsbot_setting('bot_license_key', '');
+  $bot_api_url = (string) phsbot_setting('bot_api_url', 'https://bocetosmarketing.com/api_claude_5/index.php');
 
-  $prompt = "Translate the following greeting to the target language (ISO-639-1): ".$lang.".\\n".
-            "Preserve emojis and tone. Return ONLY JSON: {\"t\":\"...\"}.\\n<<<".$base.">>>";
+  if (!$bot_license) return $base;
 
-  $body = array(
-    'model' => 'gpt-4o-mini',
-    'temperature' => 0.2,
-    'messages' => array(
-      array('role'=>'system','content'=>'You are a precise translator. Output strictly valid JSON only.'),
-      array('role'=>'user','content'=>$prompt),
-    ),
-    'max_tokens' => 200,
+  $domain = parse_url(home_url(), PHP_URL_HOST);
+
+  // Llamar al endpoint de traducción de API5
+  $api_endpoint = trailingslashit($bot_api_url) . '?route=bot/translate-welcome';
+
+  $api_payload = array(
+    'license_key' => $bot_license,
+    'domain' => $domain,
+    'text' => $base,
+    'languages' => array('es', 'en', 'fr', 'de', 'it', 'pt', 'ca', 'eu', 'gl')
   );
 
-  $res = wp_remote_post('https://api.openai.com/v1/chat/completions', array(
-    'timeout' => 20,
-    'headers' => array(
-      'Authorization' => 'Bearer '.$api,
-      'Content-Type'  => 'application/json',
-    ),
-    'body' => wp_json_encode($body),
+  $res = wp_remote_post($api_endpoint, array(
+    'timeout' => 30,
+    'headers' => array('Content-Type' => 'application/json'),
+    'body' => wp_json_encode($api_payload),
   ));
+
   if (is_wp_error($res)) return $base;
-  if (wp_remote_retrieve_response_code($res) !== 200) return $base;
 
-  $json = json_decode(wp_remote_retrieve_body($res), true);
-  $txt  = trim((string)($json['choices'][0]['message']['content'] ?? ''));
-  $start = strpos($txt,'{'); $end = strrpos($txt,'}');
-  if ($start!==false && $end!==false) $txt = substr($txt, $start, $end-$start+1);
-  $obj = json_decode($txt, true);
-  $t   = isset($obj['t']) ? trim(wp_strip_all_tags((string)$obj['t'])) : '';
+  $code = wp_remote_retrieve_response_code($res);
+  if ($code !== 200) return $base;
 
-  if ($t === '') return $base;
+  $body = json_decode(wp_remote_retrieve_body($res), true);
 
-  $map[$lang] = $t;
+  if (!is_array($body) || !isset($body['success']) || !$body['success']) {
+    return $base;
+  }
+
+  $translations = $body['data']['translations'] ?? array();
+
+  if (!is_array($translations) || empty($translations)) {
+    return $base;
+  }
+
+  // Guardar TODAS las traducciones recibidas (más eficiente que traducir una por una)
+  foreach ($translations as $lang_code => $translation) {
+    if (trim($translation) !== '') {
+      $map[$lang_code] = trim(wp_strip_all_tags((string)$translation));
+    }
+  }
+
   $opt['welcome_i18n'] = $map;
   $opt['welcome_hash'] = $hash_current;
   update_option(PHSBOT_CHAT_OPT, $opt);
 
-  return $t;
+  // Devolver la traducción del idioma solicitado (o base si no existe)
+  return isset($map[$lang]) ? (string)$map[$lang] : $base;
 }
 }
 

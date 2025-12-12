@@ -70,7 +70,7 @@ class BotTranslateWelcomeEndpoint {
             'bot_translate',
             $result['usage']['prompt_tokens'] ?? 0,
             $result['usage']['completion_tokens'] ?? 0,
-            'gpt-4o-mini'
+            BOT_DEFAULT_MODEL  // Usa modelo configurado en BD
         );
 
         Response::success([
