@@ -108,21 +108,36 @@ class BotChatEndpoint {
 
         // Obtener uso de tokens
         $usage = $result['usage'];
-        $tokensInput = $usage['prompt_tokens'] ?? 0;
+        $tokensInputRaw = $usage['prompt_tokens'] ?? 0;
         $tokensOutput = $usage['completion_tokens'] ?? 0;
-        $tokensTotal = $usage['total_tokens'] ?? 0;
+        $cachedTokens = $usage['cached_tokens'] ?? 0;
 
-        // Trackear uso de tokens
+        // AJUSTAR TOKENS DE ENTRADA APLICANDO DESCUENTO DE CACHÉ
+        // OpenAI aplica 50% descuento a cached_tokens automáticamente
+        // Para simplificar tracking, contamos cached_tokens al 50% de su valor
+        // Ejemplo: 3700 tokens totales, 3400 cacheados
+        //   → Tokens NO cacheados: 300
+        //   → Tokens cacheados ajustados: 3400 × 0.5 = 1700
+        //   → Total ajustado: 2000 tokens (equivalente al costo real)
+        $tokensNoCacheados = $tokensInputRaw - $cachedTokens;
+        $tokensCacheadosAjustados = (int)($cachedTokens * 0.5);
+        $tokensInput = $tokensNoCacheados + $tokensCacheadosAjustados;
+
+        // Total ajustado (input ajustado + output sin cambios)
+        $tokensTotal = $tokensInput + $tokensOutput;
+
+        // Trackear uso de tokens (con valores ajustados por caché)
         $model = $result['model'] ?? BOT_DEFAULT_MODEL;
         $tokenManager->trackUsage(
             $license['id'],
-            $tokensInput,
-            $tokensOutput,
+            $tokensInput,        // Tokens ajustados (con descuento caché aplicado)
+            $tokensOutput,       // Output sin cambios
             $model,
             $conversationId,
             [
                 'page_url' => $context['page_url'] ?? null,
-                'page_title' => $context['page_title'] ?? null
+                'page_title' => $context['page_title'] ?? null,
+                'cached_tokens_raw' => $cachedTokens  // Guardar valor original para referencia
             ]
         );
 
@@ -131,13 +146,13 @@ class BotChatEndpoint {
         $tokensRemaining = max(0, $license['tokens_limit'] - $tokensUsedAfter);
 
         // Respuesta exitosa
-        Response::success([
+        $responseData = [
             'response' => $result['response'],
             'conversation_id' => $conversationId,
             'usage' => [
-                'prompt_tokens' => $tokensInput,
+                'prompt_tokens' => $tokensInput,           // Tokens ajustados (con descuento caché)
                 'completion_tokens' => $tokensOutput,
-                'total_tokens' => $tokensTotal,
+                'total_tokens' => $tokensTotal,            // Total ajustado
                 'tokens_remaining' => $tokensRemaining
             ],
             'license' => [
@@ -147,7 +162,20 @@ class BotChatEndpoint {
                 'period_ends_at' => $license['period_ends_at']
             ],
             'model' => $model
-        ]);
+        ];
+
+        // Incluir información de caché SI OpenAI la proporcionó (para debugging/transparencia)
+        if ($cachedTokens > 0) {
+            $responseData['cache_info'] = [
+                'cached_tokens_raw' => $cachedTokens,           // Tokens que vinieron del caché
+                'prompt_tokens_raw' => $tokensInputRaw,         // Tokens totales reportados por OpenAI
+                'non_cached_tokens' => $tokensNoCacheados,      // Tokens NO cacheados (precio completo)
+                'cached_tokens_adjusted' => $tokensCacheadosAjustados,  // Tokens cacheados contados al 50%
+                'cache_hit_rate' => round(($cachedTokens / $tokensInputRaw) * 100, 1) . '%'
+            ];
+        }
+
+        Response::success($responseData);
     }
 
     /**

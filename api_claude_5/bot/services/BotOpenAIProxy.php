@@ -119,13 +119,21 @@ class BotOpenAIProxy {
             $content = trim($data['choices'][0]['message']['content']);
             $usage = $data['usage'] ?? [];
 
+            // Extraer información de caché (OpenAI devuelve cached_tokens desde Oct 2024)
+            // cached_tokens = tokens que vinieron del caché (tienen 50% descuento automático)
+            $cachedTokens = 0;
+            if (isset($usage['prompt_tokens_details']['cached_tokens'])) {
+                $cachedTokens = (int)$usage['prompt_tokens_details']['cached_tokens'];
+            }
+
             return [
                 'success' => true,
                 'response' => $content,
                 'usage' => [
                     'prompt_tokens' => $usage['prompt_tokens'] ?? 0,
                     'completion_tokens' => $usage['completion_tokens'] ?? 0,
-                    'total_tokens' => $usage['total_tokens'] ?? 0
+                    'total_tokens' => $usage['total_tokens'] ?? 0,
+                    'cached_tokens' => $cachedTokens  // Tokens que vinieron del caché
                 ],
                 'model' => $data['model'] ?? $model,
                 'finish_reason' => $data['choices'][0]['finish_reason'] ?? null
