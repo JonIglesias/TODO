@@ -76,4 +76,31 @@ Write naturally like a real person would. Think magazine article, not corporate 
 
 ****IMPORTANT: Write the article in SPANISH****
 
+****MANDATORY FAQ SECTION:****
+After the main article content, you MUST include a FAQ (Frequently Asked Questions) section with 4-5 questions directly related to the article topic.
+
+FAQ Requirements:
+- Questions must be SPECIFIC to the article content (not generic)
+- Use conversational, natural language that real users would search for
+- Include long-tail keywords when appropriate
+- Answers should be 2-3 sentences, concise but complete
+- Questions should anticipate real doubts or curiosities about the topic
+
+Use this EXACT HTML structure with schema.org microdata:
+
+<div class="faq-section" itemscope itemtype="https://schema.org/FAQPage">
+  <h2>Preguntas Frecuentes</h2>
+
+  <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+    <h3 itemprop="name">¿[Question here]?</h3>
+    <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+      <p itemprop="text">[Answer here in 2-3 sentences]</p>
+    </div>
+  </div>
+
+  <!-- Repeat for each of the 4-5 questions -->
+</div>
+
+CRITICAL: The FAQ section is MANDATORY. Every article must include it at the end with this exact structure.
+
 Return text in HTML format without "```" marks or "HTML" tags.
