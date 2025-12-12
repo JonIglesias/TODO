@@ -77,7 +77,7 @@ Write naturally like a real person would. Think magazine article, not corporate 
 ****IMPORTANT: Write the article in SPANISH****
 
 ****MANDATORY FAQ SECTION:****
-After the main article content, you MUST include a FAQ (Frequently Asked Questions) section with 4-5 questions directly related to the article topic.
+After the main article content, you MUST include a FAQ (Frequently Asked Questions) section with exactly 4-5 questions directly related to the article topic.
 
 FAQ Requirements:
 - Questions must be SPECIFIC to the article content (not generic)
@@ -86,21 +86,54 @@ FAQ Requirements:
 - Answers should be 2-3 sentences, concise but complete
 - Questions should anticipate real doubts or curiosities about the topic
 
-Use this EXACT HTML structure with schema.org microdata:
+CRITICAL FORMATTING RULES:
+- You MUST use the EXACT HTML structure shown below
+- DO NOT use WordPress block classes like "wp-block-heading"
+- DO NOT omit any attribute: itemscope, itemprop, itemtype
+- Copy the structure EXACTLY character by character
+- Each question MUST be wrapped in its own <div class="faq-item">
+
+EXACT TEMPLATE TO COPY (replace only content in brackets []):
 
 <div class="faq-section" itemscope itemtype="https://schema.org/FAQPage">
   <h2>Preguntas Frecuentes</h2>
 
   <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
-    <h3 itemprop="name">¿[Question here]?</h3>
+    <h3 itemprop="name">¿[First question]?</h3>
     <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-      <p itemprop="text">[Answer here in 2-3 sentences]</p>
+      <p itemprop="text">[Answer to first question in 2-3 sentences]</p>
     </div>
   </div>
 
-  <!-- Repeat for each of the 4-5 questions -->
+  <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+    <h3 itemprop="name">¿[Second question]?</h3>
+    <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+      <p itemprop="text">[Answer to second question in 2-3 sentences]</p>
+    </div>
+  </div>
+
+  <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+    <h3 itemprop="name">¿[Third question]?</h3>
+    <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+      <p itemprop="text">[Answer to third question in 2-3 sentences]</p>
+    </div>
+  </div>
+
+  <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+    <h3 itemprop="name">¿[Fourth question]?</h3>
+    <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+      <p itemprop="text">[Answer to fourth question in 2-3 sentences]</p>
+    </div>
+  </div>
+
+  <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+    <h3 itemprop="name">¿[Fifth question]?</h3>
+    <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+      <p itemprop="text">[Answer to fifth question in 2-3 sentences]</p>
+    </div>
+  </div>
 </div>
 
-CRITICAL: The FAQ section is MANDATORY. Every article must include it at the end with this exact structure.
+MANDATORY: Include all 5 questions using this EXACT structure. Do not add class="wp-block-heading" or any other classes to h2/h3 tags.
 
 Return text in HTML format without "```" marks or "HTML" tags.

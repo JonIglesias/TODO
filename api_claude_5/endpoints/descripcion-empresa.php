@@ -139,8 +139,8 @@ PROMPT;
         $resultCombined = $this->openai->generateContent([
             'prompt' => $promptCombined,
             'max_tokens' => 1200,
-            'temperature' => 0,
-            'model' => 'gpt-4o'
+            'temperature' => 0
+            // Usa modelo configurado en BD (geowrite_ai_model)
         ]);
         
         $services = [];
@@ -189,8 +189,8 @@ PROMPT;
                 $resultMore = $this->openai->generateContent([
                     'prompt' => $promptMoreServices,
                     'max_tokens' => 1000,
-                    'temperature' => 0,
-                    'model' => 'gpt-4o'
+                    'temperature' => 0
+                    // Usa modelo configurado en BD (geowrite_ai_model)
                 ]);
                 
                 if ($resultMore['success']) {

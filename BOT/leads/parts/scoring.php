@@ -24,7 +24,8 @@ if (!function_exists('phsbot_leads_get_chat_model')) {
     function phsbot_leads_get_chat_model() {
         $chat = get_option(PHSBOT_CHAT_OPT, array());
         if (!is_array($chat)) $chat = array();
-        $model = isset($chat['model']) && $chat['model'] ? (string)$chat['model'] : 'gpt-4o-mini';
+        // Usa modelo configurado en BD, si no existe usa valor de BOT_DEFAULT_MODEL de API5
+        $model = isset($chat['model']) && $chat['model'] ? (string)$chat['model'] : (defined('BOT_DEFAULT_MODEL') ? BOT_DEFAULT_MODEL : 'gpt-4o-mini');
         return $model;
     }
 }
@@ -141,20 +142,25 @@ if (!function_exists('phsbot_leads_score_heuristic')) {
  */
 if (!function_exists('phsbot_leads_maybe_update_contact_from_conversation')) {
     function phsbot_leads_maybe_update_contact_from_conversation($lead) {
-        $main    = phsbot_leads_get_main_settings();
-        $api_key = trim(phsbot_arr_get($main, 'openai_api_key', ''));
-        if (!$api_key) return false;
+        // Obtener configuración de la API5
+        $bot_license = (string) phsbot_setting('bot_license_key', '');
+        $bot_api_url = (string) phsbot_setting('bot_api_url', 'https://bocetosmarketing.com/api_claude_5/index.php');
 
-        // 1) Armar conversación completa (con roles U/A)
-        $sum = '';
+        if (!$bot_license) return false;
+
+        $domain = parse_url(home_url(), PHP_URL_HOST);
+
+        // 1) Armar conversación completa (con roles y content)
+        $conversation = array();
         if (!empty($lead['messages'])) {
             foreach ($lead['messages'] as $m) {
-                $r = ($m['role'] === 'user') ? 'U' : 'A';
-                $t = phsbot_str_normalize_space($m['text']);
-                $sum .= "{$r}: {$t}\n";
+                $conversation[] = array(
+                    'role'    => ($m['role'] === 'user') ? 'user' : 'assistant',
+                    'content' => phsbot_str_normalize_space($m['text'])
+                );
             }
         }
-        if ($sum === '') return false;
+        if (empty($conversation)) return false;
 
         // 2) Valores actuales
         $current = array(
@@ -163,96 +169,53 @@ if (!function_exists('phsbot_leads_maybe_update_contact_from_conversation')) {
             'phone' => (string) phsbot_arr_get($lead, 'phone', ''),
         );
 
-        // 3) Prompt estricto (solo JSON, sin inventar)
-        $instructions = "Eres un asistente de datos. Lee la conversación completa (mensajes U/A). ".
-                        "Tareas:\n".
-                        "1) Si el USUARIO aporta o corrige NOMBRE, EMAIL o TELÉFONO en cualquier momento, toma el ÚLTIMO dato confirmado.\n".
-                        "2) Si antes había número sin prefijo y más tarde aporta prefijo de país, combínalos y devuelve TELÉFONO en formato E.164 (sin espacios ni guiones), p. ej. +34600111222.\n".
-                        "3) NO inventes datos. Si un dato no aparece claro, devuélvelo vacío.\n".
-                        "4) Devuelve SOLO un JSON con esta forma:\n".
-                        "{\n".
-                        "  \"name\": \"\",\n".
-                        "  \"email\": \"\",\n".
-                        "  \"phone\": \"\",\n".
-                        "  \"changed\": {\"name\":true|false, \"email\":true|false, \"phone\":true|false}\n".
-                        "}\n".
-                        "Reglas: prioriza lo más reciente dicho por el USUARIO. Si duda o se desdice, elige la última versión afirmativa.";
+        // 3) Llamar al endpoint de API5
+        $api_endpoint = trailingslashit($bot_api_url) . '?route=bot/extract-contact';
 
-        $model = phsbot_leads_get_chat_model();
-        $use_responses = phsbot_model_uses_responses_api($model);
+        $api_payload = array(
+            'license_key' => $bot_license,
+            'domain' => $domain,
+            'conversation' => $conversation,
+            'current_values' => $current
+        );
 
-        $headers = array('Content-Type'=>'application/json','Authorization'=>'Bearer '.$api_key);
+        $res = wp_remote_post($api_endpoint, array(
+            'timeout' => 30,
+            'headers' => array('Content-Type' => 'application/json'),
+            'body' => wp_json_encode($api_payload),
+        ));
 
-        if ($use_responses) {
-            // GPT-5 → /responses
-            $body = array(
-                'model'             => $model,
-                'input'             => phsbot_messages_to_responses_input(array(
-                    array('role'=>'system','content'=>$instructions.
-                        "\n\nValores actuales:\n".wp_json_encode($current)."\n\nConversación:\n".$sum),
-                )),
-                'temperature'       => 0.0,
-                'max_output_tokens' => 400,
-                'metadata'          => array('cid'=> phsbot_arr_get($lead,'cid',''), 'source'=>'phsbot-leads-contact-reconcile'),
-            );
-            $args = array('headers'=>$headers,'timeout'=>12,'body'=>wp_json_encode($body));
-            $resp = wp_remote_post('https://api.openai.com/v1/responses', $args);
-            if (is_wp_error($resp) || wp_remote_retrieve_response_code($resp) !== 200) return false;
-            $data = json_decode(wp_remote_retrieve_body($resp), true);
+        if (is_wp_error($res)) return false;
 
-            $txt = '';
-            if (isset($data['output']) && is_array($data['output'])) {
-                foreach ($data['output'] as $item) {
-                    if (!empty($item['content']) && is_array($item['content'])){
-                        foreach ($item['content'] as $c){
-                            if (isset($c['text']))        $txt .= (string)$c['text'];
-                            elseif (isset($c['output_text'])) $txt .= (string)$c['output_text'];
-                        }
-                    }
-                }
-            }
-        } else {
-            // Modelos chat → /chat/completions
-            $body = array(
-                'model'       => $model,
-                'temperature' => 0.0,
-                'messages'    => array(
-                    array('role'=>'system','content'=>$instructions),
-                    array('role'=>'user','content'=>"Valores actuales:\n".wp_json_encode($current)."\n\nConversación:\n".$sum),
-                ),
-            );
-            $args = array('headers'=>$headers,'timeout'=>12,'body'=>wp_json_encode($body));
-            $resp = wp_remote_post('https://api.openai.com/v1/chat/completions', $args);
-            if (is_wp_error($resp) || wp_remote_retrieve_response_code($resp) !== 200) return false;
-            $data = json_decode(wp_remote_retrieve_body($resp), true);
-            $txt  = (string) phsbot_arr_get($data['choices'][0]['message'], 'content', '');
+        $code = wp_remote_retrieve_response_code($res);
+        if ($code !== 200) return false;
+
+        $body = json_decode(wp_remote_retrieve_body($res), true);
+
+        if (!is_array($body) || !isset($body['success']) || !$body['success']) {
+            return false;
         }
 
-        if (!is_string($txt) || $txt === '') return false;
-
-        // 4) Parsear primer JSON del texto
-        if (!preg_match('/\{.*\}/s', $txt, $mm)) return false;
-        $j = json_decode($mm[0], true);
-        if (!is_array($j)) return false;
+        $extracted = $body['data'] ?? array();
 
         $changed = false;
 
         // Name
-        $new_name = isset($j['name']) ? trim((string)$j['name']) : '';
+        $new_name = isset($extracted['name']) ? trim((string)$extracted['name']) : '';
         if (!empty($new_name) && $new_name !== phsbot_arr_get($lead, 'name', '')) {
             $lead['name'] = $new_name;
             $changed = true;
         }
 
         // Email (validación mínima)
-        $new_email = isset($j['email']) ? trim((string)$j['email']) : '';
+        $new_email = isset($extracted['email']) ? trim((string)$extracted['email']) : '';
         if (!empty($new_email) && is_email($new_email) && $new_email !== phsbot_arr_get($lead, 'email', '')) {
             $lead['email'] = $new_email;
             $changed = true;
         }
 
         // Phone (E.164 si procede)
-        $new_phone = isset($j['phone']) ? trim((string)$j['phone']) : '';
+        $new_phone = isset($extracted['phone']) ? trim((string)$extracted['phone']) : '';
         if (!empty($new_phone)) {
             $san = phsbot_leads_sanitize_e164($new_phone);
             if ($san !== phsbot_arr_get($lead, 'phone', '')) {
@@ -277,93 +240,65 @@ if (!function_exists('phsbot_leads_maybe_update_contact_from_conversation')) {
 /** Calcula el score con OpenAI. Devuelve [score|null, rationale_html] */
 if (!function_exists('phsbot_leads_score_openai')) {
     function phsbot_leads_score_openai($lead) {
-        $main   = phsbot_leads_get_main_settings();
-        $api_key = trim(phsbot_arr_get($main, 'openai_api_key', ''));
-        if (!$api_key) return array(null, '');
+        // Obtener configuración de la API5
+        $bot_license = (string) phsbot_setting('bot_license_key', '');
+        $bot_api_url = (string) phsbot_setting('bot_api_url', 'https://bocetosmarketing.com/api_claude_5/index.php');
+
+        if (!$bot_license) return array(null, '');
+
+        $domain = parse_url(home_url(), PHP_URL_HOST);
 
         $s = phsbot_leads_settings();
 
-        // Conversación completa (U/A) para el scoring
-        $sum = '';
+        // Conversación completa (con roles y content)
+        $conversation = array();
         if (!empty($lead['messages'])) {
             foreach ($lead['messages'] as $m) {
-                $role = ($m['role'] === 'user') ? 'U' : 'A';
-                $sum .= "{$role}: " . phsbot_str_normalize_space($m['text']) . "\n";
-            }
-        }
-
-        $prompt = (string)$s['scoring_prompt'] . "\n\nConversación:\n{$sum}\n";
-
-        $model = phsbot_leads_get_chat_model();
-        $use_responses = phsbot_model_uses_responses_api($model);
-
-        $headers = array(
-            'Content-Type'  => 'application/json',
-            'Authorization' => 'Bearer '.$api_key,
-        );
-
-        if ($use_responses) {
-            // GPT-5 → /responses
-            $body = array(
-                'model'             => $model,
-                'input'             => phsbot_messages_to_responses_input(array(
-                    array('role'=>'system','content'=>'Eres un analista comercial objetivo.'),
-                    array('role'=>'user','content'=>$prompt),
-                )),
-                'temperature'       => 0.2,
-                'max_output_tokens' => 600,
-                'metadata'          => array('cid'=> phsbot_arr_get($lead,'cid',''), 'source'=>'phsbot-leads-score'),
-            );
-            $args = array('headers'=>$headers,'timeout'=>15,'body'=>wp_json_encode($body));
-            $resp = wp_remote_post('https://api.openai.com/v1/responses', $args);
-            if (is_wp_error($resp)) return array(null, '');
-            $code = wp_remote_retrieve_response_code($resp);
-            $data = json_decode(wp_remote_retrieve_body($resp), true);
-            if ($code !== 200 || !is_array($data)) return array(null, '');
-
-            // Extraer texto de output[].content[].text / output_text
-            $text = '';
-            if (isset($data['output']) && is_array($data['output'])) {
-                foreach ($data['output'] as $item) {
-                    if (!empty($item['content']) && is_array($item['content'])){
-                        foreach ($item['content'] as $c){
-                            if (isset($c['text']))        $text .= (string)$c['text'];
-                            elseif (isset($c['output_text'])) $text .= (string)$c['output_text'];
-                        }
-                    }
-                }
-            }
-        } else {
-            // Modelos chat → /chat/completions
-            $body = array(
-                'model'       => $model,
-                'temperature' => 0.2,
-                'messages'    => array(
-                    array('role'=>'system','content'=>'Eres un analista comercial objetivo.'),
-                    array('role'=>'user','content'=>$prompt),
-                ),
-            );
-            $args = array('headers'=>$headers,'timeout'=>15,'body'=>wp_json_encode($body));
-            $resp = wp_remote_post('https://api.openai.com/v1/chat/completions', $args);
-            if (is_wp_error($resp)) return array(null, '');
-            $code = wp_remote_retrieve_response_code($resp);
-            $data = json_decode(wp_remote_retrieve_body($resp), true);
-            if ($code !== 200 || !is_array($data)) return array(null, '');
-            $content = phsbot_arr_get(phsbot_arr_get($data, 'choices', array()), 0, array());
-            $msg     = phsbot_arr_get($content, 'message', array());
-            $text    = phsbot_arr_get($msg, 'content', '');
-        }
-
-        if (preg_match('/\{.*\}/s', (string)$text, $m)) {
-            $j = json_decode($m[0], true);
-            if (is_array($j)) {
-                return array(
-                    isset($j['score']) ? floatval($j['score']) : null,
-                    isset($j['rationale']) ? wp_kses_post($j['rationale']) : ''
+                $conversation[] = array(
+                    'role'    => ($m['role'] === 'user') ? 'user' : 'assistant',
+                    'content' => phsbot_str_normalize_space($m['text'])
                 );
             }
         }
-        return array(null, '');
+
+        if (empty($conversation)) return array(null, '');
+
+        // Prompt de scoring
+        $scoring_prompt = (string)$s['scoring_prompt'];
+        if (trim($scoring_prompt) === '') return array(null, '');
+
+        // Llamar al endpoint de API5
+        $api_endpoint = trailingslashit($bot_api_url) . '?route=bot/score-lead';
+
+        $api_payload = array(
+            'license_key' => $bot_license,
+            'domain' => $domain,
+            'conversation' => $conversation,
+            'scoring_prompt' => $scoring_prompt
+        );
+
+        $res = wp_remote_post($api_endpoint, array(
+            'timeout' => 30,
+            'headers' => array('Content-Type' => 'application/json'),
+            'body' => wp_json_encode($api_payload),
+        ));
+
+        if (is_wp_error($res)) return array(null, '');
+
+        $code = wp_remote_retrieve_response_code($res);
+        if ($code !== 200) return array(null, '');
+
+        $body = json_decode(wp_remote_retrieve_body($res), true);
+
+        if (!is_array($body) || !isset($body['success']) || !$body['success']) {
+            return array(null, '');
+        }
+
+        $result = $body['data'] ?? array();
+        $score = isset($result['score']) ? floatval($result['score']) : null;
+        $rationale = isset($result['rationale']) ? wp_kses_post($result['rationale']) : '';
+
+        return array($score, $rationale);
     }
 }
 /* ========FIN SCORE CON OPENAI (USA MODELO GLOBAL Y COMPAT GPT-5) ===== */
@@ -409,62 +344,34 @@ if (!function_exists('phsbot_leads_summary_text')) {
                     "Incluye estos datos solo si aparecen; no asumas ni completes faltantes.";
         $prompt_effective = $prompt . "\n\n" . $addendum;
 
-        // 3) OpenAI si está configurado
-        $main       = phsbot_leads_get_main_settings();
-        $api_key    = trim(phsbot_arr_get($main, 'openai_api_key', ''));
+        // 3) OpenAI a través de API5
+        $bot_license = (string) phsbot_setting('bot_license_key', '');
+        $bot_api_url = (string) phsbot_setting('bot_api_url', 'https://bocetosmarketing.com/api_claude_5/index.php');
         $summary_txt = '';
 
-        if ($api_key && $corpus !== '') {
-            $model = phsbot_leads_get_chat_model();
-            $use_responses = phsbot_model_uses_responses_api($model);
+        if ($bot_license && $corpus !== '') {
+            $domain = parse_url(home_url(), PHP_URL_HOST);
 
-            $headers = array('Content-Type'=>'application/json','Authorization'=>'Bearer '.$api_key);
+            // Llamar al endpoint de API5
+            $api_endpoint = trailingslashit($bot_api_url) . '?route=bot/summarize-conversation';
 
-            if ($use_responses) {
-                // GPT-5 → /responses
-                $body = array(
-                    'model'             => $model,
-                    'input'             => phsbot_messages_to_responses_input(array(
-                        array('role'=>'system','content'=>'Eres un analista de leads. Responde solo con viñetas, sin prefacios.'),
-                        array('role'=>'user','content'=> $prompt_effective . "\n\nConversación (solo el usuario):\n".$corpus),
-                    )),
-                    'temperature'       => 0.2,
-                    'max_output_tokens' => 600,
-                    'metadata'          => array('cid'=> phsbot_arr_get($lead,'cid',''), 'source'=>'phsbot-leads-summary'),
-                );
-                $args = array('headers'=>$headers,'timeout'=>15,'body'=>wp_json_encode($body));
-                $resp = wp_remote_post('https://api.openai.com/v1/responses', $args);
-                if (!is_wp_error($resp) && wp_remote_retrieve_response_code($resp) === 200) {
-                    $data = json_decode(wp_remote_retrieve_body($resp), true);
-                    $buf  = '';
-                    if (isset($data['output']) && is_array($data['output'])) {
-                        foreach ($data['output'] as $item) {
-                            if (!empty($item['content']) && is_array($item['content'])){
-                                foreach ($item['content'] as $c){
-                                    if (isset($c['text']))        $buf .= (string)$c['text'];
-                                    elseif (isset($c['output_text'])) $buf .= (string)$c['output_text'];
-                                }
-                            }
-                        }
-                    }
-                    $summary_txt = trim($buf);
-                }
-            } else {
-                // Modelos chat → /chat/completions
-                $body = array(
-                    'model'       => $model,
-                    'temperature' => 0.2,
-                    'messages'    => array(
-                        array('role'=>'system','content'=>'Eres un analista de leads. Responde solo con viñetas, sin prefacios.'),
-                        array('role'=>'user','content'=> $prompt_effective . "\n\nConversación (solo el usuario):\n".$corpus),
-                    ),
-                );
-                $args = array('headers'=>$headers,'timeout'=>15,'body'=>wp_json_encode($body));
-                $resp = wp_remote_post('https://api.openai.com/v1/chat/completions', $args);
-                if (!is_wp_error($resp) && wp_remote_retrieve_response_code($resp) === 200) {
-                    $data = json_decode(wp_remote_retrieve_body($resp), true);
-                    $summary_txt = phsbot_arr_get($data['choices'][0]['message'], 'content', '');
-                    $summary_txt = trim($summary_txt);
+            $api_payload = array(
+                'license_key' => $bot_license,
+                'domain' => $domain,
+                'user_messages' => $user_lines,
+                'summary_prompt' => $prompt
+            );
+
+            $res = wp_remote_post($api_endpoint, array(
+                'timeout' => 30,
+                'headers' => array('Content-Type' => 'application/json'),
+                'body' => wp_json_encode($api_payload),
+            ));
+
+            if (!is_wp_error($res) && wp_remote_retrieve_response_code($res) === 200) {
+                $body = json_decode(wp_remote_retrieve_body($res), true);
+                if (is_array($body) && isset($body['success']) && $body['success']) {
+                    $summary_txt = trim($body['data']['summary'] ?? '');
                 }
             }
         }
