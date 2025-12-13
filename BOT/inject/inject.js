@@ -343,6 +343,7 @@
       redirect_target: qs('select[name*="[items]['+i+'][redirect_target]"]', root),
       redirect_confirm: qs('input[name*="[items]['+i+'][redirect_confirm]"]', root),
       redirect_message: qs('input[name*="[items]['+i+'][redirect_message]"]', root),
+      product_id: qs('select[name*="[items]['+i+'][product_id]"]', root),
       autoplay: qs('input[name*="[items]['+i+'][autoplay]"]', root),
       match: qs('select[name*="[items]['+i+'][match]"]', root),
       place: qs('select[name*="[items]['+i+'][place]"]', root)
@@ -358,7 +359,9 @@
     wrap.innerHTML =
       '<label style="margin-right:10px;"><input type="checkbox" class="ie-enabled"> Activo</label>' +
       '<input type="text" class="ie-keywords regular-text" style="min-width:240px" placeholder="palabras, separadas, por, comas">' +
-      ' <select class="ie-type"><option value="html">HTML</option><option value="shortcode">Shortcode</option><option value="video">Vídeo YouTube</option><option value="redirect">Redirect</option></select>' +
+      ' <select class="ie-type"><option value="html">HTML</option><option value="shortcode">Shortcode</option><option value="video">Vídeo YouTube</option><option value="redirect">Redirect</option>' +
+      (H.product_id ? '<option value="product">Producto WooCommerce</option>' : '') +
+      '</select>' +
       ' <span class="ie-field ie-html"><textarea class="ie-payload-html large-text code" rows="3" style="width:480px"></textarea></span>' +
       ' <span class="ie-field ie-sc" style="display:none"><input type="text" class="ie-payload-sc regular-text code" style="width:420px" placeholder=\'[elementor-template id="123"]\'></span>' +
       ' <span class="ie-field ie-video" style="display:none"><input type="url" class="ie-video-url regular-text" style="width:420px" placeholder="https://youtu.be/..."> ' +
@@ -371,8 +374,23 @@
       '   <label style="display:block;margin-top:8px;"><input type="checkbox" class="ie-redirect-confirm"> Pedir confirmación</label>' +
       '   <label style="display:block;margin-top:8px;">Mensaje opcional:</label>' +
       '   <input type="text" class="ie-redirect-message regular-text" style="width:100%;max-width:480px;" placeholder="Redirigiendo...">' +
-      ' </span>' +
-      ' <select class="ie-match" style="margin-left:6px;"><option value="any">cualquiera</option><option value="all">todas</option></select>' +
+      ' </span>';
+
+    // Añadir selector de productos si está disponible
+    if(H.product_id){
+      var productOpts = '';
+      if(H.product_id.options){
+        for(var j=0; j<H.product_id.options.length; j++){
+          productOpts += '<option value="'+H.product_id.options[j].value+'">'+H.product_id.options[j].text+'</option>';
+        }
+      }
+      wrap.innerHTML += ' <span class="ie-field ie-product" style="display:none">' +
+        '   <label style="display:block;margin-bottom:4px;">Seleccionar producto:</label>' +
+        '   <select class="ie-product-id phs-product-selector" style="width:100%;max-width:500px;">' + productOpts + '</select>' +
+        ' </span>';
+    }
+
+    wrap.innerHTML += ' <select class="ie-match" style="margin-left:6px;"><option value="any">cualquiera</option><option value="all">todas</option></select>' +
       ' <select class="ie-place" title="Posición de la respuesta en el chat"><option value="before">antes</option><option value="after">después</option><option value="only">sólo trigger</option></select>' +
       ' <span class="ie-help">Antes: se inserta tras el mensaje del usuario · Después: tras la siguiente respuesta del bot · Sólo trigger: se suprime esa respuesta del bot.</span>' +
       ' <span class="actions" style="float:right;"><button class="button button-primary ie-save">Guardar</button> <button class="button ie-close">Cerrar</button></span>';
@@ -390,6 +408,7 @@
     qs('.ie-redirect-target', wrap).value = H.redirect_target ? H.redirect_target.value : 'same';
     qs('.ie-redirect-confirm', wrap).checked = !!(H.redirect_confirm && H.redirect_confirm.checked);
     qs('.ie-redirect-message', wrap).value = H.redirect_message ? H.redirect_message.value : '';
+    if(H.product_id && qs('.ie-product-id', wrap)) qs('.ie-product-id', wrap).value = H.product_id.value || '';
     qs('.ie-autoplay', wrap).checked = !!(H.autoplay && H.autoplay.checked);
     qs('.ie-match', wrap).value = H.match ? H.match.value : 'any';
     qs('.ie-place', wrap).value = H.place ? H.place.value : 'before';
@@ -400,6 +419,7 @@
       else if(type==='shortcode') qs('.ie-sc', wrap).style.display='';
       else if(type==='video') qs('.ie-video', wrap).style.display='';
       else if(type==='redirect') qs('.ie-redirect', wrap).style.display='';
+      else if(type==='product' && qs('.ie-product', wrap)) qs('.ie-product', wrap).style.display='';
     }
     applyTypeUI(qs('.ie-type', wrap).value);
 
@@ -421,6 +441,7 @@
       if(t.classList.contains('ie-autoplay') && H.autoplay) H.autoplay.checked = t.checked;
       if(t.classList.contains('ie-redirect-target') && H.redirect_target) H.redirect_target.value = t.value;
       if(t.classList.contains('ie-redirect-confirm') && H.redirect_confirm) H.redirect_confirm.checked = t.checked;
+      if(t.classList.contains('ie-product-id') && H.product_id) H.product_id.value = t.value;
       if(t.classList.contains('ie-match') && H.match) H.match.value = t.value;
       if(t.classList.contains('ie-place') && H.place) H.place.value = t.value;
     });
@@ -443,6 +464,7 @@
         redirect_target: qs('.ie-redirect-target', wrap).value || 'same',
         redirect_confirm: qs('.ie-redirect-confirm', wrap).checked ? 1 : 0,
         redirect_message: qs('.ie-redirect-message', wrap).value || '',
+        product_id: (qs('.ie-product-id', wrap) ? parseInt(qs('.ie-product-id', wrap).value) : 0) || 0,
         autoplay: qs('.ie-autoplay', wrap).checked ? 1 : 0,
         match: qs('.ie-match', wrap).value || 'any',
         place: qs('.ie-place', wrap).value || 'before'
@@ -536,7 +558,17 @@
         list.appendChild(trList);
 
         var ie = buildInlineEditor(i);
-        if(ie) trList.parentNode.insertBefore(ie, trList.nextSibling);
+        if(ie){
+          trList.parentNode.insertBefore(ie, trList.nextSibling);
+          // Inicializar Select2 en el selector de productos del editor inline
+          if(typeof jQuery !== 'undefined' && jQuery.fn.select2){
+            jQuery('.phs-product-selector', ie).select2({
+              placeholder: '-- Selecciona un producto --',
+              allowClear: true,
+              width: '100%'
+            });
+          }
+        }
       });
     }
 
@@ -551,7 +583,17 @@
           var id = t.getAttribute('data-id');
           var hostRow = t.closest('tr');
           var ie = buildInlineEditor(id);
-          if(ie) hostRow.parentNode.insertBefore(ie, hostRow.nextSibling);
+          if(ie){
+            hostRow.parentNode.insertBefore(ie, hostRow.nextSibling);
+            // Inicializar Select2 en el selector de productos del editor inline
+            if(typeof jQuery !== 'undefined' && jQuery.fn.select2){
+              jQuery('.phs-product-selector', ie).select2({
+                placeholder: '-- Selecciona un producto --',
+                allowClear: true,
+                width: '100%'
+              });
+            }
+          }
         }
       });
     }
@@ -566,8 +608,20 @@
         else if(type==='shortcode') qs('.phs-field--shortcode', tr).style.display='';
         else if(type==='video') qs('.phs-field--video', tr).style.display='';
         else if(type==='redirect') qs('.phs-field--redirect', tr).style.display='';
+        else if(type==='product' && qs('.phs-field--product', tr)) qs('.phs-field--product', tr).style.display='';
       }
     });
+
+    // Inicializar Select2 en selectores de productos
+    if(typeof jQuery !== 'undefined' && jQuery.fn.select2){
+      jQuery(function($){
+        $('.phs-product-selector').select2({
+          placeholder: '-- Selecciona un producto --',
+          allowClear: true,
+          width: '100%'
+        });
+      });
+    }
   }
 
   onReady(function(){ if(D.context==='admin') initAdmin(); else initFront(); });
