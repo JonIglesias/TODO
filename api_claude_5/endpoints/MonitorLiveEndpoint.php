@@ -90,9 +90,15 @@ class MonitorLiveEndpoint {
         // Procesar resultados y convertir a EUR
         $operations = [];
         foreach ($results as $row) {
+            // Si endpoint está vacío o NULL, usar operation_type como fallback
+            $endpoint = !empty($row['endpoint']) ? $row['endpoint'] : $row['operation_type'];
+
+            // Si batch_type está vacío, poner NULL explícitamente
+            $batchType = !empty($row['batch_type']) ? $row['batch_type'] : null;
+
             $operations[] = [
                 'id' => $row['id'],
-                'endpoint' => $row['endpoint'] ?? 'unknown',
+                'endpoint' => $endpoint ?? 'unknown',
                 'operation_type' => $row['operation_type'],
                 'model' => $row['model'] ?? 'gpt-4o-mini',
                 'tokens' => [
@@ -115,7 +121,7 @@ class MonitorLiveEndpoint {
                     'key' => $row['license_key'] ? substr($row['license_key'], 0, 12) . '...' : 'N/A',
                     'email' => $row['user_email'] ?? 'N/A'
                 ],
-                'batch_type' => $row['batch_type'],
+                'batch_type' => $batchType,
                 'campaign_id' => $row['campaign_id'],
                 'batch_id' => $row['batch_id'],
                 'timestamp' => $row['created_at'],
