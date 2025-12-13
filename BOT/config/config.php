@@ -646,17 +646,17 @@ PHSBOT_DEF;
 
                   <div class="phsbot-field">
                     <label class="phsbot-label">Color Fondo Botón Chat</label>
-                    <input type="text" name="color_launcher_bg" class="phsbot-color phsbot-input-field" value="<?php echo esc_attr($color_launcher_bg);?>">
+                    <input type="color" name="color_launcher_bg" class="phsbot-input-field" value="<?php echo esc_attr($color_launcher_bg);?>" style="width: 100px; height: 40px;">
                   </div>
 
                   <div class="phsbot-field">
                     <label class="phsbot-label">Color Icono Botón Chat</label>
-                    <input type="text" name="color_launcher_icon" class="phsbot-color phsbot-input-field" value="<?php echo esc_attr($color_launcher_icon);?>">
+                    <input type="color" name="color_launcher_icon" class="phsbot-input-field" value="<?php echo esc_attr($color_launcher_icon);?>" style="width: 100px; height: 40px;">
                   </div>
 
                   <div class="phsbot-field">
                     <label class="phsbot-label">Color Texto Botón Chat</label>
-                    <input type="text" name="color_launcher_text" class="phsbot-color phsbot-input-field" value="<?php echo esc_attr($color_launcher_text);?>">
+                    <input type="color" name="color_launcher_text" class="phsbot-input-field" value="<?php echo esc_attr($color_launcher_text);?>" style="width: 100px; height: 40px;">
                   </div>
                 </div>
               </div>
