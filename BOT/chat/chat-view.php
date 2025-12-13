@@ -121,8 +121,12 @@ if ($fs > 22) $fs = 22;
 $launcher_bg_debug = phsbot_setting('color_launcher_bg', '#1e1e1e');
 $launcher_icon_debug = phsbot_setting('color_launcher_icon', '#ffffff');
 $launcher_text_debug = phsbot_setting('color_launcher_text', '#ffffff');
-error_log('DEBUG LAUNCHER LOAD - BG: ' . $launcher_bg_debug . ' | ICON: ' . $launcher_icon_debug . ' | TEXT: ' . $launcher_text_debug);
 ?>
+<!-- DEBUG LAUNCHER COLORS:
+     BG: <?php echo esc_html($launcher_bg_debug); ?>
+     ICON: <?php echo esc_html($launcher_icon_debug); ?>
+     TEXT: <?php echo esc_html($launcher_text_debug); ?>
+-->
 <button type="button" class="phsbot-launcher" id="phsbot-launcher" aria-label="Abrir chat"
         style="--phsbot-launcher-bg: <?php echo esc_attr($launcher_bg_debug); ?>;
                --phsbot-launcher-icon: <?php echo esc_attr($launcher_icon_debug); ?>;
