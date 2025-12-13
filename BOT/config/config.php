@@ -706,7 +706,7 @@ PHSBOT_DEF;
     <div id="phsbot-plan-widget" style="margin-top: 30px; display: none;">
       <div style="background: #000000; color: #fff; border-radius: 8px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
         <h3 style="margin: 0 0 20px 0; font-size: 18px; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">
-          ℹ️ Información del Plan
+          Información del Plan
         </h3>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
           <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 6px;">

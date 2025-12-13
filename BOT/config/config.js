@@ -6,7 +6,7 @@
         $panels = $('.phsbot-config-panel');
 
     function showTab(sel){
-      if(!sel || !$(sel).length) sel = '#tab-aspecto';
+      if(!sel || !$(sel).length) sel = '#tab-conexiones';
       $tabs.removeClass('nav-tab-active').attr('aria-selected','false');
       $panels.attr('aria-hidden','true');
       $tabs.filter('[href="'+sel+'"]').addClass('nav-tab-active').attr('aria-selected','true');
@@ -18,7 +18,7 @@
       if(history && history.replaceState) history.replaceState(null, '', sel);
       showTab(sel);
     });
-    showTab(location.hash && $(location.hash).length ? location.hash : '#tab-aspecto');
+    showTab(location.hash && $(location.hash).length ? location.hash : '#tab-conexiones');
 
     // --- Preview helpers ---
     var $pv = $('#phsbot-preview');
@@ -212,8 +212,11 @@ jQuery(function($){
       },
       timeout: 8000,
       success: function(response){
+        console.log('Plan Widget Response:', response);
         if (response && response.success && response.data && response.data.license) {
           var lic = response.data.license;
+          console.log('License Data:', lic);
+          console.log('Plan Name:', lic.plan_name);
 
           // Actualizar widget
           $('#widget-plan-name').text(lic.plan_name || 'Desconocido');
