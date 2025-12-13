@@ -56,6 +56,24 @@ add_action('wp_ajax_phsbot_leads_delete', function(){
     wp_send_json_error();
 });
 
+/** CLOSE lead (marcar como cerrado) */
+add_action('wp_ajax_phsbot_leads_close', function(){
+    check_ajax_referer('phsbot_leads','nonce');
+    if (!current_user_can('manage_options')) wp_send_json_error();
+
+    $cid = isset($_POST['cid']) ? sanitize_text_field(wp_unslash($_POST['cid'])) : '';
+    if ($cid === '') wp_send_json_error();
+
+    $lead = function_exists('phsbot_leads_get') ? phsbot_leads_get($cid) : null;
+    if (!$lead) wp_send_json_error();
+
+    $lead['closed'] = 1;
+    $ok = function_exists('phsbot_leads_set') ? phsbot_leads_set($lead) : false;
+
+    if ($ok) wp_send_json_success();
+    wp_send_json_error();
+});
+
 /** DELETE masivo */
 add_action('wp_ajax_phsbot_leads_delete_bulk', function(){
     check_ajax_referer('phsbot_leads','nonce');
