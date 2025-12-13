@@ -83,15 +83,6 @@ function phsbot_config_handle_save(){
   $g['color_launcher_icon'] = isset($_POST['color_launcher_icon']) ? sanitize_text_field($_POST['color_launcher_icon']) : ($g['color_launcher_icon'] ?? '#ffffff');
   $g['color_launcher_text'] = isset($_POST['color_launcher_text']) ? sanitize_text_field($_POST['color_launcher_text']) : ($g['color_launcher_text'] ?? '#ffffff');
 
-  // DEBUG: Ver qué llega en POST y qué se guarda
-  error_log('DEBUG LAUNCHER COLORS:');
-  error_log('POST color_launcher_bg: ' . (isset($_POST['color_launcher_bg']) ? $_POST['color_launcher_bg'] : 'NO SET'));
-  error_log('POST color_launcher_icon: ' . (isset($_POST['color_launcher_icon']) ? $_POST['color_launcher_icon'] : 'NO SET'));
-  error_log('POST color_launcher_text: ' . (isset($_POST['color_launcher_text']) ? $_POST['color_launcher_text'] : 'NO SET'));
-  error_log('SAVED color_launcher_bg: ' . $g['color_launcher_bg']);
-  error_log('SAVED color_launcher_icon: ' . $g['color_launcher_icon']);
-  error_log('SAVED color_launcher_text: ' . $g['color_launcher_text']);
-
   $g['btn_height']     = isset($_POST['btn_height'])     ? max(36, min(56, intval($_POST['btn_height'])))           : ($g['btn_height']     ?? 44);
   $g['head_btn_size']  = isset($_POST['head_btn_size'])  ? max(20, min(34, intval($_POST['head_btn_size'])))        : ($g['head_btn_size']  ?? 26);
   $g['mic_stroke_w']   = isset($_POST['mic_stroke_w'])   ? max(1,  min(3,  intval($_POST['mic_stroke_w'])))         : ($g['mic_stroke_w']   ?? 1);

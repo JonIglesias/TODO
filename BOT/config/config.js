@@ -113,9 +113,11 @@
   });
 })(jQuery);
 
-// Fallback: inicializa cualquier .phsbot-color suelto
+// Fallback: inicializa cualquier .phsbot-color suelto (excluye los que ya tienen bindColor)
 jQuery(function($){
-  if ($.fn.wpColorPicker) $('.phsbot-color').wpColorPicker();
+  if ($.fn.wpColorPicker) {
+    $('.phsbot-color').not('[name="color_primary"], [name="color_secondary"], [name="color_background"], [name="color_text"], [name="color_bot_bubble"], [name="color_user_bubble"], [name="color_whatsapp"], [name="color_footer"], [name="color_launcher_bg"], [name="color_launcher_icon"], [name="color_launcher_text"]').wpColorPicker();
+  }
 
   // --- Validar Licencia del Bot ---
   $('#phsbot-validate-license').on('click', function(e){
