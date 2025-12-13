@@ -109,6 +109,7 @@ function phsbot_inject_prepare_rules_for_front(){
 
         if($type==='video')        $content=phsbot_inject_video_embed((string)($it['video']??''),$autoplay);
         elseif($type==='shortcode')$content=phsbot_inject_render_shortcode((string)($it['payload_sc']??$it['payload']??''));
+        elseif($type==='product')  $content=phsbot_inject_render_shortcode('[product id="'.intval($it['product_id']??0).'"]');
         else                       $content=(string)($it['payload_html']??$it['payload']??$it['content']??'');
         if(trim($content)==='')continue;
         $out[]=array('keywords'=>array_values($keywords),'match'=>$match,'type'=>$type,'html'=>$content,'place'=>$place);
@@ -131,7 +132,9 @@ add_action('admin_init', function(){
                     foreach($input['items'] as $it){
                         $enabled=!empty($it['enabled'])?1:0;
                         $keywords=isset($it['keywords'])?(string)$it['keywords']:'';
-                        $type=(isset($it['type'])&&in_array($it['type'],array('html','shortcode','video','redirect'),true))?$it['type']:'html';
+                        $valid_types=array('html','shortcode','video','redirect');
+                        if(class_exists('WooCommerce')) $valid_types[]='product';
+                        $type=(isset($it['type'])&&in_array($it['type'],$valid_types,true))?$it['type']:'html';
                         $match=(isset($it['match'])&&in_array($it['match'],array('any','all'),true))?$it['match']:'any';
                         $place=(isset($it['place'])&&in_array($it['place'],array('before','after','only'),true))?$it['place']:'before';
                         $autoplay=!empty($it['autoplay'])?1:0;
@@ -146,10 +149,14 @@ add_action('admin_init', function(){
                         $redirect_confirm=!empty($it['redirect_confirm'])?1:0;
                         $redirect_message=isset($it['redirect_message'])?sanitize_text_field($it['redirect_message']):'';
 
+                        // Campos específicos de product
+                        $product_id=isset($it['product_id'])?intval($it['product_id']):0;
+
                         $keywords=trim(preg_replace('/\s*,\s*/',',',$keywords)," \t\n\r\0\x0B,");
 
                         if($type==='redirect'){ $has=($redirect_url!==''); $payload=''; }
                         elseif($type==='video'){ $has=($video!==''); $payload=''; }
+                        elseif($type==='product'){ $has=($product_id>0); $payload=''; }
                         elseif($type==='shortcode'){ $payload=wp_unslash($payload_sc); $has=(trim($payload)!==''); }
                         else{ $payload=wp_unslash($payload_html); $has=(trim($payload)!==''); }
 
@@ -165,6 +172,9 @@ add_action('admin_init', function(){
                                 $item_data['redirect_target']=$redirect_target;
                                 $item_data['redirect_confirm']=$redirect_confirm;
                                 $item_data['redirect_message']=$redirect_message;
+                            }
+                            if($type==='product'){
+                                $item_data['product_id']=$product_id;
                             }
                             $items[]=$item_data;
                         }
@@ -203,12 +213,16 @@ add_action('wp_ajax_phsbot_inject_save_item', function(){
     $redirect_confirm = !empty($_POST['redirect_confirm']) ? 1 : 0;
     $redirect_message = isset($_POST['redirect_message']) ? sanitize_text_field(wp_unslash($_POST['redirect_message'])) : '';
 
+    // Campos product
+    $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+
     $keywords = trim(preg_replace('/\s*,\s*/', ',', $keywords), " \t\n\r\0\x0B,");
     if ($keywords === '') wp_send_json_error(array('msg'=>'keywords'));
 
     $has = false; $payload_html = ''; $payload_sc = ''; $video_url = '';
     if ($type === 'redirect') { $has = ($redirect_url !== ''); }
     elseif ($type === 'video') { $video_url = $video; $has = ($video_url !== ''); }
+    elseif ($type === 'product') { $has = ($product_id > 0); }
     elseif ($type === 'shortcode') { $payload_sc = $payload_s; $has = (trim($payload_sc) !== ''); }
     else { $type = 'html'; $payload_html = $payload_h; $has = (trim($payload_html) !== ''); }
     if (!$has) wp_send_json_error(array('msg'=>'content'));
@@ -230,6 +244,10 @@ add_action('wp_ajax_phsbot_inject_save_item', function(){
         $row['redirect_message']=$redirect_message;
     }
 
+    if($type==='product'){
+        $row['product_id']=$product_id;
+    }
+
     if ($id >= 0 && isset($items[$id])) { $items[$id] = $row; $new_id = $id; }
     else { $items[] = $row; $new_id = count($items)-1; }
 
@@ -240,11 +258,19 @@ add_action('wp_ajax_phsbot_inject_save_item', function(){
 
     // Tipo con icono
     $type_up = strtoupper($type);
-    $icon    = ($type==='redirect') ? 'share' : (($type==='video') ? 'video-alt3' : (($type==='shortcode') ? 'shortcode' : 'editor-code'));
+    $icon    = ($type==='redirect') ? 'share' : (($type==='video') ? 'video-alt3' : (($type==='product') ? 'products' : (($type==='shortcode') ? 'shortcode' : 'editor-code')));
     $type_html = '<span class="dashicons dashicons-'.esc_attr($icon).'" aria-hidden="true"></span> '.esc_html($type_up);
 
     if ($type === 'redirect')      $preview = esc_html($redirect_url);
     elseif ($type === 'video')     $preview = esc_html($video_url);
+    elseif ($type === 'product')   {
+        if($product_id > 0 && function_exists('wc_get_product')){
+            $prod = wc_get_product($product_id);
+            $preview = $prod ? esc_html($prod->get_name().' (ID: '.$product_id.')') : 'Producto ID: '.esc_html($product_id);
+        } else {
+            $preview = 'Producto ID: '.esc_html($product_id);
+        }
+    }
     elseif ($type === 'shortcode') $preview = esc_html($payload_sc);
     else                           $preview = esc_html(wp_strip_all_tags($payload_html));
 
@@ -344,7 +370,7 @@ function phsbot_inject_admin_page(){
                 <?php if(!empty($items)): foreach($items as $idx=>$r):
                     $type_raw = $r['type'] ?? 'html';
                     $type_up  = strtoupper($type_raw);
-                    $icon     = ($type_raw==='redirect') ? 'share' : (($type_raw==='video') ? 'video-alt3' : (($type_raw==='shortcode') ? 'shortcode' : 'editor-code'));
+                    $icon     = ($type_raw==='redirect') ? 'share' : (($type_raw==='video') ? 'video-alt3' : (($type_raw==='product') ? 'products' : (($type_raw==='shortcode') ? 'shortcode' : 'editor-code')));
                     $type_col = '<span class="dashicons dashicons-'.esc_attr($icon).'"></span> '.esc_html($type_up);
 
                     $enabled=!empty($r['enabled']);
@@ -354,6 +380,15 @@ function phsbot_inject_admin_page(){
 
                     if($type_raw==='redirect')       $preview=esc_html($r['redirect_url']??'');
                     elseif($type_raw==='video')      $preview=esc_html($r['video']??'');
+                    elseif($type_raw==='product')    {
+                        $pid = intval($r['product_id']??0);
+                        if($pid > 0 && function_exists('wc_get_product')){
+                            $prod = wc_get_product($pid);
+                            $preview = $prod ? esc_html($prod->get_name().' (ID: '.$pid.')') : 'Producto ID: '.esc_html($pid);
+                        } else {
+                            $preview = 'Producto ID: '.esc_html($pid);
+                        }
+                    }
                     elseif($type_raw==='shortcode')  $preview=esc_html($r['payload_sc']??$r['payload']??'');
                     else                             $preview=esc_html(wp_strip_all_tags($r['payload_html']??$r['payload']??''));
 
@@ -396,6 +431,9 @@ function phsbot_inject_admin_page(){
                                 <option value="shortcode" <?php selected($type,'shortcode'); ?>>Shortcode</option>
                                 <option value="video" <?php selected($type,'video'); ?>>Vídeo YouTube</option>
                                 <option value="redirect" <?php selected($type,'redirect'); ?>>Redirect</option>
+                                <?php if(class_exists('WooCommerce')): ?>
+                                <option value="product" <?php selected($type,'product'); ?>>Producto WooCommerce</option>
+                                <?php endif; ?>
                             </select>
                         </td>
                         <td>
@@ -422,6 +460,27 @@ function phsbot_inject_admin_page(){
                                 <label style="display:block;margin:8px 0 3px 0;">Mensaje opcional:</label>
                                 <input type="text" class="regular-text" name="<?php echo esc_attr(PHSBOT_INJECT_OPT); ?>[items][<?php echo (int)$idx; ?>][redirect_message]" value="<?php echo esc_attr($r['redirect_message'] ?? ''); ?>" placeholder="Redirigiendo...">
                             </div>
+                            <?php if(class_exists('WooCommerce')): ?>
+                            <div class="phs-field phs-field--product" style="<?php echo ($type==='product'?'':'display:none'); ?>">
+                                <label style="display:block;margin-bottom:5px;">Seleccionar producto:</label>
+                                <select class="phs-product-selector" name="<?php echo esc_attr(PHSBOT_INJECT_OPT); ?>[items][<?php echo (int)$idx; ?>][product_id]" style="width:100%;max-width:500px;">
+                                    <option value="">-- Selecciona un producto --</option>
+                                    <?php
+                                    $products = wc_get_products(array('limit' => -1, 'status' => 'publish', 'orderby' => 'title', 'order' => 'ASC'));
+                                    $current_product_id = intval($r['product_id'] ?? 0);
+                                    foreach($products as $product):
+                                        $pid = $product->get_id();
+                                        $name = $product->get_name();
+                                        $price = $product->get_price();
+                                        $price_html = $price ? ' - ' . wc_price($price) : '';
+                                    ?>
+                                        <option value="<?php echo esc_attr($pid); ?>" <?php selected($current_product_id, $pid); ?>>
+                                            <?php echo esc_html($name . ' (ID: ' . $pid . ')') . $price_html; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <?php endif; ?>
                         </td>
                         <td><label><input type="checkbox" name="<?php echo esc_attr(PHSBOT_INJECT_OPT); ?>[items][<?php echo (int)$idx; ?>][autoplay]" value="1" <?php checked(!empty($r['autoplay'])); ?>></label></td>
                         <td>
@@ -445,10 +504,11 @@ function phsbot_inject_admin_page(){
 
             <!-- plantilla para nuevas reglas (activas por defecto) -->
             <input type="hidden" id="phsbot-inject-template" value="<?php
+                $product_option = class_exists('WooCommerce') ? '<option value=&quot;product&quot;>Producto WooCommerce</option>' : '';
                 $tpl = '<tr class=&quot;phsbot-inject-row&quot;>'
                      . '<td><label><input type=&quot;checkbox&quot; checked=&quot;checked&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][enabled]&quot; value=&quot;1&quot;></label></td>'
                      . '<td><input type=&quot;text&quot; class=&quot;regular-text&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][keywords]&quot; value=&quot;&quot;></td>'
-                     . '<td><select name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][type]&quot; class=&quot;phs-type&quot;><option value=&quot;html&quot; selected>HTML</option><option value=&quot;shortcode&quot;>Shortcode</option><option value=&quot;video&quot;>Vídeo YouTube</option><option value=&quot;redirect&quot;>Redirect</option></select></td>'
+                     . '<td><select name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][type]&quot; class=&quot;phs-type&quot;><option value=&quot;html&quot; selected>HTML</option><option value=&quot;shortcode&quot;>Shortcode</option><option value=&quot;video&quot;>Vídeo YouTube</option><option value=&quot;redirect&quot;>Redirect</option>'.$product_option.'</select></td>'
                      . '<td>'
                      . '  <div class=&quot;phs-field phs-field--html&quot;><textarea name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][payload_html]&quot; rows=&quot;3&quot; class=&quot;large-text code&quot;></textarea></div>'
                      . '  <div class=&quot;phs-field phs-field--shortcode&quot; style=&quot;display:none&quot;><input type=&quot;text&quot; class=&quot;regular-text code&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][payload_sc]&quot; value=&quot;&quot;></div>'
@@ -463,8 +523,28 @@ function phsbot_inject_admin_page(){
                      . '    <label style=&quot;display:block;margin:8px 0 3px 0;&quot;><input type=&quot;checkbox&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][redirect_confirm]&quot; value=&quot;1&quot;> Pedir confirmación</label>'
                      . '    <label style=&quot;display:block;margin:8px 0 3px 0;&quot;>Mensaje opcional:</label>'
                      . '    <input type=&quot;text&quot; class=&quot;regular-text&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][redirect_message]&quot; value=&quot;&quot; placeholder=&quot;Redirigiendo...&quot;>'
-                     . '  </div>'
-                     . '</td>'
+                     . '  </div>';
+
+                // Añadir selector de productos si WooCommerce está activo
+                if(class_exists('WooCommerce')){
+                    $product_opts = '<option value=&quot;&quot;>-- Selecciona un producto --</option>';
+                    $products = wc_get_products(array('limit' => -1, 'status' => 'publish', 'orderby' => 'title', 'order' => 'ASC'));
+                    foreach($products as $product){
+                        $pid = $product->get_id();
+                        $name = $product->get_name();
+                        $price = $product->get_price();
+                        $price_html = $price ? ' - ' . strip_tags(wc_price($price)) : '';
+                        $product_opts .= '<option value=&quot;'.$pid.'&quot;>'.esc_html($name . ' (ID: ' . $pid . ')' . $price_html).'</option>';
+                    }
+                    $tpl .= '  <div class=&quot;phs-field phs-field--product&quot; style=&quot;display:none&quot;>'
+                          . '    <label style=&quot;display:block;margin-bottom:5px;&quot;>Seleccionar producto:</label>'
+                          . '    <select class=&quot;phs-product-selector&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][product_id]&quot; style=&quot;width:100%;max-width:500px;&quot;>'
+                          . $product_opts
+                          . '    </select>'
+                          . '  </div>';
+                }
+
+                $tpl .= '</td>'
                      . '<td><label><input type=&quot;checkbox&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][autoplay]&quot; value=&quot;1&quot;></label></td>'
                      . '<td><select name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][match]&quot;><option value=&quot;any&quot; selected>any</option><option value=&quot;all&quot;>all</option></select></td>'
                      . '<td><select name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][place]&quot;><option value=&quot;before&quot; selected>antes de la respuesta</option><option value=&quot;after&quot;>después de la respuesta</option><option value=&quot;only&quot;>sólo trigger (sin bot)</option></select></td>'
