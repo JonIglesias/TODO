@@ -79,6 +79,17 @@ function phsbot_config_handle_save(){
   $g['color_bot_bubble']    = isset($_POST['color_bot_bubble'])    ? sanitize_hex_color($_POST['color_bot_bubble'])    : ($g['color_bot_bubble']    ?? '#f3f3f3');
   $g['color_user_bubble']   = isset($_POST['color_user_bubble'])   ? sanitize_hex_color($_POST['color_user_bubble'])   : ($g['color_user_bubble']   ?? '#ffffff');
   $g['color_footer']        = isset($_POST['color_footer'])        ? sanitize_hex_color($_POST['color_footer'])        : ($g['color_footer']        ?? '#1e1e1e');
+
+  // DEBUG: Ver qué llega en POST para colores launcher
+  file_put_contents(__DIR__ . '/debug_post.txt',
+    "=== DEBUG POST LAUNCHER COLORS ===\n" .
+    "POST color_launcher_bg: " . (isset($_POST['color_launcher_bg']) ? var_export($_POST['color_launcher_bg'], true) : 'NOT SET') . "\n" .
+    "POST color_launcher_icon: " . (isset($_POST['color_launcher_icon']) ? var_export($_POST['color_launcher_icon'], true) : 'NOT SET') . "\n" .
+    "POST color_launcher_text: " . (isset($_POST['color_launcher_text']) ? var_export($_POST['color_launcher_text'], true) : 'NOT SET') . "\n\n" .
+    "All POST keys with 'color' or 'launcher':\n" .
+    implode("\n", array_filter(array_keys($_POST), function($k){ return stripos($k, 'color') !== false || stripos($k, 'launcher') !== false; })) . "\n"
+  );
+
   $g['color_launcher_bg']   = isset($_POST['color_launcher_bg'])   ? sanitize_text_field($_POST['color_launcher_bg'])   : ($g['color_launcher_bg']   ?? '#1e1e1e');
   $g['color_launcher_icon'] = isset($_POST['color_launcher_icon']) ? sanitize_text_field($_POST['color_launcher_icon']) : ($g['color_launcher_icon'] ?? '#ffffff');
   $g['color_launcher_text'] = isset($_POST['color_launcher_text']) ? sanitize_text_field($_POST['color_launcher_text']) : ($g['color_launcher_text'] ?? '#ffffff');
