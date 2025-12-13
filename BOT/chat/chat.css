@@ -176,10 +176,10 @@
   height: 24px !important;
   display: block !important;
   flex-shrink: 0 !important;
-  color: #ffffff !important;
+  color: var(--phsbot-launcher-icon, #ffffff) !important;
 }
 .phsbot-launcher-text{
-  color: #ffffff !important;
+  color: var(--phsbot-launcher-text, #ffffff) !important;
   font-size: 16px !important;
   font-weight: 600 !important;
   white-space: nowrap !important;

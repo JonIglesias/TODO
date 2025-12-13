@@ -118,7 +118,15 @@ if ($fs > 22) $fs = 22;
 <!-- Botón lanzador (solo se muestra en modo flotante por el CSS que inyecta chat.php) -->
 <button type="button" class="phsbot-launcher" id="phsbot-launcher" aria-label="Abrir chat">
   <svg class="phsbot-launcher-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" fill="currentColor"/>
+    <!-- Robot cuadrado estilo Conversa -->
+    <rect x="5" y="3" width="14" height="16" rx="2" ry="2" fill="currentColor"/>
+    <rect x="3" y="8" width="2" height="4" rx="1" ry="1" fill="currentColor"/>
+    <rect x="19" y="8" width="2" height="4" rx="1" ry="1" fill="currentColor"/>
+    <circle cx="9.5" cy="9" r="1.5" fill="#fff"/>
+    <circle cx="14.5" cy="9" r="1.5" fill="#fff"/>
+    <rect x="9" y="13" width="6" height="2" rx="1" ry="1" fill="#fff"/>
+    <rect x="7" y="19" width="3" height="3" rx="0.5" ry="0.5" fill="currentColor"/>
+    <rect x="14" y="19" width="3" height="3" rx="0.5" ry="0.5" fill="currentColor"/>
   </svg>
   <span class="phsbot-launcher-text"><?php echo esc_html($chat_title); ?></span>
 </button>
