@@ -89,7 +89,9 @@ add_action('admin_enqueue_scripts', function(){
         'nonce'  => wp_create_nonce('phsbot_leads'),
         'i18n'   => array(
             'view'            => __('Ver', 'phsbot'),
+            'close'           => __('Cerrar', 'phsbot'),
             'delete'          => __('Borrar', 'phsbot'),
+            'confirm_close'   => __('¿Marcar este lead como cerrado?', 'phsbot'),
             'confirm_delete'  => __('¿Seguro que quieres borrar el lead seleccionado?', 'phsbot'),
             'no_rows'         => __('No hay leads para mostrar.', 'phsbot'),
             'reset_done'      => __('Memoria del navegador reseteada.', 'phsbot'),
@@ -190,6 +192,9 @@ if (!function_exists('phsbot_leads_admin_page')) {
                 $rows .= '<td class="phsbot-truncate" title="'.$page.'">'.esc_html($page).'</td>';
                 $rows .= '<td class="actions-col">';
                 $rows .= '  <button class="button button-small phsbot-view" data-cid="'.$cid.'">'.esc_html__('Ver','phsbot').'</button> ';
+                if (!$closed) {
+                    $rows .= '  <button class="button button-small phsbot-close" data-cid="'.$cid.'">'.esc_html__('Cerrar','phsbot').'</button> ';
+                }
                 $rows .= '  <button class="button button-small button-link-delete phsbot-del" data-cid="'.$cid.'">'.esc_html__('Borrar','phsbot').'</button>';
                 $rows .= '</td></tr>';
             }

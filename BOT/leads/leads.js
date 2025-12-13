@@ -123,6 +123,28 @@
       }
     })
 
+    .on('click', '.phsbot-close', function(e){
+      e.preventDefault();
+      if (!confirm(PHSBOT_LEADS.i18n.confirm_close)) return;
+      const cid = $(this).data('cid');
+      const $row = $(this).closest('tr');
+      const $btn = $(this);
+      ajax('phsbot_leads_close', { cid }).done(res=>{
+        if (res && res.success) {
+          // Actualizar visualmente: cambiar estado a "Cerrado" y ocultar botón Cerrar
+          $row.find('.phsbot-state').removeClass('open').addClass('closed').text('Cerrado');
+          $row.data('open', '0');
+          $btn.remove(); // Quitar el botón Cerrar
+          // Si está abierto el detalle, actualizarlo también
+          const $next = $row.next();
+          if ($next.hasClass('phsbot-detail')) {
+            $next.find('.meta-grid div:contains("Estado:")').html('<strong>Estado:</strong> Cerrado');
+          }
+          filterRows();
+        }
+      });
+    })
+
     .on('click', '.phsbot-del', function(e){
       e.preventDefault();
       if (!confirm(PHSBOT_LEADS.i18n.confirm_delete)) return;
