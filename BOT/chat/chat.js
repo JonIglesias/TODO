@@ -10,6 +10,7 @@
   var WELCOME    = (CFG.welcome || '').trim();
   var ANCHOR_P   = !!CFG.anchorPara;
   var CONV_KEY   = 'phsbot:conv';
+  var OPEN_KEY   = 'phsbot:isOpen';
   var __INIT_DONE__ = false;
 
   // Scroll “air” (px) para el inicio de la última burbuja del bot
@@ -206,6 +207,9 @@
     r.card.setAttribute('data-open','1'); r.root.setAttribute('data-open','1');
     if (r.launch) r.launch.style.display='none';
 
+    // Guardar estado abierto en sessionStorage
+    try{ sessionStorage.setItem(OPEN_KEY, '1'); }catch(e){}
+
     setInitialHeight();
 
     try{
@@ -233,6 +237,9 @@
     var r=R(); if (!r.root || !r.card) return;
     r.card.setAttribute('data-open','0'); r.root.setAttribute('data-open','0');
     if (r.launch) r.launch.style.display='';
+
+    // Guardar estado cerrado en sessionStorage
+    try{ sessionStorage.setItem(OPEN_KEY, '0'); }catch(e){}
   }
   window.__PHSBOT_OPEN__  = openChat;
   window.__PHSBOT_CLOSE__ = closeChat;
@@ -581,6 +588,19 @@
     if (r.ta)   r.ta.placeholder   = UI.ph   || 'Escribe tu pregunta...';
   }
 
+  /* ======== Restaurar estado de apertura ======== */
+  function restoreOpenState(){
+    try{
+      var savedState = sessionStorage.getItem(OPEN_KEY);
+      if (savedState === '1'){
+        openChat();
+      } else if (savedState === '0'){
+        closeChat();
+      }
+      // Si no hay estado guardado, mantener el estado por defecto (cerrado)
+    }catch(e){}
+  }
+
   /* ======== API pública ======== */
   (function exposeAPI(){
     window.PHSBOT = window.PHSBOT || {};
@@ -599,6 +619,7 @@
 
     initTexts();
     restoreHistory();
+    restoreOpenState();
 
     if (!watchContentGrowth()){
       var i0 = 0, t0=setInterval(function(){ i0++; if (watchContentGrowth()||i0>40) clearInterval(t0); }, 50);
