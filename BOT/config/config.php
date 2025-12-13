@@ -126,6 +126,20 @@ function phsbot_config_handle_save(){
   $debug_info .= "  \$g['color_launcher_bg']: " . var_export($g['color_launcher_bg'] ?? 'NOT IN ARRAY', true) . "\n";
   $debug_info .= "  \$g['color_launcher_icon']: " . var_export($g['color_launcher_icon'] ?? 'NOT IN ARRAY', true) . "\n";
   $debug_info .= "  \$g['color_launcher_text']: " . var_export($g['color_launcher_text'] ?? 'NOT IN ARRAY', true) . "\n";
+  $debug_info .= "PHSBOT_SETTINGS_OPT = '" . PHSBOT_SETTINGS_OPT . "'\n";
+  $debug_info .= "is_array(\$g) = " . var_export(is_array($g), true) . "\n";
+  $debug_info .= "count(\$g) = " . count($g) . "\n";
+
+  // Ver qué hay en BD ANTES de update
+  $old_value = get_option(PHSBOT_SETTINGS_OPT, 'OPTION_NOT_EXISTS');
+  $debug_info .= "Valor ACTUAL en BD antes de update:\n";
+  if ($old_value === 'OPTION_NOT_EXISTS') {
+    $debug_info .= "  OPTION DOES NOT EXIST IN DB!\n";
+  } else {
+    $debug_info .= "  color_launcher_bg en BD: " . var_export($old_value['color_launcher_bg'] ?? 'NOT SET', true) . "\n";
+    $debug_info .= "  color_launcher_icon en BD: " . var_export($old_value['color_launcher_icon'] ?? 'NOT SET', true) . "\n";
+    $debug_info .= "  color_launcher_text en BD: " . var_export($old_value['color_launcher_text'] ?? 'NOT SET', true) . "\n";
+  }
   file_put_contents($debug_log, $debug_info, FILE_APPEND);
 
   $update_result = update_option(PHSBOT_SETTINGS_OPT, $g);
