@@ -212,11 +212,8 @@ jQuery(function($){
       },
       timeout: 8000,
       success: function(response){
-        console.log('Plan Widget Response:', response);
         if (response && response.success && response.data && response.data.license) {
           var lic = response.data.license;
-          console.log('License Data:', lic);
-          console.log('Plan Name:', lic.plan_name);
 
           // Actualizar widget
           $('#widget-plan-name').text(lic.plan_name || 'Desconocido');

@@ -18,7 +18,10 @@ class License {
      * Obtener licencia por key
      */
     public function findByKey($licenseKey) {
-        $sql = "SELECT * FROM " . DB_PREFIX . "licenses WHERE license_key = ?";
+        $sql = "SELECT l.*, p.name as plan_name
+                FROM " . DB_PREFIX . "licenses l
+                LEFT JOIN " . DB_PREFIX . "plans p ON l.plan_id = p.id
+                WHERE l.license_key = ?";
         return $this->db->fetchOne($sql, [$licenseKey]);
     }
     
@@ -26,7 +29,10 @@ class License {
      * Obtener licencia por ID de suscripción WooCommerce
      */
     public function findBySubscriptionId($subscriptionId) {
-        $sql = "SELECT * FROM " . DB_PREFIX . "licenses WHERE woo_subscription_id = ?";
+        $sql = "SELECT l.*, p.name as plan_name
+                FROM " . DB_PREFIX . "licenses l
+                LEFT JOIN " . DB_PREFIX . "plans p ON l.plan_id = p.id
+                WHERE l.woo_subscription_id = ?";
         return $this->db->fetchOne($sql, [$subscriptionId]);
     }
     
@@ -83,14 +89,16 @@ class License {
     public function getCriticalLicenses() {
         $criticalDate = date('Y-m-d H:i:s', strtotime('+' . CRITICAL_DAYS_BEFORE_EXPIRY . ' days'));
         $newLicenseDate = date('Y-m-d H:i:s', strtotime('-' . NEW_LICENSE_AGE_HOURS . ' hours'));
-        
-        $sql = "SELECT * FROM " . DB_PREFIX . "licenses 
-                WHERE status = 'active' 
+
+        $sql = "SELECT l.*, p.name as plan_name
+                FROM " . DB_PREFIX . "licenses l
+                LEFT JOIN " . DB_PREFIX . "plans p ON l.plan_id = p.id
+                WHERE l.status = 'active'
                 AND (
-                    period_ends_at <= ? 
-                    OR created_at >= ?
+                    l.period_ends_at <= ?
+                    OR l.created_at >= ?
                 )";
-        
+
         return $this->db->fetchAll($sql, [$criticalDate, $newLicenseDate]);
     }
     
@@ -100,22 +108,26 @@ class License {
     public function getRegularLicenses() {
         $criticalDate = date('Y-m-d H:i:s', strtotime('+' . CRITICAL_DAYS_BEFORE_EXPIRY . ' days'));
         $newLicenseDate = date('Y-m-d H:i:s', strtotime('-' . NEW_LICENSE_AGE_HOURS . ' hours'));
-        
-        $sql = "SELECT * FROM " . DB_PREFIX . "licenses 
-                WHERE status = 'active' 
-                AND period_ends_at > ? 
-                AND created_at < ?";
-        
+
+        $sql = "SELECT l.*, p.name as plan_name
+                FROM " . DB_PREFIX . "licenses l
+                LEFT JOIN " . DB_PREFIX . "plans p ON l.plan_id = p.id
+                WHERE l.status = 'active'
+                AND l.period_ends_at > ?
+                AND l.created_at < ?";
+
         return $this->db->fetchAll($sql, [$criticalDate, $newLicenseDate]);
     }
-    
+
     /**
      * Obtener licencias inactivas
      */
     public function getInactiveLicenses() {
-        $sql = "SELECT * FROM " . DB_PREFIX . "licenses 
-                WHERE status IN ('expired', 'cancelled', 'suspended')";
-        
+        $sql = "SELECT l.*, p.name as plan_name
+                FROM " . DB_PREFIX . "licenses l
+                LEFT JOIN " . DB_PREFIX . "plans p ON l.plan_id = p.id
+                WHERE l.status IN ('expired', 'cancelled', 'suspended')";
+
         return $this->db->fetchAll($sql);
     }
     
@@ -201,30 +213,32 @@ class License {
      */
     public function getAll($page = 1, $perPage = 50, $filters = []) {
         $offset = ($page - 1) * $perPage;
-        
+
         $where = [];
         $params = [];
-        
+
         if (!empty($filters['status'])) {
-            $where[] = "status = ?";
+            $where[] = "l.status = ?";
             $params[] = $filters['status'];
         }
-        
+
         if (!empty($filters['plan_id'])) {
-            $where[] = "plan_id = ?";
+            $where[] = "l.plan_id = ?";
             $params[] = $filters['plan_id'];
         }
-        
+
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
-        
-        $sql = "SELECT * FROM " . DB_PREFIX . "licenses 
+
+        $sql = "SELECT l.*, p.name as plan_name
+                FROM " . DB_PREFIX . "licenses l
+                LEFT JOIN " . DB_PREFIX . "plans p ON l.plan_id = p.id
                 {$whereClause}
-                ORDER BY created_at DESC 
+                ORDER BY l.created_at DESC
                 LIMIT ? OFFSET ?";
-        
+
         $params[] = $perPage;
         $params[] = $offset;
-        
+
         return $this->db->fetchAll($sql, $params);
     }
 }
