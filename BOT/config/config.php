@@ -72,16 +72,23 @@ function phsbot_config_handle_save(){
   $g['chat_width']     = isset($_POST['chat_width'])    ? sanitize_text_field($_POST['chat_width'])    : ($g['chat_width'] ?? '360px');
   $g['chat_height']    = isset($_POST['chat_height'])   ? sanitize_text_field($_POST['chat_height'])   : ($g['chat_height'] ?? '720px');
 
-  $g['color_primary']     = isset($_POST['color_primary'])     ? (sanitize_hex_color($_POST['color_primary']) ?: ($g['color_primary'] ?? '#1e1e1e'))     : ($g['color_primary']     ?? '#1e1e1e');
-  $g['color_secondary']   = isset($_POST['color_secondary'])   ? (sanitize_hex_color($_POST['color_secondary']) ?: ($g['color_secondary'] ?? '#dbdbdb'))   : ($g['color_secondary']   ?? '#dbdbdb');
-  $g['color_background']  = isset($_POST['color_background'])  ? (sanitize_hex_color($_POST['color_background']) ?: ($g['color_background'] ?? '#e8e8e8'))  : ($g['color_background']  ?? '#e8e8e8');
-  $g['color_text']        = isset($_POST['color_text'])        ? (sanitize_hex_color($_POST['color_text']) ?: ($g['color_text'] ?? '#000000'))        : ($g['color_text']        ?? '#000000');
-  $g['color_bot_bubble']  = isset($_POST['color_bot_bubble'])  ? (sanitize_hex_color($_POST['color_bot_bubble']) ?: ($g['color_bot_bubble'] ?? '#f3f3f3'))  : ($g['color_bot_bubble']  ?? '#f3f3f3');
-  $g['color_user_bubble'] = isset($_POST['color_user_bubble']) ? (sanitize_hex_color($_POST['color_user_bubble']) ?: ($g['color_user_bubble'] ?? '#ffffff')) : ($g['color_user_bubble'] ?? '#ffffff');
-  $g['color_footer']      = isset($_POST['color_footer'])      ? (sanitize_hex_color($_POST['color_footer']) ?: ($g['color_footer'] ?? '#1e1e1e'))      : ($g['color_footer']      ?? '#1e1e1e');
-  $g['color_launcher_bg'] = isset($_POST['color_launcher_bg']) ? (sanitize_hex_color($_POST['color_launcher_bg']) ?: ($g['color_launcher_bg'] ?? '#1e1e1e')) : ($g['color_launcher_bg'] ?? '#1e1e1e');
-  $g['color_launcher_icon'] = isset($_POST['color_launcher_icon']) ? (sanitize_hex_color($_POST['color_launcher_icon']) ?: ($g['color_launcher_icon'] ?? '#ffffff')) : ($g['color_launcher_icon'] ?? '#ffffff');
-  $g['color_launcher_text'] = isset($_POST['color_launcher_text']) ? (sanitize_hex_color($_POST['color_launcher_text']) ?: ($g['color_launcher_text'] ?? '#ffffff')) : ($g['color_launcher_text'] ?? '#ffffff');
+  // Helper para sanitizar colores con fallback correcto
+  $sanitize_color = function($post_key, $default) use ($g) {
+    if (!isset($_POST[$post_key])) return $g[$post_key] ?? $default;
+    $val = sanitize_hex_color($_POST[$post_key]);
+    return ($val && $val !== '') ? $val : ($g[$post_key] ?? $default);
+  };
+
+  $g['color_primary']       = $sanitize_color('color_primary', '#1e1e1e');
+  $g['color_secondary']     = $sanitize_color('color_secondary', '#dbdbdb');
+  $g['color_background']    = $sanitize_color('color_background', '#e8e8e8');
+  $g['color_text']          = $sanitize_color('color_text', '#000000');
+  $g['color_bot_bubble']    = $sanitize_color('color_bot_bubble', '#f3f3f3');
+  $g['color_user_bubble']   = $sanitize_color('color_user_bubble', '#ffffff');
+  $g['color_footer']        = $sanitize_color('color_footer', '#1e1e1e');
+  $g['color_launcher_bg']   = $sanitize_color('color_launcher_bg', '#1e1e1e');
+  $g['color_launcher_icon'] = $sanitize_color('color_launcher_icon', '#ffffff');
+  $g['color_launcher_text'] = $sanitize_color('color_launcher_text', '#ffffff');
 
   $g['btn_height']     = isset($_POST['btn_height'])     ? max(36, min(56, intval($_POST['btn_height'])))           : ($g['btn_height']     ?? 44);
   $g['head_btn_size']  = isset($_POST['head_btn_size'])  ? max(20, min(34, intval($_POST['head_btn_size'])))        : ($g['head_btn_size']  ?? 26);
@@ -238,15 +245,21 @@ function phsbot_config_render_page(){
   $chat_title     = isset($g['chat_title'])    ? $g['chat_title']    : 'PHSBot';
   $bubble_font_size = isset($g['bubble_font_size']) ? intval($g['bubble_font_size']) : 15;
 
-  $color_primary      = isset($g['color_primary'])      ? $g['color_primary']      : '#1e1e1e';
-  $color_secondary    = isset($g['color_secondary'])    ? $g['color_secondary']    : '#dbdbdb';
-  $color_background   = isset($g['color_background'])   ? $g['color_background']   : '#e8e8e8';
-  $color_text         = isset($g['color_text'])         ? $g['color_text']         : '#000000';
-  $color_bot_bubble   = isset($g['color_bot_bubble'])   ? $g['color_bot_bubble']   : '#f3f3f3';
-  $color_user_bubble  = isset($g['color_user_bubble'])  ? $g['color_user_bubble']  : '#ffffff';
-  $color_launcher_bg  = isset($g['color_launcher_bg'])  ? $g['color_launcher_bg']  : '#1e1e1e';
-  $color_launcher_icon = isset($g['color_launcher_icon']) ? $g['color_launcher_icon'] : '#ffffff';
-  $color_launcher_text = isset($g['color_launcher_text']) ? $g['color_launcher_text'] : '#ffffff';
+  // Helper para obtener color con fallback si está vacío
+  $get_color = function($key, $default) use ($g) {
+    $val = $g[$key] ?? '';
+    return ($val && $val !== '') ? $val : $default;
+  };
+
+  $color_primary       = $get_color('color_primary', '#1e1e1e');
+  $color_secondary     = $get_color('color_secondary', '#dbdbdb');
+  $color_background    = $get_color('color_background', '#e8e8e8');
+  $color_text          = $get_color('color_text', '#000000');
+  $color_bot_bubble    = $get_color('color_bot_bubble', '#f3f3f3');
+  $color_user_bubble   = $get_color('color_user_bubble', '#ffffff');
+  $color_launcher_bg   = $get_color('color_launcher_bg', '#1e1e1e');
+  $color_launcher_icon = $get_color('color_launcher_icon', '#ffffff');
+  $color_launcher_text = $get_color('color_launcher_text', '#ffffff');
 
   // Footer (preview)
   $color_footer_saved   = isset($g['color_footer']) ? $g['color_footer'] : '#1e1e1e';
@@ -720,6 +733,43 @@ PHSBOT_DEF;
                 </button>
               </div>
             </div>
+
+            <!-- Preview del Botón Launcher -->
+            <div style="margin-top: 30px; padding: 20px; background: #f5f5f5; border-radius: 8px;">
+              <h3 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #333;">Vista Previa Botón Chat</h3>
+              <div style="display: flex; justify-content: center; align-items: center; min-height: 100px;">
+                <button type="button" id="phsbot-launcher-preview" class="phsbot-launcher-preview"
+                        style="background: var(--phsbot-launcher-bg, #1e1e1e);
+                               border: 5px solid #ffffff;
+                               border-radius: 23px;
+                               padding: 12px 20px;
+                               cursor: pointer;
+                               display: flex;
+                               align-items: center;
+                               gap: 10px;
+                               box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                               transition: all 0.3s ease;">
+                  <svg class="phsbot-launcher-icon-preview" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+                       style="width: 24px; height: 24px; display: block; flex-shrink: 0; color: var(--phsbot-launcher-icon, #ffffff);">
+                    <rect x="5" y="3" width="14" height="16" rx="2" ry="2" fill="currentColor"/>
+                    <rect x="3" y="8" width="2" height="4" rx="1" ry="1" fill="currentColor"/>
+                    <rect x="19" y="8" width="2" height="4" rx="1" ry="1" fill="currentColor"/>
+                    <circle cx="9.5" cy="9" r="1.5" fill="#fff"/>
+                    <circle cx="14.5" cy="9" r="1.5" fill="#fff"/>
+                    <rect x="9" y="13" width="6" height="2" rx="1" ry="1" fill="#fff"/>
+                    <rect x="7" y="19" width="3" height="3" rx="0.5" ry="0.5" fill="currentColor"/>
+                    <rect x="14" y="19" width="3" height="3" rx="0.5" ry="0.5" fill="currentColor"/>
+                  </svg>
+                  <span class="phsbot-launcher-text-preview"
+                        style="color: var(--phsbot-launcher-text, #ffffff);
+                               font-size: 16px;
+                               font-weight: 600;
+                               white-space: nowrap;
+                               line-height: 1;"><?php echo esc_html($chat_title); ?></span>
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>

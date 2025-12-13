@@ -23,9 +23,11 @@
     // --- Preview helpers ---
     var $pv = $('#phsbot-preview');
     var $pvMessages = $('#phsbot-preview .phs-messages');
+    var $pvLauncher = $('#phsbot-launcher-preview');
 
     function setVar(name, value){
       if($pv.length) $pv[0].style.setProperty(name, value);
+      if($pvLauncher.length) $pvLauncher[0].style.setProperty(name, value);
     }
 
     // --- Color bind helper ---
@@ -54,6 +56,9 @@
     bindColor('color_user_bubble', '--phsbot-user-bubble');
     bindColor('color_whatsapp',    '--phsbot-whatsapp');
     bindColor('color_footer',      '--phsbot-footer');
+    bindColor('color_launcher_bg', '--phsbot-launcher-bg');
+    bindColor('color_launcher_icon', '--phsbot-launcher-icon');
+    bindColor('color_launcher_text', '--phsbot-launcher-text');
 
     // --- Slider bind helper (con hook onUpdate opcional) ---
     function bindSlider(id, cssVar, unit, hiddenId, onUpdate){
