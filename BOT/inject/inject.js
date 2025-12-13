@@ -225,20 +225,24 @@
     var txt=deburr(u.textContent||''); if(!txt){ u.dataset.phsInjected='1'; return; }
 
     var fired=false;
+    var isHistoricMessage = u.dataset.phsHistoric === '1';
+
     rules.forEach(function(r){
       try{
         if(!shouldTrigger(txt,r)) return;
 
-        // Tipo redirect: ejecutar redirección
+        // Tipo redirect: SOLO ejecutar en mensajes NUEVOS, nunca en históricos
         if(r.type === 'redirect'){
-          handleRedirect(
-            r.redirect_url || '',
-            r.redirect_delay || 0,
-            r.redirect_target || 'same',
-            r.redirect_confirm || 0,
-            r.redirect_message || ''
-          );
-          fired = true;
+          if(!isHistoricMessage){
+            handleRedirect(
+              r.redirect_url || '',
+              r.redirect_delay || 0,
+              r.redirect_target || 'same',
+              r.redirect_confirm || 0,
+              r.redirect_message || ''
+            );
+            fired = true;
+          }
           return;
         }
 
@@ -263,13 +267,16 @@
     // Heartbeat de visibilidad
     setInterval(visibilityHeartbeat, 400);
 
-    var rules=Array.isArray(D.rules)?D.rules:[]; 
+    var rules=Array.isArray(D.rules)?D.rules:[];
     if(!rules.length) return;
 
     var root=messagesRoot(); if(!root){ setTimeout(initFront,300); return; }
 
-    // Inyectar existentes
-    qsa('.phsbot-msg.user, .message.user, .chat__message.user', root).forEach(function(n){ processUserRow(n,rules); });
+    // Marcar mensajes existentes como históricos (para evitar redirects en historial)
+    qsa('.phsbot-msg.user, .message.user, .chat__message.user', root).forEach(function(n){
+      n.dataset.phsHistoric = '1';
+      processUserRow(n,rules);
+    });
 
     // Vigilar nuevas burbujas + bot para AFTER/ONLY
     new MutationObserver(function(list){
@@ -278,7 +285,7 @@
         Array.prototype.forEach.call(m.addedNodes,function(n){
           if(!(n instanceof HTMLElement))return;
           var cls=n.classList||{contains:function(){return false;}};
-          // Mensaje del usuario
+          // Mensaje del usuario (NUEVO - sin flag histórico)
           if(cls.contains('user') && (cls.contains('phsbot-msg')||cls.contains('message')||cls.contains('chat__message'))){
             processUserRow(n,rules);
           }
