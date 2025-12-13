@@ -193,6 +193,33 @@
   var pendingAfter = [];     // items {html}
   var suppressNextBot = 0;   // número de respuestas del bot a suprimir (only)
 
+  // Manejo de redirect
+  function handleRedirect(url, delay, target, confirm, msg){
+    if(!url) return;
+
+    // Mostrar mensaje opcional
+    if(msg && msg.trim() !== ''){
+      var msgDiv = document.createElement('div');
+      msgDiv.className = 'phsbot-redirect-message';
+      msgDiv.style.cssText = 'padding:12px;margin:8px 0;background:#f0f9ff;border-left:4px solid #0ea5e9;color:#0c4a6e;font-size:14px;';
+      msgDiv.textContent = msg;
+      var root = messagesRoot();
+      if(root) root.appendChild(msgDiv);
+      pinToBottomSeries();
+    }
+
+    // Ejecutar redirect después del delay
+    setTimeout(function(){
+      if(confirm && !window.confirm('¿Deseas ir a ' + url + '?')) return;
+
+      if(target === 'new'){
+        window.open(url, '_blank', 'noopener,noreferrer');
+      } else {
+        window.location.href = url;
+      }
+    }, delay * 1000);
+  }
+
   function processUserRow(u,rules){
     if(!u||u.dataset.phsInjected==='1')return;
     var txt=deburr(u.textContent||''); if(!txt){ u.dataset.phsInjected='1'; return; }
@@ -201,6 +228,20 @@
     rules.forEach(function(r){
       try{
         if(!shouldTrigger(txt,r)) return;
+
+        // Tipo redirect: ejecutar redirección
+        if(r.type === 'redirect'){
+          handleRedirect(
+            r.redirect_url || '',
+            r.redirect_delay || 0,
+            r.redirect_target || 'same',
+            r.redirect_confirm || 0,
+            r.redirect_message || ''
+          );
+          fired = true;
+          return;
+        }
+
         if(r.place === 'after'){
           pendingAfter.push({html:r.html});
         } else {
@@ -277,6 +318,11 @@
       payload_html: qs('textarea[name*="[items]['+i+'][payload_html]"]', root),
       payload_sc: qs('input[name*="[items]['+i+'][payload_sc]"]', root),
       video: qs('input[name*="[items]['+i+'][video]"]', root),
+      redirect_url: qs('input[name*="[items]['+i+'][redirect_url]"]', root),
+      redirect_delay: qs('input[name*="[items]['+i+'][redirect_delay]"]', root),
+      redirect_target: qs('select[name*="[items]['+i+'][redirect_target]"]', root),
+      redirect_confirm: qs('input[name*="[items]['+i+'][redirect_confirm]"]', root),
+      redirect_message: qs('input[name*="[items]['+i+'][redirect_message]"]', root),
       autoplay: qs('input[name*="[items]['+i+'][autoplay]"]', root),
       match: qs('select[name*="[items]['+i+'][match]"]', root),
       place: qs('select[name*="[items]['+i+'][place]"]', root)
@@ -292,11 +338,20 @@
     wrap.innerHTML =
       '<label style="margin-right:10px;"><input type="checkbox" class="ie-enabled"> Activo</label>' +
       '<input type="text" class="ie-keywords regular-text" style="min-width:240px" placeholder="palabras, separadas, por, comas">' +
-      ' <select class="ie-type"><option value="html">HTML</option><option value="shortcode">Shortcode</option><option value="video">Vídeo YouTube</option></select>' +
+      ' <select class="ie-type"><option value="html">HTML</option><option value="shortcode">Shortcode</option><option value="video">Vídeo YouTube</option><option value="redirect">Redirect</option></select>' +
       ' <span class="ie-field ie-html"><textarea class="ie-payload-html large-text code" rows="3" style="width:480px"></textarea></span>' +
       ' <span class="ie-field ie-sc" style="display:none"><input type="text" class="ie-payload-sc regular-text code" style="width:420px" placeholder=\'[elementor-template id="123"]\'></span>' +
       ' <span class="ie-field ie-video" style="display:none"><input type="url" class="ie-video-url regular-text" style="width:420px" placeholder="https://youtu.be/..."> ' +
       '   <label style="margin-left:6px;"><input type="checkbox" class="ie-autoplay"> Autoplay</label></span>' +
+      ' <span class="ie-field ie-redirect" style="display:none">' +
+      '   <label style="display:block;margin-bottom:4px;">URL destino:</label>' +
+      '   <input type="url" class="ie-redirect-url regular-text" style="width:100%;max-width:480px;" placeholder="https://ejemplo.com/pagina">' +
+      '   <label style="display:block;margin-top:8px;">Delay (seg): <input type="number" class="ie-redirect-delay" min="0" max="30" value="0" style="width:60px;"></label>' +
+      '   <label style="margin-left:12px;">Abrir en: <select class="ie-redirect-target" style="width:auto;"><option value="same">Misma ventana</option><option value="new">Nueva pestaña</option></select></label>' +
+      '   <label style="display:block;margin-top:8px;"><input type="checkbox" class="ie-redirect-confirm"> Pedir confirmación</label>' +
+      '   <label style="display:block;margin-top:8px;">Mensaje opcional:</label>' +
+      '   <input type="text" class="ie-redirect-message regular-text" style="width:100%;max-width:480px;" placeholder="Redirigiendo...">' +
+      ' </span>' +
       ' <select class="ie-match" style="margin-left:6px;"><option value="any">cualquiera</option><option value="all">todas</option></select>' +
       ' <select class="ie-place" title="Posición de la respuesta en el chat"><option value="before">antes</option><option value="after">después</option><option value="only">sólo trigger</option></select>' +
       ' <span class="ie-help">Antes: se inserta tras el mensaje del usuario · Después: tras la siguiente respuesta del bot · Sólo trigger: se suprime esa respuesta del bot.</span>' +
@@ -310,6 +365,11 @@
     qs('.ie-payload-html', wrap).value = H.payload_html ? H.payload_html.value : '';
     qs('.ie-payload-sc', wrap).value = H.payload_sc ? H.payload_sc.value : '';
     qs('.ie-video-url', wrap).value = H.video ? H.video.value : '';
+    qs('.ie-redirect-url', wrap).value = H.redirect_url ? H.redirect_url.value : '';
+    qs('.ie-redirect-delay', wrap).value = H.redirect_delay ? H.redirect_delay.value : '0';
+    qs('.ie-redirect-target', wrap).value = H.redirect_target ? H.redirect_target.value : 'same';
+    qs('.ie-redirect-confirm', wrap).checked = !!(H.redirect_confirm && H.redirect_confirm.checked);
+    qs('.ie-redirect-message', wrap).value = H.redirect_message ? H.redirect_message.value : '';
     qs('.ie-autoplay', wrap).checked = !!(H.autoplay && H.autoplay.checked);
     qs('.ie-match', wrap).value = H.match ? H.match.value : 'any';
     qs('.ie-place', wrap).value = H.place ? H.place.value : 'before';
@@ -319,6 +379,7 @@
       if(type==='html') qs('.ie-html', wrap).style.display='';
       else if(type==='shortcode') qs('.ie-sc', wrap).style.display='';
       else if(type==='video') qs('.ie-video', wrap).style.display='';
+      else if(type==='redirect') qs('.ie-redirect', wrap).style.display='';
     }
     applyTypeUI(qs('.ie-type', wrap).value);
 
@@ -329,12 +390,17 @@
       if(t.classList.contains('ie-payload-html') && H.payload_html) H.payload_html.value = t.value;
       if(t.classList.contains('ie-payload-sc') && H.payload_sc) H.payload_sc.value = t.value;
       if(t.classList.contains('ie-video-url') && H.video) H.video.value = t.value;
+      if(t.classList.contains('ie-redirect-url') && H.redirect_url) H.redirect_url.value = t.value;
+      if(t.classList.contains('ie-redirect-delay') && H.redirect_delay) H.redirect_delay.value = t.value;
+      if(t.classList.contains('ie-redirect-message') && H.redirect_message) H.redirect_message.value = t.value;
     });
     wrap.addEventListener('change', function(e){
       var t=e.target;
       if(t.classList.contains('ie-enabled') && H.enabled) H.enabled.checked = t.checked;
       if(t.classList.contains('ie-type') && H.type){ H.type.value = t.value; applyTypeUI(t.value); }
       if(t.classList.contains('ie-autoplay') && H.autoplay) H.autoplay.checked = t.checked;
+      if(t.classList.contains('ie-redirect-target') && H.redirect_target) H.redirect_target.value = t.value;
+      if(t.classList.contains('ie-redirect-confirm') && H.redirect_confirm) H.redirect_confirm.checked = t.checked;
       if(t.classList.contains('ie-match') && H.match) H.match.value = t.value;
       if(t.classList.contains('ie-place') && H.place) H.place.value = t.value;
     });
@@ -352,6 +418,11 @@
         payload_html: qs('.ie-payload-html', wrap).value || '',
         payload_sc: qs('.ie-payload-sc', wrap).value || '',
         video: qs('.ie-video-url', wrap).value || '',
+        redirect_url: qs('.ie-redirect-url', wrap).value || '',
+        redirect_delay: parseInt(qs('.ie-redirect-delay', wrap).value) || 0,
+        redirect_target: qs('.ie-redirect-target', wrap).value || 'same',
+        redirect_confirm: qs('.ie-redirect-confirm', wrap).checked ? 1 : 0,
+        redirect_message: qs('.ie-redirect-message', wrap).value || '',
         autoplay: qs('.ie-autoplay', wrap).checked ? 1 : 0,
         match: qs('.ie-match', wrap).value || 'any',
         place: qs('.ie-place', wrap).value || 'before'
@@ -474,6 +545,7 @@
         if(type==='html') qs('.phs-field--html', tr).style.display='';
         else if(type==='shortcode') qs('.phs-field--shortcode', tr).style.display='';
         else if(type==='video') qs('.phs-field--video', tr).style.display='';
+        else if(type==='redirect') qs('.phs-field--redirect', tr).style.display='';
       }
     });
   }

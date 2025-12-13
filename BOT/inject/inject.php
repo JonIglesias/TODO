@@ -88,6 +88,25 @@ function phsbot_inject_prepare_rules_for_front(){
         $match=in_array(($it['match']??'any'),array('any','all'),true)?$it['match']:'any';
         $place=in_array(($it['place']??'before'),array('before','after','only'),true)?$it['place']:'before';
         $autoplay=!empty($it['autoplay'])?1:0;
+
+        // Tipo redirect: pasar configuración al frontend
+        if($type==='redirect'){
+            $redirect_url = esc_url_raw((string)($it['redirect_url']??''));
+            if(!$redirect_url) continue; // URL obligatoria para redirect
+            $out[]=array(
+                'keywords'=>array_values($keywords),
+                'match'=>$match,
+                'type'=>'redirect',
+                'place'=>$place,
+                'redirect_url'=>$redirect_url,
+                'redirect_delay'=>max(0,min(30,intval($it['redirect_delay']??0))),
+                'redirect_target'=>in_array(($it['redirect_target']??'same'),array('same','new'),true)?$it['redirect_target']:'same',
+                'redirect_confirm'=>!empty($it['redirect_confirm'])?1:0,
+                'redirect_message'=>sanitize_text_field($it['redirect_message']??'')
+            );
+            continue;
+        }
+
         if($type==='video')        $content=phsbot_inject_video_embed((string)($it['video']??''),$autoplay);
         elseif($type==='shortcode')$content=phsbot_inject_render_shortcode((string)($it['payload_sc']??$it['payload']??''));
         else                       $content=(string)($it['payload_html']??$it['payload']??$it['content']??'');
@@ -112,23 +131,42 @@ add_action('admin_init', function(){
                     foreach($input['items'] as $it){
                         $enabled=!empty($it['enabled'])?1:0;
                         $keywords=isset($it['keywords'])?(string)$it['keywords']:'';
-                        $type=(isset($it['type'])&&in_array($it['type'],array('html','shortcode','video'),true))?$it['type']:'html';
+                        $type=(isset($it['type'])&&in_array($it['type'],array('html','shortcode','video','redirect'),true))?$it['type']:'html';
                         $match=(isset($it['match'])&&in_array($it['match'],array('any','all'),true))?$it['match']:'any';
                         $place=(isset($it['place'])&&in_array($it['place'],array('before','after','only'),true))?$it['place']:'before';
                         $autoplay=!empty($it['autoplay'])?1:0;
                         $payload_html=isset($it['payload_html'])?(string)$it['payload_html']:(isset($it['payload'])?(string)$it['payload']:'');
                         $payload_sc=isset($it['payload_sc'])?(string)$it['payload_sc']:(isset($it['payload'])?(string)$it['payload']:'');
                         $video=isset($it['video'])?(string)$it['video']:'';
+
+                        // Campos específicos de redirect
+                        $redirect_url=isset($it['redirect_url'])?esc_url_raw((string)$it['redirect_url']):'';
+                        $redirect_delay=max(0,min(30,intval($it['redirect_delay']??0)));
+                        $redirect_target=in_array(($it['redirect_target']??'same'),array('same','new'),true)?$it['redirect_target']:'same';
+                        $redirect_confirm=!empty($it['redirect_confirm'])?1:0;
+                        $redirect_message=isset($it['redirect_message'])?sanitize_text_field($it['redirect_message']):'';
+
                         $keywords=trim(preg_replace('/\s*,\s*/',',',$keywords)," \t\n\r\0\x0B,");
-                        if($type==='video'){ $has=($video!==''); $payload=''; }
+
+                        if($type==='redirect'){ $has=($redirect_url!==''); $payload=''; }
+                        elseif($type==='video'){ $has=($video!==''); $payload=''; }
                         elseif($type==='shortcode'){ $payload=wp_unslash($payload_sc); $has=(trim($payload)!==''); }
                         else{ $payload=wp_unslash($payload_html); $has=(trim($payload)!==''); }
+
                         if($keywords!=='' && $has){
-                            $items[]=array(
+                            $item_data=array(
                                 'enabled'=>$enabled,'keywords'=>$keywords,'type'=>$type,'match'=>$match,'place'=>$place,'autoplay'=>$autoplay,
                                 'payload_html'=>($type==='html')?$payload:'','payload_sc'=>($type==='shortcode')?$payload:'',
                                 'video'=>($type==='video')?$video:''
                             );
+                            if($type==='redirect'){
+                                $item_data['redirect_url']=$redirect_url;
+                                $item_data['redirect_delay']=$redirect_delay;
+                                $item_data['redirect_target']=$redirect_target;
+                                $item_data['redirect_confirm']=$redirect_confirm;
+                                $item_data['redirect_message']=$redirect_message;
+                            }
+                            $items[]=$item_data;
                         }
                     }
                 }
@@ -158,11 +196,19 @@ add_action('wp_ajax_phsbot_inject_save_item', function(){
     $payload_s = isset($_POST['payload_sc'])   ? (string) wp_unslash($_POST['payload_sc'])   : '';
     $video     = isset($_POST['video'])        ? (string) wp_unslash($_POST['video'])        : '';
 
+    // Campos redirect
+    $redirect_url     = isset($_POST['redirect_url']) ? esc_url_raw((string)wp_unslash($_POST['redirect_url'])) : '';
+    $redirect_delay   = max(0, min(30, intval($_POST['redirect_delay'] ?? 0)));
+    $redirect_target  = (isset($_POST['redirect_target']) && in_array($_POST['redirect_target'], array('same','new'), true)) ? $_POST['redirect_target'] : 'same';
+    $redirect_confirm = !empty($_POST['redirect_confirm']) ? 1 : 0;
+    $redirect_message = isset($_POST['redirect_message']) ? sanitize_text_field(wp_unslash($_POST['redirect_message'])) : '';
+
     $keywords = trim(preg_replace('/\s*,\s*/', ',', $keywords), " \t\n\r\0\x0B,");
     if ($keywords === '') wp_send_json_error(array('msg'=>'keywords'));
 
     $has = false; $payload_html = ''; $payload_sc = ''; $video_url = '';
-    if ($type === 'video') { $video_url = $video; $has = ($video_url !== ''); }
+    if ($type === 'redirect') { $has = ($redirect_url !== ''); }
+    elseif ($type === 'video') { $video_url = $video; $has = ($video_url !== ''); }
     elseif ($type === 'shortcode') { $payload_sc = $payload_s; $has = (trim($payload_sc) !== ''); }
     else { $type = 'html'; $payload_html = $payload_h; $has = (trim($payload_html) !== ''); }
     if (!$has) wp_send_json_error(array('msg'=>'content'));
@@ -176,6 +222,14 @@ add_action('wp_ajax_phsbot_inject_save_item', function(){
         'video'=>($type==='video')?$video_url:''
     );
 
+    if($type==='redirect'){
+        $row['redirect_url']=$redirect_url;
+        $row['redirect_delay']=$redirect_delay;
+        $row['redirect_target']=$redirect_target;
+        $row['redirect_confirm']=$redirect_confirm;
+        $row['redirect_message']=$redirect_message;
+    }
+
     if ($id >= 0 && isset($items[$id])) { $items[$id] = $row; $new_id = $id; }
     else { $items[] = $row; $new_id = count($items)-1; }
 
@@ -186,10 +240,11 @@ add_action('wp_ajax_phsbot_inject_save_item', function(){
 
     // Tipo con icono
     $type_up = strtoupper($type);
-    $icon    = ($type==='video') ? 'video-alt3' : (($type==='shortcode') ? 'shortcode' : 'editor-code');
+    $icon    = ($type==='redirect') ? 'share' : (($type==='video') ? 'video-alt3' : (($type==='shortcode') ? 'shortcode' : 'editor-code'));
     $type_html = '<span class="dashicons dashicons-'.esc_attr($icon).'" aria-hidden="true"></span> '.esc_html($type_up);
 
-    if ($type === 'video')         $preview = esc_html($video_url);
+    if ($type === 'redirect')      $preview = esc_html($redirect_url);
+    elseif ($type === 'video')     $preview = esc_html($video_url);
     elseif ($type === 'shortcode') $preview = esc_html($payload_sc);
     else                           $preview = esc_html(wp_strip_all_tags($payload_html));
 
@@ -289,7 +344,7 @@ function phsbot_inject_admin_page(){
                 <?php if(!empty($items)): foreach($items as $idx=>$r):
                     $type_raw = $r['type'] ?? 'html';
                     $type_up  = strtoupper($type_raw);
-                    $icon     = ($type_raw==='video') ? 'video-alt3' : (($type_raw==='shortcode') ? 'shortcode' : 'editor-code');
+                    $icon     = ($type_raw==='redirect') ? 'share' : (($type_raw==='video') ? 'video-alt3' : (($type_raw==='shortcode') ? 'shortcode' : 'editor-code'));
                     $type_col = '<span class="dashicons dashicons-'.esc_attr($icon).'"></span> '.esc_html($type_up);
 
                     $enabled=!empty($r['enabled']);
@@ -297,8 +352,9 @@ function phsbot_inject_admin_page(){
                     $kw_list=array_filter(array_map('trim', explode(',', $kw_raw)));
                     $title=$kw_list ? $kw_list[0] : ('#'.$idx);
 
-                    if($type_raw==='video')         $preview=esc_html($r['video']??'');
-                    elseif($type_raw==='shortcode') $preview=esc_html($r['payload_sc']??$r['payload']??'');
+                    if($type_raw==='redirect')       $preview=esc_html($r['redirect_url']??'');
+                    elseif($type_raw==='video')      $preview=esc_html($r['video']??'');
+                    elseif($type_raw==='shortcode')  $preview=esc_html($r['payload_sc']??$r['payload']??'');
                     else                             $preview=esc_html(wp_strip_all_tags($r['payload_html']??$r['payload']??''));
 
                     $del_url = wp_nonce_url(admin_url('admin-post.php?action=phsbot_inject_delete&id='.$idx),'phsbot_inject_delete');
@@ -339,6 +395,7 @@ function phsbot_inject_admin_page(){
                                 <option value="html" <?php selected($type,'html'); ?>>HTML</option>
                                 <option value="shortcode" <?php selected($type,'shortcode'); ?>>Shortcode</option>
                                 <option value="video" <?php selected($type,'video'); ?>>Vídeo YouTube</option>
+                                <option value="redirect" <?php selected($type,'redirect'); ?>>Redirect</option>
                             </select>
                         </td>
                         <td>
@@ -350,6 +407,20 @@ function phsbot_inject_admin_page(){
                             </div>
                             <div class="phs-field phs-field--video" style="<?php echo ($type==='video'?'':'display:none'); ?>">
                                 <input type="url" class="regular-text" name="<?php echo esc_attr(PHSBOT_INJECT_OPT); ?>[items][<?php echo (int)$idx; ?>][video]" value="<?php echo esc_attr($r['video'] ?? ''); ?>">
+                            </div>
+                            <div class="phs-field phs-field--redirect" style="<?php echo ($type==='redirect'?'':'display:none'); ?>">
+                                <label style="display:block;margin-bottom:5px;">URL destino:</label>
+                                <input type="url" class="regular-text" name="<?php echo esc_attr(PHSBOT_INJECT_OPT); ?>[items][<?php echo (int)$idx; ?>][redirect_url]" value="<?php echo esc_attr($r['redirect_url'] ?? ''); ?>" placeholder="https://ejemplo.com/pagina">
+                                <label style="display:block;margin:8px 0 3px 0;">Delay (seg):</label>
+                                <input type="number" min="0" max="30" style="width:80px;" name="<?php echo esc_attr(PHSBOT_INJECT_OPT); ?>[items][<?php echo (int)$idx; ?>][redirect_delay]" value="<?php echo esc_attr($r['redirect_delay'] ?? 0); ?>">
+                                <label style="display:inline-block;margin-left:15px;">Abrir en:</label>
+                                <select name="<?php echo esc_attr(PHSBOT_INJECT_OPT); ?>[items][<?php echo (int)$idx; ?>][redirect_target]" style="width:auto;">
+                                    <option value="same" <?php selected(($r['redirect_target']??'same'),'same'); ?>>Misma ventana</option>
+                                    <option value="new" <?php selected(($r['redirect_target']??'same'),'new'); ?>>Nueva pestaña</option>
+                                </select>
+                                <label style="display:block;margin:8px 0 3px 0;"><input type="checkbox" name="<?php echo esc_attr(PHSBOT_INJECT_OPT); ?>[items][<?php echo (int)$idx; ?>][redirect_confirm]" value="1" <?php checked(!empty($r['redirect_confirm'])); ?>> Pedir confirmación</label>
+                                <label style="display:block;margin:8px 0 3px 0;">Mensaje opcional:</label>
+                                <input type="text" class="regular-text" name="<?php echo esc_attr(PHSBOT_INJECT_OPT); ?>[items][<?php echo (int)$idx; ?>][redirect_message]" value="<?php echo esc_attr($r['redirect_message'] ?? ''); ?>" placeholder="Redirigiendo...">
                             </div>
                         </td>
                         <td><label><input type="checkbox" name="<?php echo esc_attr(PHSBOT_INJECT_OPT); ?>[items][<?php echo (int)$idx; ?>][autoplay]" value="1" <?php checked(!empty($r['autoplay'])); ?>></label></td>
@@ -377,11 +448,22 @@ function phsbot_inject_admin_page(){
                 $tpl = '<tr class=&quot;phsbot-inject-row&quot;>'
                      . '<td><label><input type=&quot;checkbox&quot; checked=&quot;checked&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][enabled]&quot; value=&quot;1&quot;></label></td>'
                      . '<td><input type=&quot;text&quot; class=&quot;regular-text&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][keywords]&quot; value=&quot;&quot;></td>'
-                     . '<td><select name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][type]&quot; class=&quot;phs-type&quot;><option value=&quot;html&quot; selected>HTML</option><option value=&quot;shortcode&quot;>Shortcode</option><option value=&quot;video&quot;>Vídeo YouTube</option></select></td>'
+                     . '<td><select name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][type]&quot; class=&quot;phs-type&quot;><option value=&quot;html&quot; selected>HTML</option><option value=&quot;shortcode&quot;>Shortcode</option><option value=&quot;video&quot;>Vídeo YouTube</option><option value=&quot;redirect&quot;>Redirect</option></select></td>'
                      . '<td>'
                      . '  <div class=&quot;phs-field phs-field--html&quot;><textarea name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][payload_html]&quot; rows=&quot;3&quot; class=&quot;large-text code&quot;></textarea></div>'
                      . '  <div class=&quot;phs-field phs-field--shortcode&quot; style=&quot;display:none&quot;><input type=&quot;text&quot; class=&quot;regular-text code&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][payload_sc]&quot; value=&quot;&quot;></div>'
                      . '  <div class=&quot;phs-field phs-field--video&quot; style=&quot;display:none&quot;><input type=&quot;url&quot; class=&quot;regular-text&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][video]&quot; value=&quot;&quot;></div>'
+                     . '  <div class=&quot;phs-field phs-field--redirect&quot; style=&quot;display:none&quot;>'
+                     . '    <label style=&quot;display:block;margin-bottom:5px;&quot;>URL destino:</label>'
+                     . '    <input type=&quot;url&quot; class=&quot;regular-text&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][redirect_url]&quot; value=&quot;&quot; placeholder=&quot;https://ejemplo.com/pagina&quot;>'
+                     . '    <label style=&quot;display:block;margin:8px 0 3px 0;&quot;>Delay (seg):</label>'
+                     . '    <input type=&quot;number&quot; min=&quot;0&quot; max=&quot;30&quot; style=&quot;width:80px;&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][redirect_delay]&quot; value=&quot;0&quot;>'
+                     . '    <label style=&quot;display:inline-block;margin-left:15px;&quot;>Abrir en:</label>'
+                     . '    <select name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][redirect_target]&quot; style=&quot;width:auto;&quot;><option value=&quot;same&quot; selected>Misma ventana</option><option value=&quot;new&quot;>Nueva pestaña</option></select>'
+                     . '    <label style=&quot;display:block;margin:8px 0 3px 0;&quot;><input type=&quot;checkbox&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][redirect_confirm]&quot; value=&quot;1&quot;> Pedir confirmación</label>'
+                     . '    <label style=&quot;display:block;margin:8px 0 3px 0;&quot;>Mensaje opcional:</label>'
+                     . '    <input type=&quot;text&quot; class=&quot;regular-text&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][redirect_message]&quot; value=&quot;&quot; placeholder=&quot;Redirigiendo...&quot;>'
+                     . '  </div>'
                      . '</td>'
                      . '<td><label><input type=&quot;checkbox&quot; name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][autoplay]&quot; value=&quot;1&quot;></label></td>'
                      . '<td><select name=&quot;'.esc_attr(PHSBOT_INJECT_OPT).'[items][{i}][match]&quot;><option value=&quot;any&quot; selected>any</option><option value=&quot;all&quot;>all</option></select></td>'
