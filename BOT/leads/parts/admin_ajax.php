@@ -96,6 +96,53 @@ add_action('wp_ajax_phsbot_leads_delete_bulk', function(){
     wp_send_json_error();
 });
 
+/** PURGE leads cerrados con más de 30 días */
+add_action('wp_ajax_phsbot_leads_purge', function(){
+    check_ajax_referer('phsbot_leads','nonce');
+    if (!current_user_can('manage_options')) wp_send_json_error();
+
+    // Cargar todos los leads
+    if (!defined('PHSBOT_LEADS_STORE_OPT')) define('PHSBOT_LEADS_STORE_OPT','phsbot_leads_store');
+    $all = get_option(PHSBOT_LEADS_STORE_OPT, array());
+
+    if (empty($all)) {
+        wp_send_json_success(array('deleted' => 0));
+        return;
+    }
+
+    $now = time();
+    $threshold = 30 * 24 * 60 * 60; // 30 días en segundos
+    $deleted = 0;
+    $to_delete = array();
+
+    foreach ($all as $cid => $lead) {
+        // Solo purgar si está cerrado
+        if (empty($lead['closed'])) continue;
+
+        // Usar last_seen o last_change_ts para determinar antigüedad
+        $last_ts = isset($lead['last_seen']) ? $lead['last_seen'] : (isset($lead['last_change_ts']) ? $lead['last_change_ts'] : 0);
+
+        if ($last_ts && ($now - $last_ts) > $threshold) {
+            $to_delete[] = $cid;
+        }
+    }
+
+    // Borrar los leads identificados
+    foreach ($to_delete as $cid) {
+        if (isset($all[$cid])) {
+            unset($all[$cid]);
+            $deleted++;
+        }
+    }
+
+    // Guardar cambios si se borraron leads
+    if ($deleted > 0) {
+        update_option(PHSBOT_LEADS_STORE_OPT, $all, false);
+    }
+
+    wp_send_json_success(array('deleted' => $deleted));
+});
+
 /**
  * Reset memoria de navegador (QA):
  * - Incrementa versión de reset en servidor.

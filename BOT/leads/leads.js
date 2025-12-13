@@ -95,13 +95,40 @@
     .on('input change', '#phsbot-leads-search, #phsbot-leads-open-only', filterRows)
     .on('click', '#phsbot-leads-refresh', ()=> location.reload())
 
+    .on('click', '#phsbot-leads-purge', function(e){
+      e.preventDefault();
+      if (!confirm('¿Purgar todos los leads cerrados con más de 30 días? Esta acción no se puede deshacer.')) return;
+      const $btn = $(this);
+      const originalText = $btn.text();
+      $btn.text('Purgando...').prop('disabled', true);
+      ajax('phsbot_leads_purge').done(res=>{
+        if (res && res.success) {
+          alert('Leads purgados: ' + (res.data.deleted || 0));
+          location.reload();
+        } else {
+          alert('Error al purgar leads.');
+          $btn.text(originalText).prop('disabled', false);
+        }
+      }).fail(()=>{
+        alert('Error al purgar leads.');
+        $btn.text(originalText).prop('disabled', false);
+      });
+    })
+
     .on('click', '.phsbot-view', function(e){
       e.preventDefault();
       const $row = $(this).closest('tr');
+      const $btn = $(this);
       const cid = $(this).data('cid');
       const $next = $row.next();
-      if ($next.hasClass('phsbot-detail')) { $next.remove(); $row.removeClass('is-open'); return; }
+      if ($next.hasClass('phsbot-detail')) {
+        $next.remove();
+        $row.removeClass('is-open');
+        $btn.text('Ver');
+        return;
+      }
       openUnderRow($row, '<div class="phsbot-detail__wrap"><em>Cargando…</em></div>');
+      $btn.text('Ocultar');
       ajax('phsbot_leads_get', { cid }).done(res=>{
         if (res && res.success && res.data) {
           $row.next('.phsbot-detail').find('td').html(renderDetail(res.data));
