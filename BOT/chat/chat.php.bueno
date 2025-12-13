@@ -64,7 +64,7 @@ function phsbot_chat_defaults(){
     'model'            => 'gpt-4.1-mini',
     'temperature'      => 0.5,
     'tone'             => 'profesional',
-    'welcome'          => 'Hola, soy PHSBot. ¿En qué puedo ayudarte?',
+    'welcome'          => 'Hola, soy Conversa. ¿En qué puedo ayudarte?',
     'allow_html'       => 1,
     'allow_elementor'  => 1,
     'allow_live_fetch' => 1,
@@ -303,9 +303,9 @@ add_action('admin_menu', function(){
   /* =======================================================
   == Añade página de menú principal y submenú para ajustes del chat FLOAT.
   ======================================================= */
-  add_menu_page('PHSBot', 'PHSBot', 'manage_options', 'phsbot', function(){
+  add_menu_page('Conversa', 'Conversa', 'manage_options', 'phsbot', function(){
     /* --- Callback simple que pinta el título del dashboard principal --- */
-    echo '<div class="wrap"><h1>PHSBot</h1></div>';
+    echo '<div class="wrap"><h1>Conversa</h1></div>';
     /* --- Fin callback simple --- */
   }, 'dashicons-format-chat', 60);
 
@@ -338,7 +338,7 @@ function phsbot_render_chat_settings(){
     $opt['model']            = sanitize_text_field($_POST['model'] ?? 'gpt-4o-mini');
     $opt['temperature']      = max(0.0, min(2.0, floatval($_POST['temperature'] ?? 0.5))); // clamp 0–2
     $opt['tone']             = sanitize_text_field($_POST['tone'] ?? 'profesional');
-    $opt['welcome']          = wp_kses_post($_POST['welcome'] ?? 'Hola, soy PHSBot. ¿En qué puedo ayudarte?');
+    $opt['welcome']          = wp_kses_post($_POST['welcome'] ?? 'Hola, soy Conversa. ¿En qué puedo ayudarte?');
 
     $opt['allow_html']       = !empty($_POST['allow_html']) ? 1 : 0;
     $opt['allow_elementor']  = !empty($_POST['allow_elementor']) ? 1 : 0;

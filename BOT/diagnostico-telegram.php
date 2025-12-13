@@ -42,7 +42,7 @@ header('Content-Type: text/html; charset=utf-8');
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Diagnóstico Telegram PHSBOT</title>
+    <title>Diagnóstico Telegram Conversa</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f7fa; padding: 20px; }
@@ -70,7 +70,7 @@ header('Content-Type: text/html; charset=utf-8');
 <body>
     <div class="container">
         <div class="card">
-            <h1>🔍 Diagnóstico Completo de Telegram - PHSBOT</h1>
+            <h1>🔍 Diagnóstico Completo de Telegram - Conversa</h1>
             <p><strong>Sitio:</strong> <?php echo esc_html(home_url()); ?></p>
             <p><strong>Fecha:</strong> <?php echo date('Y-m-d H:i:s'); ?></p>
         </div>
@@ -317,14 +317,14 @@ $threshold = isset($leads['telegram_threshold']) ? floatval($leads['telegram_thr
             <ul>
                 <li>✓ Verifica que el umbral sea <strong>1.0 o menor</strong> (actual: <?php echo $threshold; ?>)</li>
                 <li>✓ Asegúrate de proporcionar <strong>email o teléfono</strong> en el chat</li>
-                <li>✓ Revisa los logs en: <strong>PHSBOT → Leads → Listado</strong></li>
+                <li>✓ Revisa los logs en: <strong>Conversa → Leads → Listado</strong></li>
             </ul>
         </div>
 
         <!-- ACCIONES -->
         <div class="card">
             <h2>🎯 Próximos Pasos</h2>
-            <a href="<?php echo admin_url('admin.php?page=phsbot'); ?>" class="btn">← Volver a PHSBOT</a>
+            <a href="<?php echo admin_url('admin.php?page=phsbot'); ?>" class="btn">← Volver a Conversa</a>
             <a href="<?php echo admin_url('admin.php?page=phsbot-leads'); ?>" class="btn">Ver Leads</a>
             <a href="javascript:location.reload()" class="btn btn-success">🔄 Probar de nuevo</a>
         </div>

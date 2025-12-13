@@ -26,7 +26,7 @@ function phsbot_chat_defaults(){
     'model'            => 'gpt-4.1-mini',
     'temperature'      => 0.5,
     'tone'             => 'profesional',
-    'welcome'          => 'Hola, soy PHSBot. ¿En qué puedo ayudarte?',
+    'welcome'          => 'Hola, soy Conversa. ¿En qué puedo ayudarte?',
     'allow_html'       => 1,
     'allow_elementor'  => 1,
     'allow_live_fetch' => 1,

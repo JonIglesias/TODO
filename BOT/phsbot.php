@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: PHSBOT
+ * Plugin Name: Conversa
  * Description: Chat con esteroides
  * Version: 1.4
  * Author: Jon Iglesias
@@ -169,7 +169,7 @@ JS;
             if (!current_user_can('manage_options')) return;
             ?>
             <div class="wrap">
-                <h1>PHSBOT — Ajustes base</h1>
+                <h1>Conversa — Ajustes base</h1>
                 <form method="post" action="options.php">
                     <?php
                     settings_fields(self::OPTION_GROUP);
@@ -391,7 +391,7 @@ JS;
             // Título cabecera (si llega)
             if (array_key_exists('chat_title', $input)) {
                 $val = trim(wp_strip_all_tags((string)$input['chat_title']));
-                $out['chat_title'] = ($val === '') ? 'PHSBot' : $val;
+                $out['chat_title'] = ($val === '') ? 'Conversa' : $val;
             }
 
             // Color footer (si llega)
@@ -519,7 +519,7 @@ JS;
                 'color_user_bubble'  => '#EDE7E1',
 
                 // ===== Claves usadas por la pantalla custom =====
-                'chat_title'         => 'PHSBot',
+                'chat_title'         => 'Conversa',
                 'color_footer'       => '',
                 'btn_height'         => 44,
                 'head_btn_size'      => 26,

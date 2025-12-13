@@ -5,8 +5,8 @@ if (!defined('ABSPATH')) exit;
 
 /* Menús */
 add_action('admin_menu', function(){
-  add_menu_page('PHSBot', 'PHSBot', 'manage_options', 'phsbot', function(){
-    echo '<div class="wrap"><h1>PHSBot</h1></div>';
+  add_menu_page('Conversa', 'Conversa', 'manage_options', 'phsbot', function(){
+    echo '<div class="wrap"><h1>Conversa</h1></div>';
   }, 'dashicons-format-chat', 60);
 
   // Submenú "Chat & Widget" eliminado - configuración ahora en módulo principal de Configuración
@@ -27,7 +27,7 @@ function phsbot_render_chat_settings(){
     $opt['model']            = sanitize_text_field($_POST['model'] ?? 'gpt-4.1-mini');
     $opt['temperature']      = max(0.0, min(2.0, floatval($_POST['temperature'] ?? 0.5)));
     $opt['tone']             = sanitize_text_field($_POST['tone'] ?? 'profesional');
-    $opt['welcome']          = wp_kses_post($_POST['welcome'] ?? 'Hola, soy PHSBot. ¿En qué puedo ayudarte?');
+    $opt['welcome']          = wp_kses_post($_POST['welcome'] ?? 'Hola, soy Conversa. ¿En qué puedo ayudarte?');
 
     $opt['allow_html']       = !empty($_POST['allow_html']) ? 1 : 0;
     $opt['allow_elementor']  = !empty($_POST['allow_elementor']) ? 1 : 0;

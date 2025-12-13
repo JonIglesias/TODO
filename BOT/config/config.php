@@ -19,7 +19,7 @@ function phsbot_config_register_menu(){
   global $phsbot_config_pagehook;
   $phsbot_config_pagehook = add_submenu_page(
     'phsbot',
-    'PHSBOT · Configuración',
+    'Conversa · Configuración',
     'Configuración',
     'manage_options',
     PHSBOT_CONFIG_SLUG,
@@ -108,7 +108,7 @@ function phsbot_config_handle_save(){
   $c = get_option(PHSBOT_CHAT_OPT, array()); if (!is_array($c)) $c = array();
 
   // Solo guardar mensajes y opciones avanzadas (modelo configurado desde API)
-  $c['welcome']          = isset($_POST['chat_welcome'])       ? wp_kses_post($_POST['chat_welcome'])              : ($c['welcome']          ?? 'Hola, soy PHSBot. ¿En qué puedo ayudarte?');
+  $c['welcome']          = isset($_POST['chat_welcome'])       ? wp_kses_post($_POST['chat_welcome'])              : ($c['welcome']          ?? 'Hola, soy Conversa. ¿En qué puedo ayudarte?');
   $c['system_prompt']    = isset($_POST['chat_system_prompt']) ? wp_kses_post($_POST['chat_system_prompt'])         : ($c['system_prompt']    ?? '');
   // Checkboxes: si está en POST = 1, si no está en POST = 0
   $c['allow_html']       = isset($_POST['chat_allow_html'])       ? 1 : 0;
@@ -251,7 +251,7 @@ function phsbot_config_render_page(){
   $mic_stroke_w  = isset($g['mic_stroke_w'])  ? intval($g['mic_stroke_w'])  : 1;
 
   // Chat (IA) - Solo mensajes y opciones avanzadas (modelo configurado desde API)
-  $chat_welcome         = isset($c['welcome']) ? $c['welcome'] : 'Hola, soy PHSBot. ¿En qué puedo ayudarte?';
+  $chat_welcome         = isset($c['welcome']) ? $c['welcome'] : 'Hola, soy Conversa. ¿En qué puedo ayudarte?';
   $chat_system_prompt   = isset($c['system_prompt']) ? $c['system_prompt'] : '';
   // Valores por defecto = true (marcados) si no hay valor guardado
   $chat_allow_html      = isset($c['allow_html'])       ? (bool)$c['allow_html']       : true;
@@ -317,7 +317,7 @@ PHSBOT_DEF;
     <?php endif; ?>
 
     <!-- Tabs de navegación -->
-    <h2 class="nav-tab-wrapper phsbot-config-tabs" role="tablist" aria-label="PHSBOT Config">
+    <h2 class="nav-tab-wrapper phsbot-config-tabs" role="tablist" aria-label="Conversa Config">
       <a href="#tab-conexiones" class="nav-tab nav-tab-active" role="tab" aria-selected="true">Conexiones</a>
       <a href="#tab-chat" class="nav-tab" role="tab" aria-selected="false">Chat (IA)</a>
       <a href="#tab-aspecto" class="nav-tab" role="tab" aria-selected="false">Aspecto</a>

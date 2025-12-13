@@ -33,7 +33,7 @@ if (!defined('PHSBOT_LEADS_SETTINGS_OPT')) {
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Diagnóstico de Notificaciones - PHSBOT</title>
+    <title>Diagnóstico de Notificaciones - Conversa</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 20px; background: #f0f0f0; font-size: 14px; }
         .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -111,7 +111,7 @@ if ($threshold_raw === null || $threshold > 1) {
     echo '<div class="warning">';
     echo '<strong>⚠️ Umbral no configurado o muy alto</strong><br>';
     echo 'El umbral actual es <strong>' . $threshold . '</strong>. Solo se enviarán notificaciones para leads con score ≥ ' . $threshold . '.<br>';
-    echo '<strong>Solución:</strong> Ve a <strong>PHSBOT → Leads → Settings</strong> y cambia el umbral a <strong>1.0</strong> o menos.';
+    echo '<strong>Solución:</strong> Ve a <strong>Conversa → Leads → Settings</strong> y cambia el umbral a <strong>1.0</strong> o menos.';
     echo '</div>';
 }
 
@@ -305,7 +305,7 @@ echo '<h2>5️⃣ Recomendaciones</h2>';
 echo '<div class="section">';
 echo '<h3>Para que funcionen las notificaciones:</h3>';
 echo '<ol>';
-echo '<li><strong>Verifica el umbral:</strong> Si es > 1, solo notificará leads con score alto. Cámbialo a <code>1.0</code> en <strong>PHSBOT → Leads → Settings</strong></li>';
+echo '<li><strong>Verifica el umbral:</strong> Si es > 1, solo notificará leads con score alto. Cámbialo a <code>1.0</code> en <strong>Conversa → Leads → Settings</strong></li>';
 echo '<li><strong>Asegúrate de que los leads tengan email o teléfono:</strong> Sin estos datos, no se puede notificar.</li>';
 echo '<li><strong>Verifica que se calcule el score:</strong> Los leads deben tener un score asignado (visible en la tabla de arriba).</li>';
 echo '<li><strong>Inicia conversaciones de prueba:</strong> Proporciona email y genera un lead con score alto para probar.</li>';

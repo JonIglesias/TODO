@@ -12,7 +12,7 @@ if (!function_exists('phsbot_render_settings')) {
         if (class_exists('PHSBOT_Plugin')) {
             ?>
             <div class="wrap">
-                <h1>PHSBOT — Ajustes</h1>
+                <h1>Conversa — Ajustes</h1>
                 <form method="post" action="options.php">
                     <?php
                     settings_fields(PHSBOT_Plugin::OPTION_GROUP);
@@ -25,7 +25,7 @@ if (!function_exists('phsbot_render_settings')) {
             return;
         }
         // Fallback si por lo que sea no carga la clase
-        echo '<div class="wrap"><h1>PHSBot</h1><p>No se encontró la clase PHSBOT_Plugin.</p></div>';
+        echo '<div class="wrap"><h1>Conversa</h1><p>No se encontró la clase PHSBOT_Plugin.</p></div>';
     }
 }
 
@@ -34,7 +34,7 @@ if (!function_exists('phsbot_settings_router')) {
     function phsbot_settings_router() {
         if (function_exists('phsbot_config_render_page')) { phsbot_config_render_page(); return; }
 if (function_exists('phsbot_render_settings')) { phsbot_render_settings(); return;}
-        echo '<div class="wrap"><h1>PHSBot</h1><p>No hay página principal de configuración.</p></div>';
+        echo '<div class="wrap"><h1>Conversa</h1><p>No hay página principal de configuración.</p></div>';
     }
 }
 
@@ -48,8 +48,8 @@ add_action('admin_menu', function () {
 
     // Top-level
     add_menu_page(
-        'PHSBot',
-        'PHSBot',
+        'Conversa',
+        'Conversa',
         $cap_menu,
         $menu_slug,
         'phsbot_settings_router',
@@ -127,7 +127,7 @@ add_action('admin_menu', function () {
     if (function_exists('phsbot_stats_page')) {
         add_submenu_page(
             $menu_slug,
-            'PHSBOT · Estadísticas',
+            'Conversa · Estadísticas',
             'Estadísticas',
             $cap_settings,
             'phsbot-estadisticas',
