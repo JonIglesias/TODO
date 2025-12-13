@@ -79,6 +79,7 @@ function phsbot_config_handle_save(){
   $g['color_bot_bubble']  = isset($_POST['color_bot_bubble'])  ? sanitize_hex_color($_POST['color_bot_bubble'])  : ($g['color_bot_bubble']  ?? '#f3f3f3');
   $g['color_user_bubble'] = isset($_POST['color_user_bubble']) ? sanitize_hex_color($_POST['color_user_bubble']) : ($g['color_user_bubble'] ?? '#ffffff');
   $g['color_footer']      = isset($_POST['color_footer'])      ? sanitize_hex_color($_POST['color_footer'])      : ($g['color_footer']      ?? '#1e1e1e');
+  $g['color_launcher_bg'] = isset($_POST['color_launcher_bg']) ? sanitize_hex_color($_POST['color_launcher_bg']) : ($g['color_launcher_bg'] ?? '#1e1e1e');
 
   $g['btn_height']     = isset($_POST['btn_height'])     ? max(36, min(56, intval($_POST['btn_height'])))           : ($g['btn_height']     ?? 44);
   $g['head_btn_size']  = isset($_POST['head_btn_size'])  ? max(20, min(34, intval($_POST['head_btn_size'])))        : ($g['head_btn_size']  ?? 26);
@@ -241,6 +242,7 @@ function phsbot_config_render_page(){
   $color_text         = isset($g['color_text'])         ? $g['color_text']         : '#000000';
   $color_bot_bubble   = isset($g['color_bot_bubble'])   ? $g['color_bot_bubble']   : '#f3f3f3';
   $color_user_bubble  = isset($g['color_user_bubble'])  ? $g['color_user_bubble']  : '#ffffff';
+  $color_launcher_bg  = isset($g['color_launcher_bg'])  ? $g['color_launcher_bg']  : '#1e1e1e';
 
   // Footer (preview)
   $color_footer_saved   = isset($g['color_footer']) ? $g['color_footer'] : '#1e1e1e';
@@ -637,6 +639,11 @@ PHSBOT_DEF;
                     <label class="phsbot-label">Color Footer (opcional)</label>
                     <input type="text" name="color_footer" class="phsbot-color phsbot-input-field" value="<?php echo esc_attr($color_footer_saved);?>">
                   </div>
+
+                  <div class="phsbot-field">
+                    <label class="phsbot-label">Color Fondo Botón Chat</label>
+                    <input type="text" name="color_launcher_bg" class="phsbot-color phsbot-input-field" value="<?php echo esc_attr($color_launcher_bg);?>">
+                  </div>
                 </div>
               </div>
 
@@ -661,6 +668,7 @@ PHSBOT_DEF;
                         --phsbot-primary: <?php echo esc_attr($color_primary); ?>;
                         --phsbot-secondary: <?php echo esc_attr($color_secondary); ?>;
                         --phsbot-footer: <?php echo esc_attr($color_footer_preview); ?>;
+                        --phsbot-launcher-bg: <?php echo esc_attr($color_launcher_bg); ?>;
                         --phsbot-btn-h: <?php echo esc_attr(intval($btn_height)); ?>px;
                         --phsbot-head-btn: <?php echo esc_attr(intval($head_btn_size)); ?>px;
                         --mic-stroke-w: <?php echo esc_attr(intval($mic_stroke_w)); ?>px;

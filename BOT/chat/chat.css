@@ -153,11 +153,38 @@
   position: fixed !important;
   z-index: 2147483645 !important;
   /* Posición definida dinámicamente en chat-frontend.php según configuración */
-  background: transparent;
-  border: 0; padding: 0; cursor: pointer;
+  background: var(--phsbot-launcher-bg, #1e1e1e) !important;
+  border: 5px solid #ffffff !important;
+  border-radius: 23px !important;
+  padding: 12px 20px !important;
+  cursor: pointer;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.3s ease !important;
+  min-width: auto !important;
+  width: auto !important;
+  height: auto !important;
 }
-.phsbot-launcher svg circle{ fill: var(--phsbot-primary, #1e1e1e); }
-.phsbot-launcher svg{ display:block; }
+.phsbot-launcher:hover{
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
+}
+.phsbot-launcher-icon{
+  width: 24px !important;
+  height: 24px !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+  color: #ffffff !important;
+}
+.phsbot-launcher-text{
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+}
 #phsbot-widget[data-open="1"] + .phsbot-launcher{ display: none !important; }
 /* ======== FIN LAUNCHER (botón flotante) ======== */
 
@@ -366,12 +393,6 @@ background: var(--phsbot-footer, var(--phsbot-bg, #fff));
 .phsbot-card .phsbot-msg.bot p{ margin-bottom:20px !important; }
 .phsbot-bubble ul{ margin-bottom:20px; }
 .phsbot-bubble{ white-space:normal !important; }
-button#phsbot-launcher{
-  border-radius: 999px !important;
-  background-color: #fff !important;
-  width: 60px !important;
-  height: 60px !important;
-}
 /* ======== FIN AJUSTES PROPIOS (custom) ======== */
 .phsbot-input {
  
@@ -433,14 +454,6 @@ button#phsbot-launcher{
   height: var(--phsbot-height, 720px);
   /* opcional: límite por viewport si usas maxVH desde JS */
   max-height: calc(var(--phsbot-max-vh, 70vh));
-}
-.phsbot-launcher svg {
-    display: block;
-    width: 50px !important;
-    float: left !important;
-    left: -15px !important;
-    position: relative !important;
-    top: -5px !important;
 }
 
 /* ======== PRODUCTOS WOOCOMMERCE EN EL CHAT ======== */

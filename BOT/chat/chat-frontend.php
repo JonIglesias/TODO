@@ -87,6 +87,7 @@ add_action('wp_enqueue_scripts', function(){
   $cb  = (string) phsbot_setting('color_bot_bubble', '#f3f3f3');
   $cu  = (string) phsbot_setting('color_user_bubble','#ffffff');
   $cfoot = (string) phsbot_setting('color_footer', '#1e1e1e');
+  $claunch = (string) phsbot_setting('color_launcher_bg', '#1e1e1e');
 
   wp_localize_script('phsbot-chat','PHSBOT_CHAT',$payload);
   wp_localize_script('phsbot-chat','PHSBOT_CHAT_UI',$UI);
@@ -106,6 +107,7 @@ add_action('wp_enqueue_scripts', function(){
       --phsbot-head-btn: <?php echo (int) phsbot_setting('head_btn_size', 26); ?>px;
       --mic-stroke-w:    <?php echo (int) phsbot_setting('mic_stroke_w', 1); ?>px;
       --phsbot-footer: <?php echo esc_html($cfoot); ?>;
+      --phsbot-launcher-bg: <?php echo esc_html($claunch); ?>;
     }
     .phsbot-wrap{
       position: fixed !important;
