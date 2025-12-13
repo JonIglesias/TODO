@@ -454,13 +454,30 @@ button#phsbot-launcher{
   padding: 0 !important;
 }
 
-/* Cada producto individual: 100% ancho */
+/* Cada producto individual: 100% ancho con diseño personalizado */
 #phsbot-messages ul.products li.product,
-#phsbot-messages .product {
+#phsbot-messages .product,
+#phsbot-messages .woocommerce ul.products li.product,
+#phsbot-messages .products .product {
   width: 100% !important;
   max-width: 100% !important;
-  margin: 0 !important;
+  min-width: 100% !important;
+  flex: 0 0 100% !important;
+  margin: 0 0 10px 0 !important;
   float: none !important;
+  background: #fff !important;
+  border-radius: 9px !important;
+  padding: 5px !important;
+  box-sizing: border-box !important;
+}
+
+/* Forzar 100% en columnas de WooCommerce */
+#phsbot-messages .woocommerce .products.columns-1 li.product,
+#phsbot-messages .woocommerce .products.columns-2 li.product,
+#phsbot-messages .woocommerce .products.columns-3 li.product,
+#phsbot-messages .woocommerce .products.columns-4 li.product {
+  width: 100% !important;
+  flex: 0 0 100% !important;
 }
 
 /* Botón "Añadir al carrito" con color de la cabecera del chatbot */
