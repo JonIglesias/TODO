@@ -80,9 +80,24 @@ function phsbot_config_handle_save(){
   $g['color_user_bubble']   = isset($_POST['color_user_bubble'])   ? sanitize_hex_color($_POST['color_user_bubble'])   : ($g['color_user_bubble']   ?? '#ffffff');
   $g['color_footer']        = isset($_POST['color_footer'])        ? sanitize_hex_color($_POST['color_footer'])        : ($g['color_footer']        ?? '#1e1e1e');
 
+  // DEBUG: Guardar info del POST antes de procesar
+  $debug_log = __DIR__ . '/debug_save.log';
+  $debug_info = date('Y-m-d H:i:s') . " - GUARDADO\n";
+  $debug_info .= "POST color_launcher_bg raw: " . (isset($_POST['color_launcher_bg']) ? "'{$_POST['color_launcher_bg']}'" : 'NOT SET') . "\n";
+  $debug_info .= "POST color_launcher_icon raw: " . (isset($_POST['color_launcher_icon']) ? "'{$_POST['color_launcher_icon']}'" : 'NOT SET') . "\n";
+  $debug_info .= "POST color_launcher_text raw: " . (isset($_POST['color_launcher_text']) ? "'{$_POST['color_launcher_text']}'" : 'NOT SET') . "\n";
+
   $g['color_launcher_bg']   = isset($_POST['color_launcher_bg'])   ? sanitize_hex_color($_POST['color_launcher_bg'])   : ($g['color_launcher_bg']   ?? '#1e1e1e');
   $g['color_launcher_icon'] = isset($_POST['color_launcher_icon']) ? sanitize_hex_color($_POST['color_launcher_icon']) : ($g['color_launcher_icon'] ?? '#ffffff');
   $g['color_launcher_text'] = isset($_POST['color_launcher_text']) ? sanitize_hex_color($_POST['color_launcher_text']) : ($g['color_launcher_text'] ?? '#ffffff');
+
+  // DEBUG: Guardar valores después de sanitizar
+  $debug_info .= "Después de sanitize_hex_color:\n";
+  $debug_info .= "  color_launcher_bg: " . var_export($g['color_launcher_bg'], true) . "\n";
+  $debug_info .= "  color_launcher_icon: " . var_export($g['color_launcher_icon'], true) . "\n";
+  $debug_info .= "  color_launcher_text: " . var_export($g['color_launcher_text'], true) . "\n";
+  $debug_info .= str_repeat('-', 50) . "\n";
+  file_put_contents($debug_log, $debug_info, FILE_APPEND);
 
   $g['btn_height']     = isset($_POST['btn_height'])     ? max(36, min(56, intval($_POST['btn_height'])))           : ($g['btn_height']     ?? 44);
   $g['head_btn_size']  = isset($_POST['head_btn_size'])  ? max(20, min(34, intval($_POST['head_btn_size'])))        : ($g['head_btn_size']  ?? 26);
@@ -322,6 +337,15 @@ PHSBOT_DEF;
         Configuración guardada correctamente.
       </div>
     <?php endif; ?>
+
+    <!-- DEBUG: Mostrar valores actuales de launcher colors -->
+    <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 4px; padding: 15px; margin-bottom: 20px; font-family: monospace; font-size: 13px;">
+      <strong style="color: #856404;">🔍 DEBUG - Valores en BD:</strong><br>
+      color_launcher_bg: <code><?php echo isset($color_launcher_bg) ? var_export($color_launcher_bg, true) : 'NOT SET'; ?></code><br>
+      color_launcher_icon: <code><?php echo isset($color_launcher_icon) ? var_export($color_launcher_icon, true) : 'NOT SET'; ?></code><br>
+      color_launcher_text: <code><?php echo isset($color_launcher_text) ? var_export($color_launcher_text, true) : 'NOT SET'; ?></code><br>
+      <small style="color: #856404;">(Si estos valores no cambian después de guardar, el problema está en el guardado POST)</small>
+    </div>
 
     <!-- Tabs de navegación -->
     <h2 class="nav-tab-wrapper phsbot-config-tabs" role="tablist" aria-label="Conversa Config">
