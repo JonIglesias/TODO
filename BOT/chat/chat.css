@@ -442,3 +442,81 @@ button#phsbot-launcher{
     position: relative !important;
     top: -5px !important;
 }
+
+/* ======== PRODUCTOS WOOCOMMERCE EN EL CHAT ======== */
+/* Estilos para shortcodes de productos dentro del chat */
+
+/* Contenedor del producto: 100% ancho */
+#phsbot-messages .woocommerce,
+#phsbot-messages ul.products {
+  width: 100% !important;
+  margin: 12px 0 !important;
+  padding: 0 !important;
+}
+
+/* Cada producto individual: 100% ancho */
+#phsbot-messages ul.products li.product,
+#phsbot-messages .product {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  float: none !important;
+}
+
+/* Botón "Añadir al carrito" con color de la cabecera del chatbot */
+#phsbot-messages .button.add_to_cart_button,
+#phsbot-messages .button.product_type_simple,
+#phsbot-messages .button.product_type_variable,
+#phsbot-messages .single_add_to_cart_button,
+#phsbot-messages .button.alt {
+  background-color: var(--phsbot-primary, #0073aa) !important;
+  color: #fff !important;
+  border-color: var(--phsbot-primary, #0073aa) !important;
+}
+
+/* Hover del botón */
+#phsbot-messages .button.add_to_cart_button:hover,
+#phsbot-messages .button.product_type_simple:hover,
+#phsbot-messages .button.product_type_variable:hover,
+#phsbot-messages .single_add_to_cart_button:hover,
+#phsbot-messages .button.alt:hover {
+  background-color: var(--phsbot-primary-dark, #005a87) !important;
+  border-color: var(--phsbot-primary-dark, #005a87) !important;
+  color: #fff !important;
+  opacity: 0.9;
+}
+
+/* Imagen del producto: responsive */
+#phsbot-messages .woocommerce img,
+#phsbot-messages ul.products img {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Eliminar márgenes innecesarios en listas de productos */
+#phsbot-messages ul.products::before,
+#phsbot-messages ul.products::after {
+  display: none !important;
+}
+
+/* Clearfix para evitar problemas de float */
+#phsbot-messages .woocommerce::after,
+#phsbot-messages ul.products::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Precio con mejor legibilidad */
+#phsbot-messages .price {
+  color: var(--phsbot-primary, #0073aa) !important;
+  font-weight: 600 !important;
+}
+
+/* Ajustar padding de productos en móviles */
+@media (max-width: 480px) {
+  #phsbot-messages .product {
+    padding: 10px !important;
+  }
+}
+/* ======== FIN PRODUCTOS WOOCOMMERCE ======== */
