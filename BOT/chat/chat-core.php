@@ -221,8 +221,36 @@ function phsbot_convert_product_urls_to_shortcodes($text){
   );
   $host_pattern = implode('|', array_unique($hosts));
 
-  // Detectar URLs del sitio (con parámetros opcionales)
-  $pattern = '#https?://(?:'.$host_pattern.')[^\s<>"]*#i';
+  // PASO 1: Primero reemplazar enlaces HTML completos <a href="URL_PRODUCTO">...</a>
+  // Esto evita procesar URLs dentro de atributos HTML
+  $text = preg_replace_callback(
+    '#<a\s+[^>]*href=["\']?(https?://(?:'.$host_pattern.')[^\s<>"\']+)["\']?[^>]*>.*?</a>#is',
+    function($matches){
+      $full_link = $matches[0];
+      $url = $matches[1];
+      $clean_url = preg_replace('/[?#].*$/', '', $url);
+      $clean_url = rtrim($clean_url, '/');
+
+      $post_id = url_to_postid($clean_url);
+      if(!$post_id) $post_id = url_to_postid($clean_url . '/');
+
+      if($post_id && get_post_type($post_id) === 'product'){
+        $product = wc_get_product($post_id);
+        if($product && $product->get_status() === 'publish'){
+          // Reemplazar todo el enlace por el shortcode
+          return do_shortcode('[product id="'.$product->get_id().'"]');
+        }
+      }
+
+      // No es producto, mantener el enlace original
+      return $full_link;
+    },
+    $text
+  );
+
+  // PASO 2: Luego detectar URLs sueltas (que NO estén dentro de atributos HTML)
+  // Usar negative lookbehind para evitar URLs precedidas por = " o '
+  $pattern = '#(?<![="\'])https?://(?:'.$host_pattern.')[^\s<>"]*#i';
 
   return preg_replace_callback($pattern, function($matches){
     $url = $matches[0];
