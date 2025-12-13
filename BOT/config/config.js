@@ -56,10 +56,21 @@
     bindColor('color_user_bubble', '--phsbot-user-bubble');
     bindColor('color_whatsapp',    '--phsbot-whatsapp');
     bindColor('color_footer',      '--phsbot-footer');
-    // Los colores del launcher NO usan bindColor - solo fallback wpColorPicker
-    // bindColor('color_launcher_bg', '--phsbot-launcher-bg');
-    // bindColor('color_launcher_icon', '--phsbot-launcher-icon');
-    // bindColor('color_launcher_text', '--phsbot-launcher-text');
+
+    // Los colores del launcher usan input type="color" nativo - listeners simples
+    var $launcherBg = $('input[name="color_launcher_bg"]');
+    var $launcherIcon = $('input[name="color_launcher_icon"]');
+    var $launcherText = $('input[name="color_launcher_text"]');
+
+    // Valores iniciales
+    if($launcherBg.length) setVar('--phsbot-launcher-bg', $launcherBg.val());
+    if($launcherIcon.length) setVar('--phsbot-launcher-icon', $launcherIcon.val());
+    if($launcherText.length) setVar('--phsbot-launcher-text', $launcherText.val());
+
+    // Listeners para cambios
+    $launcherBg.on('input change', function(){ setVar('--phsbot-launcher-bg', $(this).val()); });
+    $launcherIcon.on('input change', function(){ setVar('--phsbot-launcher-icon', $(this).val()); });
+    $launcherText.on('input change', function(){ setVar('--phsbot-launcher-text', $(this).val()); });
 
     // --- Slider bind helper (con hook onUpdate opcional) ---
     function bindSlider(id, cssVar, unit, hiddenId, onUpdate){
