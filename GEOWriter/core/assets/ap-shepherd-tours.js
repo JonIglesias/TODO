@@ -605,15 +605,15 @@
     };
 
     // ==========================================
-    // TOUR 5: EDITAR/CREAR CAMPAÑA
+    // TOUR 5A: CREAR CAMPAÑA
     // ==========================================
-    AP_Tours.campaignEdit = function() {
+    AP_Tours.campaignCreate = function() {
         const tour = new Shepherd.Tour(defaultOptions);
 
         tour.addStep({
-            id: 'campaign-edit-intro',
-            title: '✏️ Editar Campaña',
-            text: 'Aquí puedes crear o editar campañas manualmente. Esta página te da control total sobre todos los parámetros de generación de contenido.',
+            id: 'create-intro',
+            title: '✨ Crear Nueva Campaña',
+            text: 'Vamos a crear una campaña desde cero. Aquí tienes control total sobre todos los parámetros. Si prefieres algo más rápido, usa Autopilot.',
             buttons: [
                 {
                     text: 'Saltar',
@@ -628,9 +628,9 @@
         });
 
         tour.addStep({
-            id: 'basic-info',
+            id: 'basic-info-create',
             title: '📝 Información Básica',
-            text: 'Define el nombre, dominio y nicho de tu campaña. Estos datos son fundamentales para que la IA genere contenido relevante.',
+            text: 'Lo primero: nombre de campaña, dominio y nicho. Estos son los datos fundamentales que la IA necesita para generar contenido relevante.',
             attachTo: {
                 element: '.ap-section[data-section="1"]',
                 on: 'top'
@@ -649,9 +649,111 @@
         });
 
         tour.addStep({
-            id: 'save-campaign',
+            id: 'content-config-create',
+            title: '⚙️ Configuración del Contenido',
+            text: 'Define cómo será tu contenido: longitud, tono, estructura, etc. Estos parámetros son cruciales para la calidad de los artículos.',
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'save-new-campaign',
+            title: '💾 Guardar Nueva Campaña',
+            text: '¡Último paso! Cuando termines de configurar todo, haz clic en "Guardar Campaña". Después podrás generar la cola de posts.',
+            attachTo: {
+                element: 'button[form="campaign-form"]',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: '¡Entendido!',
+                    action: tour.complete
+                }
+            ]
+        });
+
+        return tour;
+    };
+
+    // ==========================================
+    // TOUR 5B: EDITAR CAMPAÑA
+    // ==========================================
+    AP_Tours.campaignEdit = function() {
+        const tour = new Shepherd.Tour(defaultOptions);
+
+        tour.addStep({
+            id: 'edit-intro',
+            title: '✏️ Editar Campaña',
+            text: 'Aquí puedes modificar cualquier parámetro de tu campaña existente. Los cambios se aplicarán a los nuevos posts que se generen.',
+            buttons: [
+                {
+                    text: 'Saltar',
+                    action: tour.cancel,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'edit-warning',
+            title: '⚠️ Importante',
+            text: 'Los posts que ya se generaron NO cambiarán. Solo los nuevos posts que se creen después de guardar tomarán la nueva configuración.',
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'basic-info-edit',
+            title: '📝 Modificar Parámetros',
+            text: 'Puedes cambiar nombre, nicho, configuración de contenido, SEO, imágenes, etc. Revisa cada sección según lo que necesites ajustar.',
+            attachTo: {
+                element: '.ap-section[data-section="1"]',
+                on: 'top'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'save-changes',
             title: '💾 Guardar Cambios',
-            text: 'Cuando termines de configurar todos los parámetros, haz clic en "Guardar Campaña" para aplicar los cambios.',
+            text: 'Cuando termines de hacer las modificaciones, haz clic aquí para guardar. Los cambios se aplicarán inmediatamente.',
             attachTo: {
                 element: 'button[form="campaign-form"]',
                 on: 'bottom'
@@ -690,8 +792,17 @@
         if ($('#autopilot-form').length) return 'autopilot';
         if ($('#queue-table, .ap-queue-wrapper').length) return 'queue';
         if ($('#ap-config-form, .ap-config-wrapper').length) return 'config';
+
         // Detectar página de edición/creación de campaña
-        if ($('.ap-campaign-wrapper, #campaign-form').length) return 'campaign-edit';
+        if ($('.ap-campaign-wrapper, #campaign-form').length) {
+            // Si el campo campaign_id tiene valor, es edición; si está vacío, es creación
+            const campaignId = $('#campaign_id').val();
+            if (campaignId && campaignId !== '') {
+                return 'campaign-edit';
+            } else {
+                return 'campaign-create';
+            }
+        }
 
         // Detectar página de listado de campañas (con o sin campañas)
         if ($('.ap-campaigns-wrapper').length) {
@@ -733,9 +844,13 @@
                 buttonId = 'start-config-tour';
                 buttonText = 'Tutorial Configuración';
                 break;
+            case 'campaign-create':
+                buttonId = 'start-campaign-create-tour';
+                buttonText = 'Tutorial Crear Campaña';
+                break;
             case 'campaign-edit':
                 buttonId = 'start-campaign-edit-tour';
-                buttonText = 'Tutorial Edición';
+                buttonText = 'Tutorial Editar Campaña';
                 break;
         }
 
@@ -802,6 +917,15 @@
             const tour = AP_Tours.config();
             tour.on('complete', function() {
                 markTourCompleted('config');
+            });
+            tour.start();
+        });
+
+        $('#start-campaign-create-tour').on('click', function(e) {
+            e.preventDefault();
+            const tour = AP_Tours.campaignCreate();
+            tour.on('complete', function() {
+                markTourCompleted('campaign-create');
             });
             tour.start();
         });
