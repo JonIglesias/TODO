@@ -379,7 +379,7 @@ JS;
             }
 
             // Colores base
-            foreach (array('color_primary','color_secondary','color_background','color_text','color_bot_bubble','color_user_bubble') as $ck) {
+            foreach (array('color_primary','color_secondary','color_background','color_text','color_bot_bubble','color_user_bubble','color_launcher_bg','color_launcher_icon','color_launcher_text') as $ck) {
                 if (array_key_exists($ck, $input)) {
                     $c = $input[$ck];
                     $out[$ck] = $this->sanitize_hex_color_fallback($c, self::defaults()[$ck]);
