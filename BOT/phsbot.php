@@ -550,7 +550,10 @@ JS;
                 }
             } elseif (is_array($cur)) {
                 $merged = wp_parse_args($cur, self::defaults());
-                if ($merged !== $cur) update_option(self::OPTION_KEY, $merged);
+                // Siempre actualizar para asegurar que todos los defaults están presentes
+                if ($merged !== $cur || !isset($cur['color_launcher_bg'])) {
+                    update_option(self::OPTION_KEY, $merged);
+                }
             }
         }
         /* ======== FIN ensure_defaults_and_migrate ======== */
