@@ -518,6 +518,11 @@ JS;
                 'color_bot_bubble'   => '#F3F3F3',
                 'color_user_bubble'  => '#EDE7E1',
 
+                // Colores del botón launcher
+                'color_launcher_bg'   => '#1e1e1e',
+                'color_launcher_icon' => '#ffffff',
+                'color_launcher_text' => '#ffffff',
+
                 // ===== Claves usadas por la pantalla custom =====
                 'chat_title'         => 'Conversa',
                 'color_footer'       => '',
