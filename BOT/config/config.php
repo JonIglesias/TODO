@@ -142,15 +142,23 @@ function phsbot_config_handle_save(){
   }
   file_put_contents($debug_log, $debug_info, FILE_APPEND);
 
-  $update_result = update_option(PHSBOT_SETTINGS_OPT, $g);
+  // Limpiar caché antes de update_option (por si acaso)
+  wp_cache_delete(PHSBOT_SETTINGS_OPT, 'options');
+
+  $update_result = update_option(PHSBOT_SETTINGS_OPT, $g, true);  // tercer parámetro = autoload
 
   // DEBUG: Verificar si update_option funcionó
   $debug_check = date('Y-m-d H:i:s') . " - update_option result: " . var_export($update_result, true) . "\n";
+
+  // Limpiar caché antes de leer de nuevo
+  wp_cache_delete(PHSBOT_SETTINGS_OPT, 'options');
   $saved = get_option(PHSBOT_SETTINGS_OPT, array());
+
   $debug_check .= "Después de update_option - valores en BD:\n";
   $debug_check .= "  saved['color_launcher_bg']: " . var_export($saved['color_launcher_bg'] ?? 'NOT IN DB', true) . "\n";
   $debug_check .= "  saved['color_launcher_icon']: " . var_export($saved['color_launcher_icon'] ?? 'NOT IN DB', true) . "\n";
   $debug_check .= "  saved['color_launcher_text']: " . var_export($saved['color_launcher_text'] ?? 'NOT IN DB', true) . "\n";
+  $debug_check .= "  TOTAL elementos en \$saved: " . count($saved) . "\n";
   $debug_check .= str_repeat('=', 50) . "\n\n";
   file_put_contents($debug_log, $debug_check, FILE_APPEND);
 
