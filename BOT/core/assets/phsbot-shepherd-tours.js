@@ -780,8 +780,8 @@
             </button>
         `);
 
-        // Insertar en el header después del h1
-        $header.find('h1').first().after(helpBtn);
+        // Insertar en el header a la derecha (como último elemento)
+        $header.append(helpBtn);
 
         // Actualizar texto del botón según tab activo
         function updateButtonText() {
@@ -813,7 +813,10 @@
         // No añadir si ya existe
         if ($('.phsbot-help-tour-btn').length > 0) return;
 
-        const helpBtn = `
+        const $header = $('.phsbot-module-header').first();
+        if (!$header.length) return;
+
+        const helpBtn = $(`
             <button type="button" class="phsbot-help-tour-btn" id="phsbot-tour-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
@@ -822,13 +825,13 @@
                 </svg>
                 <span>Tutorial</span>
             </button>
-        `;
+        `);
 
-        // Insertar botón en el header del módulo (después del h1)
-        $('.phsbot-module-header h1').first().after(helpBtn);
+        // Insertar botón en el header a la derecha (como último elemento)
+        $header.append(helpBtn);
 
         // Event listener para el botón
-        $('#phsbot-tour-btn').on('click', function() {
+        helpBtn.on('click', function() {
             startTour(currentModule);
         });
     }

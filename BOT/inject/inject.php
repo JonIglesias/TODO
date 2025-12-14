@@ -592,6 +592,37 @@ add_action('admin_enqueue_scripts', function(){
         filemtime(dirname(dirname(__FILE__)) . '/core/assets/modules-unified.css')
     );
 
+    // Shepherd.js para tours interactivos
+    wp_enqueue_style(
+        'shepherd-js',
+        'https://cdn.jsdelivr.net/npm/shepherd.js@11.2.0/dist/css/shepherd.css',
+        array(),
+        '11.2.0'
+    );
+
+    wp_enqueue_style(
+        'phsbot-shepherd-custom',
+        plugins_url('core/assets/phsbot-shepherd-custom.css', $main_file),
+        array('shepherd-js'),
+        '1.0.0'
+    );
+
+    wp_enqueue_script(
+        'shepherd-js',
+        'https://cdn.jsdelivr.net/npm/shepherd.js@11.2.0/dist/js/shepherd.min.js',
+        array(),
+        '11.2.0',
+        true
+    );
+
+    wp_enqueue_script(
+        'phsbot-shepherd-tours',
+        plugins_url('core/assets/phsbot-shepherd-tours.js', $main_file),
+        array('jquery', 'shepherd-js'),
+        '1.0.0',
+        true
+    );
+
     $u=plugin_dir_url(__FILE__); $d=plugin_dir_path(__FILE__);
     if(file_exists($d.'inject.css')) wp_enqueue_style('phsbot-inject',$u.'inject.css',array(),@filemtime($d.'inject.css')?:null);
     if(file_exists($d.'inject.js')) {

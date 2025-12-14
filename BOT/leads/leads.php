@@ -78,6 +78,38 @@ add_action('admin_enqueue_scripts', function(){
         '1.4'
     );
 
+    // Shepherd.js para tours interactivos
+    $main_file = dirname(__FILE__) . '/../phsbot.php';
+    wp_enqueue_style(
+        'shepherd-js',
+        'https://cdn.jsdelivr.net/npm/shepherd.js@11.2.0/dist/css/shepherd.css',
+        array(),
+        '11.2.0'
+    );
+
+    wp_enqueue_style(
+        'phsbot-shepherd-custom',
+        plugin_dir_url(dirname(__FILE__)) . 'core/assets/phsbot-shepherd-custom.css',
+        array('shepherd-js'),
+        '1.0.0'
+    );
+
+    wp_enqueue_script(
+        'shepherd-js',
+        'https://cdn.jsdelivr.net/npm/shepherd.js@11.2.0/dist/js/shepherd.min.js',
+        array(),
+        '11.2.0',
+        true
+    );
+
+    wp_enqueue_script(
+        'phsbot-shepherd-tours',
+        plugin_dir_url(dirname(__FILE__)) . 'core/assets/phsbot-shepherd-tours.js',
+        array('jquery', 'shepherd-js'),
+        '1.0.0',
+        true
+    );
+
     wp_enqueue_style('phsbot-leads-css', $url.'leads.css', array('phsbot-modules-unified'), $vcss);
     wp_enqueue_script('phsbot-leads-js', $url.'leads.js', array('jquery'), $vjs, true);
 
