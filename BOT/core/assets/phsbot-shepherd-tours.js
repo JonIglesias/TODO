@@ -545,9 +545,9 @@
     };
 
     // ===========================================
-    // TOUR: LEADS & SCORING
+    // TOUR: LEADS (PESTAÑA LEADS)
     // ===========================================
-    PHSBOT_Tours.leads = function() {
+    PHSBOT_Tours.leadsTable = function() {
         const tour = new Shepherd.Tour(defaultOptions);
 
         tour.addStep({
@@ -650,6 +650,28 @@
                     classes: 'shepherd-button-secondary'
                 },
                 {
+                    text: 'Finalizar',
+                    action: tour.complete,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        return tour;
+    };
+
+    // ===========================================
+    // TOUR: LEADS (PESTAÑA CONFIGURACIÓN)
+    // ===========================================
+    PHSBOT_Tours.leadsConfig = function() {
+        const tour = new Shepherd.Tour(defaultOptions);
+
+        tour.addStep({
+            id: 'welcome',
+            title: '⚙️ Configuración de Leads',
+            text: 'Aquí puedes ajustar los parámetros de captura, puntuación y notificaciones de leads. Estos ajustes determinan cómo se procesan y califican las conversaciones.',
+            buttons: [
+                {
                     text: 'Siguiente',
                     action: tour.next,
                     classes: 'shepherd-button-primary'
@@ -658,9 +680,66 @@
         });
 
         tour.addStep({
-            id: 'settings',
-            title: '⚙️ Configuración',
-            text: 'En la pestaña "Configuración" puedes ajustar el umbral de puntuación para notificaciones de Telegram, activar/desactivar la captura de leads y configurar los campos opcionales.',
+            id: 'telegram-threshold',
+            title: '📊 Umbral de Telegram',
+            text: 'Define la puntuación mínima (0-10) para que un lead se notifique vía Telegram. Por defecto es 8.0. Los leads con teléfono siempre se notifican.',
+            attachTo: { element: '#telegram_threshold', on: 'bottom' },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'notifications',
+            title: '📧 Notificaciones por Email',
+            text: 'Configura los emails para recibir notificaciones instantáneas de leads de alta puntuación y resúmenes diarios de actividad.',
+            attachTo: { element: '#notify_email', on: 'bottom' },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'prompts',
+            title: '🤖 Prompts de IA',
+            text: 'Personaliza los prompts que usa la IA para:<br/>• <strong>Resumen</strong>: Generar resumen de la conversación<br/>• <strong>Scoring</strong>: Calcular la puntuación del lead (0-10)',
+            attachTo: { element: '#summary_prompt', on: 'top' },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'restore-defaults',
+            title: '🔄 Restaurar por Defecto',
+            text: 'Usa los botones "Restaurar" bajo cada prompt para volver a los valores predeterminados si has hecho cambios y quieres empezar de nuevo.',
             buttons: [
                 {
                     text: 'Atrás',
@@ -683,6 +762,7 @@
     // ===========================================
     function detectCurrentModule() {
         const page = new URLSearchParams(window.location.search).get('page');
+        const tab = new URLSearchParams(window.location.search).get('tab');
 
         // Para la página de configuración, detectar el tab activo
         if (page === 'phsbot' || page === 'phsbot_config') {
@@ -693,9 +773,16 @@
             return 'config-conexiones'; // Default
         }
 
+        // Para la página de Leads, detectar el tab activo
+        if (page === 'phsbot-leads') {
+            if (tab === 'settings') {
+                return 'leads-config';
+            }
+            return 'leads-table'; // Default (pestaña Leads)
+        }
+
         if (page === 'phsbot-kb' || page === 'phsbot_kb') return 'kb';
         if (page === 'phsbot-inject') return 'inject';
-        if (page === 'phsbot-leads') return 'leads';
         if (page === 'phsbot-chat') return 'chat';
         if (page === 'phsbot-estadisticas') return 'stats';
 
@@ -745,9 +832,11 @@
         const validModules = ['config', 'kb', 'inject', 'leads'];
         if (!validModules.includes(moduleBase)) return;
 
-        // Para config, añadir botón en cada tab
+        // Para módulos con tabs (config y leads), añadir botón dinámico
         if (moduleBase === 'config') {
             addConfigTabButtons();
+        } else if (moduleBase === 'leads') {
+            addLeadsTabButtons();
         } else {
             // Para otros módulos, añadir botón en el header principal
             addMainHeaderButton(currentModule);
@@ -809,6 +898,63 @@
         });
     }
 
+    function addLeadsTabButtons() {
+        // Añadir un botón dinámico en el header de Leads que cambia según el tab activo
+        const $header = $('.phsbot-module-header').first();
+        if (!$header.length) return;
+
+        // No añadir si ya existe
+        if ($header.find('.phsbot-help-tour-btn').length > 0) return;
+
+        const tabs = {
+            'table': { module: 'leadsTable', title: 'Leads' },
+            'config': { module: 'leadsConfig', title: 'Configuración' }
+        };
+
+        // Crear botón dinámico
+        const helpBtn = $(`
+            <button type="button" class="phsbot-help-tour-btn" id="phsbot-leads-tour-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span id="phsbot-leads-tour-btn-text">Tutorial</span>
+            </button>
+        `);
+
+        // Insertar en el header a la derecha (como último elemento)
+        $header.append(helpBtn);
+
+        // Actualizar texto del botón según tab activo (desde URL)
+        function updateButtonText() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            const activeTab = tab === 'settings' ? 'config' : 'table';
+
+            if (tabs[activeTab]) {
+                $('#phsbot-leads-tour-btn-text').text('Tutorial: ' + tabs[activeTab].title);
+                $('#phsbot-leads-tour-btn').data('tour', tabs[activeTab].module);
+            }
+        }
+
+        // Event listener
+        helpBtn.on('click', function() {
+            const tourName = $(this).data('tour');
+            if (tourName && PHSBOT_Tours[tourName]) {
+                startTour(tourName);
+            }
+        });
+
+        // Actualizar texto inicial
+        updateButtonText();
+
+        // Actualizar cuando cambie el tab (escuchar clicks en los nav-tabs de Leads)
+        $('.nav-tab-wrapper .nav-tab').on('click', function() {
+            setTimeout(updateButtonText, 50);
+        });
+    }
+
     function addMainHeaderButton(currentModule) {
         // No añadir si ya existe
         if ($('.phsbot-help-tour-btn').length > 0) return;
@@ -827,8 +973,16 @@
             </button>
         `);
 
-        // Insertar botón en el header a la derecha (como último elemento)
-        $header.append(helpBtn);
+        // Buscar si existe un contenedor de botones a la derecha (segundo div hijo)
+        const $buttonContainer = $header.find('> div:last-child');
+
+        if ($buttonContainer.length > 0 && $buttonContainer.find('button, .button').length > 0) {
+            // Si existe un contenedor con botones, añadir el tutorial ahí
+            $buttonContainer.append(helpBtn);
+        } else {
+            // Si no existe, añadir como último elemento del header (fallback)
+            $header.append(helpBtn);
+        }
 
         // Event listener para el botón
         helpBtn.on('click', function() {
