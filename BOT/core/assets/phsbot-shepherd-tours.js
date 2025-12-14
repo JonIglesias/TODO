@@ -63,10 +63,10 @@
         });
 
         tour.addStep({
-            id: 'api-url',
-            title: '🌐 API URL',
-            text: 'Esta es la URL donde está alojada la API del chatbot. Normalmente no necesitas cambiarla.',
-            attachTo: { element: '#bot_api_url', on: 'bottom' },
+            id: 'telegram-token',
+            title: '📱 Token de Telegram (Opcional)',
+            text: 'Configura un bot de Telegram para recibir notificaciones cuando lleguen leads importantes. Primero necesitas crear un bot con @BotFather y copiar el token aquí.',
+            attachTo: { element: '#telegram_bot_token', on: 'bottom' },
             buttons: [
                 {
                     text: 'Atrás',
@@ -82,10 +82,10 @@
         });
 
         tour.addStep({
-            id: 'telegram',
-            title: '📱 Notificaciones Telegram (Opcional)',
-            text: 'Configura un bot de Telegram para recibir notificaciones cuando lleguen leads importantes. Es opcional pero muy útil.',
-            attachTo: { element: '#telegram_bot_token', on: 'bottom' },
+            id: 'telegram-chat-id',
+            title: '💬 Chat ID de Telegram (Opcional)',
+            text: 'Introduce el ID del chat, usuario o canal donde quieres recibir las notificaciones. Puedes obtenerlo usando @userinfobot en Telegram.',
+            attachTo: { element: '#telegram_chat_id', on: 'bottom' },
             buttons: [
                 {
                     text: 'Atrás',

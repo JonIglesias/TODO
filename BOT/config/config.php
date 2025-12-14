@@ -358,14 +358,12 @@ PHSBOT_DEF;
                   </button>
                 </div>
 
-                <div class="phsbot-field">
-                  <label class="phsbot-label" for="bot_api_url">API URL</label>
-                  <input type="text" 
-                         name="bot_api_url" 
-                         id="bot_api_url" 
-                         class="phsbot-input-field" 
+                <!-- API URL: Campo oculto (hardcodeado) -->
+                <div class="phsbot-field" style="display: none;">
+                  <input type="hidden"
+                         name="bot_api_url"
+                         id="bot_api_url"
                          value="<?php echo esc_attr($bot_api_url);?>">
-                  <p class="phsbot-description">URL de la API del chatbot.</p>
                 </div>
 
                 <!-- Status de validación -->
