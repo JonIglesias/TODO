@@ -90,7 +90,7 @@ $total_to_execute = $pending_count + $processing_count;
         </div>
     </div>
 
-    <div class="ap-module-container ap-queue-content has-sidebar">
+    <div class="ap-module-container ap-queue-content">
         <div class="ap-module-content ap-main-content">
     
     <!-- Contenedor de progreso -->
@@ -364,45 +364,8 @@ jQuery(document).ready(function($) {
             
         </div>
     </div>
-        
-        </div> <!-- Fin ap-module-content -->
 
-        <!-- Sidebar de Ayuda -->
-        <aside class="ap-module-sidebar ap-help-sidebar" style="background: #000000; padding: 20px; border-radius: 8px;">
-            <!-- Card: ¿Qué es la Cola? -->
-            <div style="margin-bottom: 20px;">
-                <h3 style="color: white; font-size: 15px; margin: 0 0 12px 0; font-weight: 600;">¿Qué es la Cola?</h3>
-                <p style="color: rgba(255,255,255,0.95); font-size: 13px; line-height: 1.6; margin: 0;">
-                    La cola almacena todos los posts que se publicarán automáticamente según el calendario de tu campaña.
-                </p>
-            </div>
-            
-            <!-- Card: Proceso -->
-            <div style="margin-bottom: 20px;">
-                <h3 style="color: white; font-size: 15px; margin: 0 0 12px 0; font-weight: 600;">Proceso</h3>
-                <ul style="margin: 0; padding-left: 20px; color: rgba(255,255,255,0.95); font-size: 13px; line-height: 1.8;">
-                    <li><strong style="color: white;">Generar Cola:</strong> Crea títulos e imágenes para todos los posts</li>
-                    <li><strong style="color: white;">Revisar:</strong> Edita títulos, keywords o regenera imágenes si necesitas</li>
-                    <li><strong style="color: white;">Ejecutar:</strong> El sistema genera el contenido y publica automáticamente</li>
-                </ul>
-            </div>
-            
-            <!-- Card: Funciones -->
-            <div style="margin-bottom: 20px;">
-                <h3 style="color: white; font-size: 15px; margin: 0 0 12px 0; font-weight: 600;">Funciones</h3>
-                <ul style="margin: 0; padding-left: 20px; color: rgba(255,255,255,0.95); font-size: 13px; line-height: 1.8;">
-                    <li><strong style="color: white;">Editar Título:</strong> Click en el título para editarlo</li>
-                    <li><strong style="color: white;">Editar Keywords:</strong> Click en las keywords para modificarlas</li>
-                    <li><strong style="color: white;">Reordenar:</strong> Arrastra el icono para cambiar el orden</li>
-                    <li><strong style="color: white;">Regenerar Imagen:</strong> Click en "Regenerar" bajo cada imagen</li>
-                </ul>
-            </div>
-            
-            <!-- Tip -->
-            <div style="background: #3D4A5C; color: white; border: none; border-left: 3px solid white; padding: 12px 16px; border-radius: 6px;">
-                <strong style="color: white;">Tip:</strong> Genera la cola primero para ver todos los títulos. Luego revísalos antes de ejecutar la campaña.
-            </div>
-        </aside> <!-- Fin ap-module-sidebar -->
+        </div> <!-- Fin ap-module-content -->
     </div> <!-- Fin ap-module-container -->
 </div> <!-- Fin wrap ap-module-wrap -->
 
