@@ -613,7 +613,7 @@
         tour.addStep({
             id: 'create-intro',
             title: '✨ Crear Nueva Campaña',
-            text: 'Vamos a crear una campaña desde cero. Aquí tienes control total sobre todos los parámetros. Si prefieres algo más rápido, usa Autopilot.',
+            text: 'Vamos a crear una campaña desde cero paso a paso. Tienes control total sobre todos los parámetros. Si prefieres algo más rápido y automático, usa Autopilot.',
             buttons: [
                 {
                     text: 'Saltar',
@@ -628,11 +628,116 @@
         });
 
         tour.addStep({
-            id: 'basic-info-create',
-            title: '📝 Información Básica',
-            text: 'Lo primero: nombre de campaña, dominio y nicho. Estos son los datos fundamentales que la IA necesita para generar contenido relevante.',
+            id: 'name-domain-niche',
+            title: '📝 Datos Básicos',
+            text: 'Primero lo esencial: Nombre de la campaña, tu dominio y el nicho temático. Estos datos son fundamentales para que la IA genere contenido relevante.',
             attachTo: {
-                element: '.ap-section[data-section="1"]',
+                element: '.ap-field-row-triple',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'company-desc',
+            title: '🏢 Descripción de Empresa',
+            text: 'Puedes escribirla tú mismo o usar el botón "Generar con IA" para que se cree automáticamente. Luego puedes revisar, corregir o ampliar la información generada.',
+            attachTo: {
+                element: '#company_desc',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'num-posts-length',
+            title: '📊 Cantidad y Extensión',
+            text: 'Define cuántos posts quieres generar y su extensión (corto, medio o largo). Usa el slider o escribe el número directamente.',
+            attachTo: {
+                element: '.ap-field-row-slider',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'keywords-seo',
+            title: '🔑 Keywords SEO',
+            text: 'Las palabras clave son cruciales para SEO. Puedes escribirlas separadas por comas o usar "Generar con IA" para que se creen automáticamente según tu nicho.',
+            attachTo: {
+                element: '#keywords_seo',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'prompts',
+            title: '✍️ Prompts de Generación',
+            text: 'Los prompts definen CÓMO escribirá la IA (tono, estilo, estructura). Usa "Generar con IA" para crear prompts profesionales automáticamente.',
+            attachTo: {
+                element: '#prompt_titles',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'images',
+            title: '🖼️ Configuración de Imágenes',
+            text: 'Define las keywords para buscar imágenes y selecciona el proveedor (Unsplash, Pixabay o Pexels). También puedes generar keywords con IA.',
+            attachTo: {
+                element: '.ap-section[data-section="3"]',
                 on: 'top'
             },
             buttons: [
@@ -649,9 +754,13 @@
         });
 
         tour.addStep({
-            id: 'content-config-create',
-            title: '⚙️ Configuración del Contenido',
-            text: 'Define cómo será tu contenido: longitud, tono, estructura, etc. Estos parámetros son cruciales para la calidad de los artículos.',
+            id: 'scheduling',
+            title: '📅 Programación de Publicación',
+            text: 'Define cuándo y cómo se publicarán tus posts: días de la semana, fecha de inicio, hora y categoría de WordPress.',
+            attachTo: {
+                element: '.ap-section[data-section="4"]',
+                on: 'top'
+            },
             buttons: [
                 {
                     text: 'Atrás',
@@ -668,7 +777,7 @@
         tour.addStep({
             id: 'save-new-campaign',
             title: '💾 Guardar Nueva Campaña',
-            text: '¡Último paso! Cuando termines de configurar todo, haz clic en "Guardar Campaña". Después podrás generar la cola de posts.',
+            text: '¡Último paso! Cuando termines de configurar todo, haz clic en "Guardar Campaña". Después podrás generar la cola de posts desde el listado.',
             attachTo: {
                 element: 'button[form="campaign-form"]',
                 on: 'bottom'
