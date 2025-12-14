@@ -1,0 +1,313 @@
+/**
+ * Estilos personalizados para Shepherd.js Tours en GEOWriter
+ */
+
+/* ==========================================
+   ESTILOS GENERALES DEL TOUR
+   ========================================== */
+
+.ap-shepherd-theme {
+    border-radius: 12px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25) !important;
+    max-width: 420px;
+}
+
+.ap-shepherd-theme .shepherd-content {
+    padding: 0 !important;
+    background: #ffffff;
+    border-radius: 12px;
+}
+
+.ap-shepherd-theme .shepherd-header {
+    padding: 20px 24px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px 12px 0 0;
+}
+
+.ap-shepherd-theme .shepherd-title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    margin: 0 !important;
+}
+
+.ap-shepherd-theme .shepherd-text {
+    padding: 20px 24px !important;
+    font-size: 15px !important;
+    line-height: 1.6 !important;
+    color: #374151 !important;
+}
+
+.ap-shepherd-theme .shepherd-footer {
+    padding: 16px 24px 20px !important;
+    background: #f9fafb;
+    border-radius: 0 0 12px 12px;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* ==========================================
+   BOTONES DEL TOUR
+   ========================================== */
+
+.ap-shepherd-theme .shepherd-button {
+    padding: 10px 20px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    border-radius: 8px !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    margin-left: 8px !important;
+}
+
+.ap-shepherd-theme .shepherd-button:first-child {
+    margin-left: 0 !important;
+}
+
+.ap-shepherd-theme .shepherd-button:not(.shepherd-button-secondary) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: #ffffff !important;
+}
+
+.ap-shepherd-theme .shepherd-button:not(.shepherd-button-secondary):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4) !important;
+}
+
+.ap-shepherd-theme .shepherd-button-secondary {
+    background: #ffffff !important;
+    color: #6b7280 !important;
+    border: 1px solid #d1d5db !important;
+}
+
+.ap-shepherd-theme .shepherd-button-secondary:hover {
+    background: #f9fafb !important;
+    border-color: #9ca3af !important;
+}
+
+/* ==========================================
+   CANCEL ICON (X)
+   ========================================== */
+
+.ap-shepherd-theme .shepherd-cancel-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.ap-shepherd-theme .shepherd-cancel-icon:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.ap-shepherd-theme .shepherd-cancel-icon svg {
+    width: 14px;
+    height: 14px;
+    fill: #ffffff;
+}
+
+/* ==========================================
+   FLECHA (ARROW)
+   ========================================== */
+
+.ap-shepherd-theme .shepherd-arrow:before {
+    background: #ffffff !important;
+}
+
+/* ==========================================
+   OVERLAY MODAL
+   ========================================== */
+
+.shepherd-modal-overlay-container {
+    z-index: 9998 !important;
+}
+
+.shepherd-modal-overlay-container.shepherd-modal-is-visible {
+    opacity: 0.5 !important;
+}
+
+.shepherd-element {
+    z-index: 9999 !important;
+}
+
+/* ==========================================
+   BOTÓN DE AYUDA EN HEADERS
+   ========================================== */
+
+.ap-help-tour-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.ap-help-tour-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+}
+
+.ap-help-tour-btn .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 1;
+}
+
+/* ==========================================
+   ANIMACIONES
+   ========================================== */
+
+@keyframes shepherdSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.shepherd-element {
+    animation: shepherdSlideIn 0.3s ease-out;
+}
+
+/* ==========================================
+   HIGHLIGHT DE ELEMENTOS
+   ========================================== */
+
+.shepherd-target-highlighted {
+    position: relative;
+}
+
+.shepherd-target-highlighted::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    pointer-events: none;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 768px) {
+    .ap-shepherd-theme {
+        max-width: 90vw !important;
+        margin: 0 5vw;
+    }
+
+    .ap-shepherd-theme .shepherd-header {
+        padding: 16px 20px 12px;
+    }
+
+    .ap-shepherd-theme .shepherd-title {
+        font-size: 16px !important;
+    }
+
+    .ap-shepherd-theme .shepherd-text {
+        padding: 16px 20px !important;
+        font-size: 14px !important;
+    }
+
+    .ap-shepherd-theme .shepherd-footer {
+        padding: 12px 20px 16px !important;
+        display: flex;
+        flex-direction: column-reverse;
+    }
+
+    .ap-shepherd-theme .shepherd-button {
+        width: 100%;
+        margin: 4px 0 !important;
+    }
+
+    .ap-help-tour-btn {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+}
+
+/* ==========================================
+   MODO OSCURO (OPCIONAL)
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+    .ap-shepherd-theme .shepherd-content {
+        background: #1f2937;
+    }
+
+    .ap-shepherd-theme .shepherd-text {
+        color: #e5e7eb !important;
+    }
+
+    .ap-shepherd-theme .shepherd-footer {
+        background: #111827;
+        border-top-color: #374151;
+    }
+
+    .ap-shepherd-theme .shepherd-button-secondary {
+        background: #374151 !important;
+        color: #e5e7eb !important;
+        border-color: #4b5563 !important;
+    }
+
+    .ap-shepherd-theme .shepherd-button-secondary:hover {
+        background: #4b5563 !important;
+        border-color: #6b7280 !important;
+    }
+}
+
+/* ==========================================
+   AJUSTES ESPECÍFICOS PARA GEOWRITER
+   ========================================== */
+
+/* Asegurar que el tour se vea sobre el sidebar */
+.ap-autopilot-container .shepherd-element {
+    z-index: 10000 !important;
+}
+
+/* Mejorar visibilidad en campos de formulario */
+.ap-field-input:focus,
+.ap-autocomplete-input:focus {
+    outline: 2px solid #667eea !important;
+    outline-offset: 2px;
+}
+
+/* Compatibilidad con el diseño de GEOWriter */
+.ap-module-header {
+    position: relative;
+}

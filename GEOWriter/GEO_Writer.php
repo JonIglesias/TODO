@@ -175,6 +175,40 @@ function ap_enqueue_global_styles(): void {
         ['ap-modern-ui'],
         AP_VERSION
     );
+
+    // Shepherd.js CSS desde CDN
+    wp_enqueue_style(
+        'shepherd-js',
+        'https://cdn.jsdelivr.net/npm/shepherd.js@11.2.0/dist/css/shepherd.css',
+        [],
+        '11.2.0'
+    );
+
+    // Estilos personalizados de Shepherd para GEOWriter
+    wp_enqueue_style(
+        'ap-shepherd-custom',
+        AP_PLUGIN_URL . 'core/assets/ap-shepherd-custom.css',
+        ['shepherd-js'],
+        AP_VERSION
+    );
+
+    // Shepherd.js Library desde CDN
+    wp_enqueue_script(
+        'shepherd-js',
+        'https://cdn.jsdelivr.net/npm/shepherd.js@11.2.0/dist/js/shepherd.min.js',
+        [],
+        '11.2.0',
+        true
+    );
+
+    // Tours personalizados de GEOWriter
+    wp_enqueue_script(
+        'ap-shepherd-tours',
+        AP_PLUGIN_URL . 'core/assets/ap-shepherd-tours.js',
+        ['jquery', 'shepherd-js'],
+        AP_VERSION,
+        true
+    );
 }
 
 /**
