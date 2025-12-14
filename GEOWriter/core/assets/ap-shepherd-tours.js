@@ -154,8 +154,8 @@
 
         tour.addStep({
             id: 'schedule',
-            title: '📅 Programación',
-            text: 'Define cuándo quieres que se publiquen los artículos: fecha de inicio, hora y días de la semana. Los artículos se programarán automáticamente.',
+            title: '📅 Fecha de Inicio',
+            text: 'Define cuándo quieres que empiece a publicarse el primer artículo. Por defecto es el próximo lunes, pero puedes elegir cualquier fecha futura.',
             attachTo: {
                 element: '#start_date',
                 on: 'bottom'
@@ -174,12 +174,12 @@
         });
 
         tour.addStep({
-            id: 'summary',
-            title: '📋 Resumen de Configuración',
-            text: 'Este resumen muestra todos los parámetros de tu campaña. Asegúrate de que todo esté correcto antes de continuar.',
+            id: 'publish-time',
+            title: '⏰ Hora de Publicación',
+            text: 'Define a qué hora del día se publicarán los artículos. Por ejemplo, si eliges 09:00, todos los posts se programarán para las 9 de la mañana.',
             attachTo: {
-                element: '#summary-card',
-                on: 'top'
+                element: '#publish_time',
+                on: 'bottom'
             },
             buttons: [
                 {
@@ -195,12 +195,12 @@
         });
 
         tour.addStep({
-            id: 'preview',
-            title: '👁️ Vista Previa',
-            text: 'En el panel lateral derecho puedes ver un resumen de tu configuración antes de crear la campaña. Revísala cuidadosamente.',
+            id: 'publish-days',
+            title: '📆 Días de Publicación',
+            text: 'Marca los días de la semana en que quieres que se publiquen artículos. Por ejemplo, si marcas Lunes y Miércoles, los artículos se alternarán cada lunes y miércoles.',
             attachTo: {
-                element: '.ap-sidebar',
-                on: 'left'
+                element: '.days-grid',
+                on: 'bottom'
             },
             buttons: [
                 {
@@ -533,6 +533,74 @@
     };
 
     // ==========================================
+    // TOUR 5: EDITAR/CREAR CAMPAÑA
+    // ==========================================
+    AP_Tours.campaignEdit = function() {
+        const tour = new Shepherd.Tour(defaultOptions);
+
+        tour.addStep({
+            id: 'campaign-edit-intro',
+            title: '✏️ Editar Campaña',
+            text: 'Aquí puedes crear o editar campañas manualmente. Esta página te da control total sobre todos los parámetros de generación de contenido.',
+            buttons: [
+                {
+                    text: 'Saltar',
+                    action: tour.cancel,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'basic-info',
+            title: '📝 Información Básica',
+            text: 'Define el nombre, dominio y nicho de tu campaña. Estos datos son fundamentales para que la IA genere contenido relevante.',
+            attachTo: {
+                element: '.ap-section[data-section="1"]',
+                on: 'top'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'save-campaign',
+            title: '💾 Guardar Cambios',
+            text: 'Cuando termines de configurar todos los parámetros, haz clic en "Guardar Campaña" para aplicar los cambios.',
+            attachTo: {
+                element: 'button[form="campaign-form"]',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: '¡Entendido!',
+                    action: tour.complete
+                }
+            ]
+        });
+
+        return tour;
+    };
+
+    // ==========================================
     // INICIALIZACIÓN Y BOTONES DE AYUDA
     // ==========================================
 
@@ -549,8 +617,11 @@
     function detectCurrentModule() {
         if ($('#autopilot-form').length) return 'autopilot';
         if ($('#queue-table, .ap-queue-wrapper').length) return 'queue';
-        if ($('.ap-campaigns-wrapper').length) return 'campaigns';
+        // Solo detectar campaigns si hay una tabla (no solo botones de crear)
+        if ($('.ap-campaigns-wrapper').length && $('#campaigns-form').length) return 'campaigns';
         if ($('#ap-config-form, .ap-config-wrapper').length) return 'config';
+        // Detectar página de edición/creación de campaña
+        if ($('.ap-campaign-wrapper, #campaign-form').length) return 'campaign-edit';
         return null;
     }
 
@@ -578,6 +649,10 @@
             case 'config':
                 buttonId = 'start-config-tour';
                 buttonText = 'Tutorial Configuración';
+                break;
+            case 'campaign-edit':
+                buttonId = 'start-campaign-edit-tour';
+                buttonText = 'Tutorial Edición';
                 break;
         }
 
@@ -635,6 +710,15 @@
             const tour = AP_Tours.config();
             tour.on('complete', function() {
                 markTourCompleted('config');
+            });
+            tour.start();
+        });
+
+        $('#start-campaign-edit-tour').on('click', function(e) {
+            e.preventDefault();
+            const tour = AP_Tours.campaignEdit();
+            tour.on('complete', function() {
+                markTourCompleted('campaign-edit');
             });
             tour.start();
         });
