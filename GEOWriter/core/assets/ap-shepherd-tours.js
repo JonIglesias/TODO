@@ -861,7 +861,21 @@
             </button>
         `);
 
-        $('.ap-module-header').first().append(helpBtn);
+        // Para páginas de crear/editar campaña, insertar antes del botón "Guardar Campaña"
+        if (currentModule === 'campaign-create' || currentModule === 'campaign-edit') {
+            // Buscar el contenedor de botones dentro del header
+            const $buttonContainer = $('.ap-module-header div[style*="display: flex"]').first();
+            if ($buttonContainer.length) {
+                // Insertar al principio del contenedor de botones
+                $buttonContainer.prepend(helpBtn);
+            } else {
+                // Fallback: agregar al header
+                $('.ap-module-header').first().append(helpBtn);
+            }
+        } else {
+            // Para otros módulos, agregar al final del header
+            $('.ap-module-header').first().append(helpBtn);
+        }
     }
 
     // Inicializar cuando el DOM esté listo
