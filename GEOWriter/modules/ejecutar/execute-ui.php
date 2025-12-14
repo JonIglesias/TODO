@@ -42,7 +42,7 @@ $has_interrupted = $processing_count > 0;
         </div>
     </div>
 
-    <div class="ap-module-container ap-execute-content has-sidebar">
+    <div class="ap-module-container ap-execute-content">
         <div class="ap-module-content ap-main-content">
             <?php if ($campaign_id && ($pending_count > 0 || $processing_count > 0)): ?>
 
@@ -499,35 +499,5 @@ $has_interrupted = $processing_count > 0;
 
 
         </div> <!-- Fin ap-module-content -->
-
-        <!-- Sidebar de Ayuda -->
-        <aside class="ap-module-sidebar ap-help-sidebar" style="background: #000000; padding: 20px; border-radius: 8px;">
-            <div style="margin-bottom: 20px;">
-                <h3 style="color: white; font-size: 15px; margin: 0 0 12px 0; font-weight: 600;">¿Qué hace la Ejecución?</h3>
-                <p style="color: rgba(255,255,255,0.95); font-size: 13px; line-height: 1.6; margin: 0;">
-                    La ejecución genera el contenido completo de cada post con IA y los programa automáticamente en WordPress.
-                </p>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <h3 style="color: white; font-size: 15px; margin: 0 0 12px 0; font-weight: 600;">Proceso</h3>
-                <ul style="margin: 0; padding-left: 20px; color: rgba(255,255,255,0.95); font-size: 13px; line-height: 1.8;">
-                    <li><strong style="color: white;">Genera contenido:</strong> Crea el texto completo del post usando IA</li>
-                    <li><strong style="color: white;">Añade imágenes:</strong> Inserta las imágenes generadas en la cola</li>
-                    <li><strong style="color: white;">Programa:</strong> Crea el post en WordPress con la fecha programada</li>
-                </ul>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <h3 style="color: white; font-size: 15px; margin: 0 0 12px 0; font-weight: 600;">Tiempo Estimado</h3>
-                <p style="color: rgba(255,255,255,0.95); font-size: 13px; line-height: 1.6; margin: 0;">
-                    Aproximadamente <strong style="color: white;">1 minuto por post</strong>. El proceso se ejecuta en segundo plano.
-                </p>
-            </div>
-            
-            <div style="background: #3D4A5C; color: white; border: none; border-left: 3px solid white; padding: 12px 16px; border-radius: 6px;">
-                <strong style="color: white;">Tip:</strong> Si se interrumpe la ejecución, simplemente vuelve a ejecutar y retomará donde se quedó.
-            </div>
-        </aside> <!-- Fin ap-module-sidebar -->
     </div> <!-- Fin ap-module-container -->
 </div> <!-- Fin wrap ap-module-wrap -->

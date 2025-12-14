@@ -6,8 +6,8 @@
         <h1 style="margin: 0; font-size: 24px; font-weight: 600;">Configuración</h1>
     </div>
 
-    <div class="ap-module-container ap-config-wrapper has-sidebar">
-        <!-- Columna izquierda: Configuración principal -->
+    <div class="ap-module-container ap-config-wrapper">
+        <!-- Configuración principal -->
         <div class="ap-module-content">
             <form method="post" action="" id="ap-config-form">
                 <?php wp_nonce_field('ap_save_config', 'ap_config_nonce'); ?>
@@ -122,38 +122,6 @@
                 
             </form>
         </div> <!-- Fin ap-module-content -->
-
-        <!-- Columna derecha: Tarjeta de ayuda -->
-        <div class="ap-module-sidebar">
-            <div class="ap-help-card">
-                <h3>💡 Ayuda Rápida</h3>
-                
-                <div class="ap-help-item">
-                    <h4>¿Cómo empezar?</h4>
-                    <p>1. Introduce las API keys de imágenes<br>2. Crea tu primera campaña<br>3. Genera la cola de posts<br>4. Ejecuta y listo!</p>
-                </div>
-                
-                <div class="ap-help-item">
-                    <h4>API de Generación</h4>
-                    <p>La URL de la API es donde se envían las peticiones para generar contenido con IA. Verifica tu licencia para activar el servicio.</p>
-                </div>
-                
-                <div class="ap-help-item">
-                    <h4>Buscadores de Imágenes</h4>
-                    <p>Haz clic en los iconos <strong>(?)</strong> para ver cómo obtener cada API key paso a paso.</p>
-                </div>
-                
-                <div class="ap-help-item">
-                    <h4>Descripción de Empresa</h4>
-                    <p>Esta información se usa para personalizar el contenido generado y adaptarlo al tono de tu marca.</p>
-                </div>
-                
-                <div class="ap-help-item">
-                    <h4>¿Necesitas ayuda?</h4>
-                    <p>Contacta con soporte en:<br><strong>soporte@bocetosmarketing.com</strong></p>
-                </div>
-            </div>
-        </div> <!-- Fin ap-module-sidebar -->
     </div> <!-- Fin ap-module-container -->
 </div> <!-- Fin wrap ap-module-wrap -->
 
@@ -248,5 +216,3 @@ jQuery(document).ready(function($) {
     }
 });
 </script>
-
-<script src="<?php echo plugin_dir_url(__FILE__) . 'config-help.js'; ?>"></script>

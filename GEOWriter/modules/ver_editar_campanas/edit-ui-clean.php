@@ -53,8 +53,8 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
         </div>
     </div>
 
-    <!-- Grid: formulario + sidebar -->
-    <div class="ap-module-container ap-campaign-content has-sidebar">
+    <!-- Grid: formulario -->
+    <div class="ap-module-container ap-campaign-content">
         <div class="ap-module-content">
             <form method="post" id="campaign-form" class="ap-campaign-form">
         <?php wp_nonce_field('ap_save_campaign', 'ap_campaign_nonce'); ?>
@@ -390,103 +390,6 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
         </div>
             </form>
         </div> <!-- Fin ap-module-content -->
-
-        <!-- Sidebar de Ayuda (siempre visible) -->
-        <div class="ap-module-sidebar ap-help-sidebar" id="help-sidebar">
-        <h3>💡 Guía de Creación</h3>
-        
-        <div class="ap-help-item" id="help-default">
-            <h4>Pasos para crear una campaña</h4>
-            <p>1. Completa la información básica<br>
-            2. Configura el contenido y prompts<br>
-            3. Ajusta las imágenes<br>
-            4. Programa la publicación<br>
-            5. Genera la cola de posts</p>
-        </div>
-        
-        <div class="ap-help-item" id="help-campaign-name" style="display:none;">
-            <h4>Nombre de Campaña</h4>
-            <p>Elige un nombre descriptivo que te ayude a identificar fácilmente esta campaña.</p>
-        </div>
-        
-        <div class="ap-help-item" id="help-domain" style="display:none;">
-            <h4>Dominio</h4>
-            <p>Introduce la URL completa del sitio web donde se publicarán los posts.</p>
-        </div>
-        
-        <div class="ap-help-item" id="help-company-desc" style="display:none;">
-            <h4>Descripción de Empresa</h4>
-            <p>Proporciona información sobre la empresa, sus servicios y valores. Esto personalizará el contenido generado.</p>
-        </div>
-        
-        <!-- PANEL DE PROGRESO -->
-        <div class="ap-help-item" id="progress-company-desc" style="display:none;">
-            <h4>Generando descripción</h4>
-            <div class="ap-progress-messages" id="progress-messages"></div>
-        </div>
-        
-        <div class="ap-help-item" id="progress-keywords-seo" style="display:none;">
-            <h4>Generando keywords SEO</h4>
-            <div class="ap-progress-messages" id="progress-keywords-messages"></div>
-        </div>
-        
-        <div class="ap-help-item" id="progress-prompts" style="display:none;">
-            <h4>Generando prompts</h4>
-            <div class="ap-progress-messages" id="progress-prompts-messages"></div>
-        </div>
-        
-        <div class="ap-help-item" id="progress-keywords-images" style="display:none;">
-            <h4>Generando keywords imágenes</h4>
-            <div class="ap-progress-messages" id="progress-images-messages"></div>
-        </div>
-        
-        <div class="ap-help-item" id="help-niche" style="display:none;">
-            <h4>Nicho</h4>
-            <p>Selecciona el sector principal. La IA generará contenido especializado para tu audiencia.</p>
-        </div>
-        
-        <div class="ap-help-item" id="help-num-posts" style="display:none;">
-            <h4>Número de Posts</h4>
-            <p>Define cuántos posts se crearán en la cola (máximo 50 posts).</p>
-        </div>
-        
-        <div class="ap-help-item" id="help-post-length" style="display:none;">
-            <h4>Extensión del Post</h4>
-            <p><strong>Corto:</strong> 300-500 palabras<br>
-            <strong>Medio:</strong> 700-1000 palabras<br>
-            <strong>Largo:</strong> 1500-2500 palabras</p>
-        </div>
-        
-        <div class="ap-help-item" id="help-keywords-seo" style="display:none;">
-            <h4>Keywords SEO</h4>
-            <p>Lista las palabras clave principales para posicionar en buscadores. Sepáralas por comas.</p>
-        </div>
-        
-        <div class="ap-help-item" id="help-prompt-titles" style="display:none;">
-            <h4>Prompt para Títulos</h4>
-            <p>Define cómo quieres que sean los títulos. Ejemplo: "Genera títulos llamativos y SEO-friendly"</p>
-        </div>
-        
-        <div class="ap-help-item" id="help-prompt-content" style="display:none;">
-            <h4>Prompt para Contenido</h4>
-            <p>Describe el tono y estilo de escritura. Ejemplo: "Tono profesional pero cercano"</p>
-        </div>
-        
-        <div class="ap-help-item" id="help-keywords-images" style="display:none;">
-            <h4>Keywords para Imágenes</h4>
-            <p>Palabras clave en <strong>inglés</strong> para buscar imágenes en bancos de fotos.</p>
-        </div>
-        
-        <div class="ap-help-item" id="help-publish-days" style="display:none;">
-            <h4>Días de Publicación</h4>
-            <p>Selecciona los días en que se publicarán automáticamente los posts.</p>
-        </div>
-        
-        <div class="ap-help-item" id="help-category" style="display:none;">
-            <h4>Categoría</h4>
-            <p>Selecciona la categoría de WordPress donde se publicarán los posts.</p>
-        </div>
-        </div> <!-- Fin ap-module-sidebar -->
     </div> <!-- Fin ap-module-container -->
 </div> <!-- Fin wrap ap-module-wrap -->
 
@@ -495,32 +398,6 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
 const campaignId = <?php echo (int)($campaign->id ?? 0); ?>;
 
 jQuery(document).ready(function($) {
-    // ========================================
-    // SISTEMA DE AYUDA - SIDEBAR
-    // ========================================
-    
-    // Manejar clics en los tooltips
-    $('.ap-tooltip').on('click', function(e) {
-        e.preventDefault();
-        const helpKey = $(this).data('help');
-        
-        // Ocultar todos los help-items
-        $('.ap-help-item').hide();
-        
-        // Mostrar el help-item correspondiente
-        const helpItem = $('#' + helpKey);
-        if (helpItem.length) {
-            helpItem.show();
-        } else {
-            // Si no existe, mostrar el default
-            $('#help-default').show();
-        }
-    });
-    
-    // ========================================
-    // FIN SISTEMA DE AYUDA
-    // ========================================
-
     // ========================================
     // AUTOCOMPLETE FUNCIONAL PARA NICHO
     // ========================================
@@ -951,13 +828,10 @@ jQuery(document).ready(function($) {
                         hideCompanyDescProgress();
                     } else if (field === 'keywords_seo') {
                         addProgressMsgTo('keywords', 'Keywords generadas', 'success');
-                        setTimeout(() => { $('.ap-help-item').hide(); $('#help-default').show(); }, 2000);
                     } else if (field === 'prompt_titles' || field === 'prompt_content') {
                         addProgressMsgTo('prompts', 'Prompt generado', 'success');
-                        setTimeout(() => { $('.ap-help-item').hide(); $('#help-default').show(); }, 2000);
                     } else if (field === 'keywords_images') {
                         addProgressMsgTo('images', 'Keywords generadas', 'success');
-                        setTimeout(() => { $('.ap-help-item').hide(); $('#help-default').show(); }, 2000);
                     }
 
                     // Animación de éxito
@@ -1033,16 +907,14 @@ jQuery(document).ready(function($) {
     // ========================================
     // SISTEMA DE PROGRESO PARA DESCRIPCIÓN DE EMPRESA
     // ========================================
-    
+
     function showCompanyDescProgress() {
-        $('.ap-help-item').hide();
         $('#progress-company-desc').show();
         $('#progress-messages').html('');
         addProgressMsg('Iniciando análisis...');
     }
-    
+
     function showProgress(progressId, containerId) {
-        $('.ap-help-item').hide();
         $('#progress-' + progressId).show();
         $('#progress-' + containerId + '-messages').html('');
         addProgressMsgTo(containerId, 'Iniciando...');
@@ -1073,7 +945,6 @@ jQuery(document).ready(function($) {
     function hideCompanyDescProgress() {
         setTimeout(function() {
             $('#progress-company-desc').hide();
-            $('.ap-help-item').first().show();
         }, 2000);
     }
 });

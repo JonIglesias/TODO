@@ -36,7 +36,7 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
         <h1 style="margin: 0; font-size: 24px; font-weight: 600;">Autopilot - Generación Automática</h1>
     </div>
 
-    <div class="ap-module-container ap-autopilot-grid has-sidebar">
+    <div class="ap-module-container ap-autopilot-grid">
         <div class="ap-module-content ap-main-content">
 
             <form id="autopilot-form">
@@ -165,50 +165,6 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
                 </div>
             </form>
         </div> <!-- Fin ap-module-content -->
-
-        <div class="ap-module-sidebar ap-sidebar">
-            <div class="ap-sidebar-panel">
-                <h3>💡 Guía Rápida</h3>
-                
-                <div class="ap-help-text" id="help-text">
-                    <strong>📝 Nombre de campaña</strong>
-                    Dale un nombre que identifique claramente tu proyecto. Por ejemplo: "Blog Medicina General", "Tienda Online Moda", o "Consultoría Legal Madrid". Este nombre solo lo verás tú en el panel de administración.
-                    
-                    <br><br><strong>🌐 Dominio</strong>
-                    Es la dirección web donde se publicarán los artículos. Se detecta automáticamente desde tu WordPress. Asegúrate de que sea correcto antes de continuar.
-                    
-                    <br><br><strong>🎯 Nicho</strong>
-                    Empieza a escribir la temática principal de tu negocio y aparecerán sugerencias. Por ejemplo: si escribes "marketing", verás opciones como "Marketing Digital", "Email Marketing", etc. Si tu nicho no aparece, escribe uno personalizado.
-                    
-                    <br><br><strong>📊 Número de posts</strong>
-                    ¿Cuántos artículos quieres crear? Si es tu primera vez, recomendamos empezar con 5-10 artículos para probar el sistema. Luego puedes crear campañas más grandes.
-                    
-                    <br><br><strong>📁 Categoría</strong>
-                    Selecciona en qué categoría de WordPress se publicarán los artículos. Puedes crear categorías nuevas desde el menú "Entradas > Categorías" de WordPress.
-                    
-                    <br><br><strong>📅 Fecha de inicio</strong>
-                    ¿Cuándo quieres que empiece a publicarse el primer artículo? Por defecto es el próximo lunes, pero puedes elegir cualquier fecha futura.
-                    
-                    <br><br><strong>⏰ Hora de publicación</strong>
-                    A qué hora del día se publicarán los artículos. Por ejemplo, si eliges 09:00, todos los posts se programarán para las 9 de la mañana.
-                    
-                    <br><br><strong>📆 Días de publicación</strong>
-                    Marca los días de la semana en que quieres que se publiquen artículos. Por ejemplo, si marcas Lunes y Miércoles, los artículos se alternarán cada lunes y miércoles. Si marcas todos los días, se publicará un artículo diario.
-                    
-                    <br><br><strong>✨ ¿Qué hace AutoPilot?</strong>
-                    Una vez que hagas clic en "Iniciar AutoPilot":
-                    <br>1️⃣ Analiza tu web y tu negocio automáticamente
-                    <br>2️⃣ Genera palabras clave SEO optimizadas
-                    <br>3️⃣ Crea prompts profesionales para el contenido
-                    <br>4️⃣ Guarda todo y te lleva directamente a editar la campaña
-                    <br><br>⏱️ El proceso tarda aproximadamente 2-3 minutos.
-                </div>
-                
-                <div class="ap-progress-messages" id="sidebar-messages" style="display:none;">
-                    <div style="font-size:11px;font-weight:600;color:white;margin-bottom:8px;">AVANCES:</div>
-                </div>
-            </div>
-        </div> <!-- Fin ap-module-sidebar -->
     </div> <!-- Fin ap-module-container -->
 </div> <!-- Fin wrap ap-module-wrap -->
 
@@ -587,11 +543,7 @@ jQuery(document).ready(function($) {
         $('#start-autopilot').prop('disabled', true).text('Procesando...');
         $('#cancel-btn').hide();
         $('.ap-section').fadeOut(300);
-        
-        // Ocultar ayuda, mostrar avances
-        $('#help-text').hide();
-        $('#sidebar-messages').show();
-        
+
         startProgressAnimation();
         
         setTimeout(function() {
