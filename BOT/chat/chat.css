@@ -150,41 +150,43 @@
 
 /* ======== LAUNCHER (botón flotante) ======== */
 .phsbot-launcher{
-  position: fixed;
-  z-index: 2147483645;
-  background-color: var(--phsbot-launcher-bg, #1e1e1e);
-  border: 5px solid #ffffff;
-  border-radius: 23px;
-  padding: 12px 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-  min-width: auto;
-  width: auto;
-  height: auto;
+  position: fixed !important;
+  z-index: 2147483645 !important;
+  background: none !important;
+  background-color: var(--phsbot-launcher-bg, #1e1e1e) !important;
+  background-image: none !important;
+  border: 5px solid #ffffff !important;
+  border-radius: 23px !important;
+  padding: 12px 20px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.3s ease !important;
+  min-width: auto !important;
+  width: auto !important;
+  height: auto !important;
 }
 .phsbot-launcher:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
 }
 .phsbot-launcher-icon{
-  width: 24px;
-  height: 24px;
-  display: block;
-  flex-shrink: 0;
-  color: var(--phsbot-launcher-icon, #ffffff);
+  width: 24px !important;
+  height: 24px !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+  color: var(--phsbot-launcher-icon, #ffffff) !important;
 }
 .phsbot-launcher-text{
-  color: var(--phsbot-launcher-text, #ffffff);
-  font-size: 16px;
-  font-weight: 600;
-  white-space: nowrap;
-  line-height: 1;
+  color: var(--phsbot-launcher-text, #ffffff) !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
 }
-#phsbot-widget[data-open="1"] + .phsbot-launcher{ display: none; }
+#phsbot-widget[data-open="1"] + .phsbot-launcher{ display: none !important; }
 /* ======== FIN LAUNCHER (botón flotante) ======== */
 
 
