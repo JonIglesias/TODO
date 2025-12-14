@@ -185,10 +185,21 @@
     transform: translateY(0);
 }
 
+.phsbot-help-tour-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
 .phsbot-help-tour-btn svg {
     width: 16px;
     height: 16px;
     stroke: currentColor;
+}
+
+/* Ajustes cuando el botón está en el header del módulo */
+.phsbot-module-header .phsbot-help-tour-btn {
+    margin-left: 0;
+    margin-right: auto;
 }
 
 /* ============================================

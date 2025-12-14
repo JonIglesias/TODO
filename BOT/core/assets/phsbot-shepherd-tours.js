@@ -209,7 +209,7 @@
         tour.addStep({
             id: 'welcome',
             title: '🎨 Aspecto Visual',
-            text: 'Personaliza completamente la apariencia del chatbot para que combine con tu marca.',
+            text: 'Personaliza completamente la apariencia del chatbot para que combine con tu marca. Verás una vista previa en tiempo real!',
             buttons: [
                 {
                     text: 'Siguiente',
@@ -222,7 +222,7 @@
         tour.addStep({
             id: 'position',
             title: '📍 Posición del Chat',
-            text: 'Elige dónde aparecerá el botón del chatbot en tu web: abajo derecha, abajo izquierda, etc.',
+            text: 'Elige dónde aparecerá el botón del chatbot en tu web: abajo derecha, abajo izquierda, arriba, etc.',
             attachTo: { element: '#chat_position', on: 'bottom' },
             buttons: [
                 {
@@ -239,10 +239,10 @@
         });
 
         tour.addStep({
-            id: 'colors',
-            title: '🎨 Colores Personalizados',
-            text: 'Ajusta todos los colores: primario, secundario, fondo, burbujas, etc. Usa los selectores para visualizar los cambios en tiempo real.',
-            attachTo: { element: '#color_primary', on: 'bottom' },
+            id: 'title-and-font',
+            title: '✏️ Título y Fuente',
+            text: 'Personaliza el título que aparece en la cabecera del chat y el tamaño de fuente de los mensajes (12-22px).',
+            attachTo: { element: '#chat_title', on: 'bottom' },
             buttons: [
                 {
                     text: 'Atrás',
@@ -258,9 +258,85 @@
         });
 
         tour.addStep({
-            id: 'launcher',
-            title: '🚀 Botón Launcher',
-            text: 'Personaliza el botón que abre el chat: color de fondo, icono y texto. Estos colores se aplican al botón flotante.',
+            id: 'size',
+            title: '📐 Ancho y Alto',
+            text: 'Ajusta las dimensiones del chat. Ancho: 260-920px, Alto: 420-960px. Usa los sliders para ver los cambios en tiempo real.',
+            attachTo: { element: '#chat_width_slider', on: 'bottom' },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'color-primary',
+            title: '🎨 Color Primario',
+            text: 'Color principal del chat (cabecera y elementos destacados). Este color define la identidad visual del chatbot.',
+            attachTo: { element: 'input[name="color_primary"]', on: 'bottom' },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'color-bubbles',
+            title: '💬 Colores de Burbujas',
+            text: 'Define los colores de las burbujas de mensajes: una para los mensajes del bot y otra para los del usuario.',
+            attachTo: { element: 'input[name="color_bot_bubble"]', on: 'bottom' },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'color-launcher',
+            title: '🚀 Colores del Botón Flotante',
+            text: 'Personaliza el botón flotante que abre el chat: fondo, icono y texto. Estos colores se aplican al botón que verán tus visitantes.',
+            attachTo: { element: 'input[name="color_launcher_bg"]', on: 'bottom' },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'preview',
+            title: '👀 Vista Previa',
+            text: '¡Fíjate en la vista previa de la derecha! Todos los cambios que hagas se reflejan en tiempo real. Cuando estés satisfecho, guarda la configuración.',
             buttons: [
                 {
                     text: 'Atrás',
@@ -287,7 +363,7 @@
         tour.addStep({
             id: 'welcome',
             title: '📚 Base de Conocimiento',
-            text: 'Aquí configuras el conocimiento que tu chatbot usará para responder preguntas sobre tu negocio.',
+            text: 'La Base de Conocimiento es el cerebro de tu chatbot. Aquí se almacena toda la información que el bot usará para responder a tus clientes.',
             buttons: [
                 {
                     text: 'Siguiente',
@@ -298,9 +374,10 @@
         });
 
         tour.addStep({
-            id: 'crawl',
-            title: '🕷️ Escanear Sitio Web',
-            text: 'El sistema puede escanear automáticamente tu web y extraer información para la base de conocimiento.',
+            id: 'generate',
+            title: '🔄 Generar Documento',
+            text: 'Haz clic en "Generar documento" para que el sistema analice automáticamente tu sitio web y cree la base de conocimiento. Este proceso puede tardar varios minutos.',
+            attachTo: { element: '#phsbot-kb-generate', on: 'bottom' },
             buttons: [
                 {
                     text: 'Atrás',
@@ -316,9 +393,27 @@
         });
 
         tour.addStep({
-            id: 'manual',
-            title: '✍️ Añadir Manualmente',
-            text: 'También puedes añadir documentos manualmente con información específica que quieres que el bot conozca.',
+            id: 'document',
+            title: '📝 Revisar y Editar',
+            text: 'Una vez generado, puedes revisar y editar el documento para añadir información importante como precios actualizados, horarios, políticas, etc.',
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'save',
+            title: '💾 Guardar Cambios',
+            text: 'Recuerda guardar tus cambios cuando termines de editar. El chatbot usará esta información actualizada para responder a los clientes.',
             buttons: [
                 {
                     text: 'Atrás',
@@ -337,15 +432,15 @@
     };
 
     // ===========================================
-    // TOUR: INYECCIONES
+    // TOUR: INYECCIONES (TRIGGERS)
     // ===========================================
     PHSBOT_Tours.inject = function() {
         const tour = new Shepherd.Tour(defaultOptions);
 
         tour.addStep({
             id: 'welcome',
-            title: '💉 Inyecciones',
-            text: 'Las inyecciones te permiten añadir contenido o scripts personalizados a tu chatbot.',
+            title: '💉 Inyecciones (Triggers)',
+            text: 'Las inyecciones te permiten inyectar contenido automático (HTML, shortcodes, vídeos o redirecciones) cuando el usuario escribe determinadas palabras clave en el chat.',
             buttons: [
                 {
                     text: 'Siguiente',
@@ -356,9 +451,216 @@
         });
 
         tour.addStep({
-            id: 'create',
-            title: '➕ Crear Inyección',
-            text: 'Puedes añadir JavaScript, CSS o HTML personalizado que se ejecutará en el contexto del chatbot.',
+            id: 'add-rule',
+            title: '➕ Añadir Regla',
+            text: 'Haz clic en "Añadir regla" para crear un nuevo trigger. Podrás configurar las palabras clave que activarán el contenido inyectado.',
+            attachTo: { element: '#phsbot-add-row-top', on: 'bottom' },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'keywords',
+            title: '🔑 Palabras Clave',
+            text: 'Define las palabras o frases que activarán el trigger. Por ejemplo: "precio, precios, cuánto cuesta". Puedes usar múltiples palabras separadas por comas.',
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'types',
+            title: '🎯 Tipos de Contenido',
+            text: '<strong>Tipos disponibles:</strong><br/>• <strong>HTML</strong>: Código HTML personalizado<br/>• <strong>Shortcode</strong>: Shortcodes de WordPress/Elementor<br/>• <strong>Vídeo YouTube</strong>: URL de vídeo con autoplay opcional<br/>• <strong>Redirect</strong>: Redirigir a otra página<br/>• <strong>Producto WooCommerce</strong>: Mostrar ficha de producto',
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'positions',
+            title: '📍 Posiciones',
+            text: '<strong>Dónde se muestra el contenido:</strong><br/>• <strong>Antes</strong>: Se inserta justo después del mensaje del usuario<br/>• <strong>Después</strong>: Se espera a la respuesta del bot y se inserta debajo<br/>• <strong>Sólo trigger</strong>: Solo se muestra el contenido inyectado (sin respuesta del bot)',
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'match-mode',
+            title: '🎲 Modo de Coincidencia',
+            text: '<strong>ANY</strong>: Se activa si el usuario escribe <em>cualquiera</em> de las palabras clave.<br/><strong>ALL</strong>: Se activa solo si el usuario escribe <em>todas</em> las palabras clave.',
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Finalizar',
+                    action: tour.complete,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        return tour;
+    };
+
+    // ===========================================
+    // TOUR: LEADS & SCORING
+    // ===========================================
+    PHSBOT_Tours.leads = function() {
+        const tour = new Shepherd.Tour(defaultOptions);
+
+        tour.addStep({
+            id: 'welcome',
+            title: '🎯 Leads & Scoring',
+            text: 'Este módulo te permite gestionar los leads capturados por el chatbot y ver su puntuación de calidad. Los leads con puntuación alta (≥8) son notificados automáticamente vía Telegram.',
+            buttons: [
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'table',
+            title: '📊 Tabla de Leads',
+            text: 'Aquí se muestran todos los leads capturados con su información: nombre, email, teléfono, puntuación (score), estado y página de origen. Puedes ordenar y filtrar los resultados.',
+            attachTo: { element: '#phsbot-leads-table', on: 'top' },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'search',
+            title: '🔍 Buscar Leads',
+            text: 'Usa este campo para buscar leads por nombre, email, teléfono o página. La búsqueda filtra la tabla en tiempo real.',
+            attachTo: { element: '#phsbot-leads-search', on: 'bottom' },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'filter-open',
+            title: '✅ Filtrar Solo Abiertos',
+            text: 'Activa este interruptor para mostrar únicamente los leads que aún están abiertos (no cerrados). Útil para enfocarte en leads activos.',
+            attachTo: { element: '#phsbot-leads-open-only', on: 'bottom' },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'actions',
+            title: '⚙️ Acciones Disponibles',
+            text: '<strong>Ver</strong>: Muestra el detalle completo del lead con historial de conversación.<br/><strong>Cerrar</strong>: Marca el lead como cerrado cuando ya lo hayas contactado.<br/><strong>Borrar</strong>: Elimina el lead permanentemente.',
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'purge',
+            title: '🧹 Purgar Cerrados',
+            text: 'Haz clic en "Purgar cerrados (>30d)" para eliminar automáticamente todos los leads cerrados hace más de 30 días. Útil para mantener la base de datos limpia.',
+            attachTo: { element: '#phsbot-leads-purge', on: 'bottom' },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'settings',
+            title: '⚙️ Configuración',
+            text: 'En la pestaña "Configuración" puedes ajustar el umbral de puntuación para notificaciones de Telegram, activar/desactivar la captura de leads y configurar los campos opcionales.',
             buttons: [
                 {
                     text: 'Atrás',
@@ -440,7 +742,7 @@
         const moduleBase = currentModule.split('-')[0];
 
         // No añadir botón si no hay tour para este módulo
-        const validModules = ['config', 'kb', 'inject'];
+        const validModules = ['config', 'kb', 'inject', 'leads'];
         if (!validModules.includes(moduleBase)) return;
 
         // Para config, añadir botón en cada tab
@@ -453,46 +755,57 @@
     }
 
     function addConfigTabButtons() {
-        // Añadir un botón en cada tab de configuración
-        const tabs = [
-            { id: 'tab-conexiones', module: 'configConexiones', title: 'Conexiones' },
-            { id: 'tab-chat', module: 'configChat', title: 'Chat (IA)' },
-            { id: 'tab-aspecto', module: 'configAspecto', title: 'Aspecto' }
-        ];
+        // Añadir un botón dinámico en el header principal que cambia según el tab activo
+        const $header = $('.phsbot-module-header').first();
+        if (!$header.length) return;
 
-        tabs.forEach(tab => {
-            const $tab = $('#' + tab.id);
-            if (!$tab.length) return;
+        // No añadir si ya existe
+        if ($header.find('.phsbot-help-tour-btn').length > 0) return;
 
-            // No añadir si ya existe
-            if ($tab.find('.phsbot-help-tour-btn').length > 0) return;
+        const tabs = {
+            'conexiones': { module: 'configConexiones', title: 'Conexiones' },
+            'chat': { module: 'configChat', title: 'Chat (IA)' },
+            'aspecto': { module: 'configAspecto', title: 'Aspecto' }
+        };
 
-            const helpBtn = $(`
-                <button type="button" class="phsbot-help-tour-btn" data-tour="${tab.module}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                    </svg>
-                    <span>Tutorial de ${tab.title}</span>
-                </button>
-            `);
+        // Crear botón dinámico
+        const helpBtn = $(`
+            <button type="button" class="phsbot-help-tour-btn" id="phsbot-config-tour-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span id="phsbot-tour-btn-text">Tutorial</span>
+            </button>
+        `);
 
-            // Añadir al inicio del contenido del tab
-            $tab.find('.phsbot-module-content').first().prepend(
-                $('<div>').css({
-                    'margin-bottom': '20px',
-                    'text-align': 'right'
-                }).append(helpBtn)
-            );
+        // Insertar en el header después del h1
+        $header.find('h1').first().after(helpBtn);
 
-            // Event listener
-            helpBtn.on('click', function() {
-                const tourName = $(this).data('tour');
-                if (PHSBOT_Tours[tourName]) {
-                    startTour(tourName);
-                }
-            });
+        // Actualizar texto del botón según tab activo
+        function updateButtonText() {
+            const activeTab = detectActiveTab();
+            if (tabs[activeTab]) {
+                $('#phsbot-tour-btn-text').text('Tutorial: ' + tabs[activeTab].title);
+                $('#phsbot-config-tour-btn').data('tour', tabs[activeTab].module);
+            }
+        }
+
+        // Event listener
+        helpBtn.on('click', function() {
+            const tourName = $(this).data('tour');
+            if (tourName && PHSBOT_Tours[tourName]) {
+                startTour(tourName);
+            }
+        });
+
+        // Actualizar texto inicial
+        updateButtonText();
+
+        // Actualizar cuando cambie el tab
+        $('.phsbot-config-tabs .nav-tab').on('click', function() {
+            setTimeout(updateButtonText, 50);
         });
     }
 
@@ -511,8 +824,8 @@
             </button>
         `;
 
-        // Insertar botón en el header
-        $('.phsbot-config-header h1').first().after(helpBtn);
+        // Insertar botón en el header del módulo (después del h1)
+        $('.phsbot-module-header h1').first().after(helpBtn);
 
         // Event listener para el botón
         $('#phsbot-tour-btn').on('click', function() {
