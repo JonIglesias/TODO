@@ -1,0 +1,261 @@
+/**
+ * Conversa - Shepherd.js Custom Styles
+ * Estilos personalizados para los tours interactivos
+ * Version: 1.0.0
+ */
+
+/* ============================================
+   TEMA PRINCIPAL DEL TOUR
+   ============================================ */
+.phsbot-shepherd-theme {
+    border-radius: 12px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25) !important;
+    max-width: 420px;
+    overflow: hidden;
+}
+
+/* ============================================
+   HEADER DEL PASO
+   ============================================ */
+.phsbot-shepherd-theme .shepherd-header {
+    padding: 20px 24px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px 12px 0 0;
+    position: relative;
+}
+
+.phsbot-shepherd-theme .shepherd-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    padding-right: 30px;
+}
+
+.phsbot-shepherd-theme .shepherd-cancel-icon {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.phsbot-shepherd-theme .shepherd-cancel-icon:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.phsbot-shepherd-theme .shepherd-cancel-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.phsbot-shepherd-theme .shepherd-cancel-icon path {
+    stroke: #ffffff;
+    stroke-width: 3;
+}
+
+/* ============================================
+   CONTENIDO DEL PASO
+   ============================================ */
+.phsbot-shepherd-theme .shepherd-text {
+    padding: 24px;
+    background: #ffffff;
+    color: #334155;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.phsbot-shepherd-theme .shepherd-text p {
+    margin: 0;
+}
+
+.phsbot-shepherd-theme .shepherd-text p + p {
+    margin-top: 12px;
+}
+
+/* ============================================
+   BOTONES
+   ============================================ */
+.phsbot-shepherd-theme .shepherd-footer {
+    padding: 16px 24px 24px;
+    background: #ffffff;
+    border-radius: 0 0 12px 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.phsbot-shepherd-theme .shepherd-button {
+    padding: 10px 20px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    border-radius: 8px !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.phsbot-shepherd-theme .shepherd-button:not(.shepherd-button-secondary) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+}
+
+.phsbot-shepherd-theme .shepherd-button:not(.shepherd-button-secondary):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4) !important;
+}
+
+.phsbot-shepherd-theme .shepherd-button-secondary {
+    background: #e2e8f0 !important;
+    color: #475569 !important;
+}
+
+.phsbot-shepherd-theme .shepherd-button-secondary:hover {
+    background: #cbd5e1 !important;
+}
+
+/* ============================================
+   FLECHA (PUNTERO)
+   ============================================ */
+.phsbot-shepherd-theme .shepherd-arrow:before {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.phsbot-shepherd-theme[data-popper-placement^='top'] .shepherd-arrow:before {
+    background: #ffffff;
+}
+
+.phsbot-shepherd-theme[data-popper-placement^='bottom'] .shepherd-arrow:before {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.phsbot-shepherd-theme[data-popper-placement^='left'] .shepherd-arrow:before,
+.phsbot-shepherd-theme[data-popper-placement^='right'] .shepherd-arrow:before {
+    background: #ffffff;
+}
+
+/* ============================================
+   OVERLAY
+   ============================================ */
+.shepherd-modal-overlay-container {
+    z-index: 9997 !important;
+}
+
+.shepherd-modal-overlay-container.shepherd-modal-is-visible {
+    opacity: 0.5 !important;
+}
+
+/* ============================================
+   BOTÓN DE AYUDA/TUTORIAL
+   ============================================ */
+.phsbot-help-tour-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    margin-left: 16px;
+    vertical-align: middle;
+}
+
+.phsbot-help-tour-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.phsbot-help-tour-btn:active {
+    transform: translateY(0);
+}
+
+.phsbot-help-tour-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+}
+
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+@keyframes shepherd-pop-in {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.phsbot-shepherd-theme.shepherd-enabled {
+    animation: shepherd-pop-in 0.3s ease;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .phsbot-shepherd-theme {
+        max-width: 90vw;
+    }
+
+    .phsbot-shepherd-theme .shepherd-text {
+        font-size: 14px;
+        padding: 20px;
+    }
+
+    .phsbot-shepherd-theme .shepherd-header {
+        padding: 16px 20px 14px;
+    }
+
+    .phsbot-shepherd-theme .shepherd-footer {
+        padding: 14px 20px 20px;
+        flex-direction: column;
+    }
+
+    .phsbot-shepherd-theme .shepherd-button {
+        width: 100%;
+        text-align: center;
+    }
+
+    .phsbot-help-tour-btn {
+        font-size: 13px;
+        padding: 8px 14px;
+        margin-left: 12px;
+    }
+}
+
+/* ============================================
+   Z-INDEX FIXES
+   ============================================ */
+.shepherd-element {
+    z-index: 9998 !important;
+}
+
+.shepherd-modal-overlay-container {
+    z-index: 9997 !important;
+}
+
+/* Asegurar que el tour esté por encima del admin bar de WordPress */
+.shepherd-element,
+.shepherd-modal-overlay-container {
+    z-index: 999999 !important;
+}

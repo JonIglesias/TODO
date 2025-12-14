@@ -150,6 +150,37 @@ if (!class_exists('PHSBOT_Plugin')) {
 JS;
             wp_add_inline_script('wp-color-picker', $inline_js);
             wp_add_inline_style('wp-color-picker', '.phs-wide{width:420px;max-width:100%}.phs-domains{width:520px;max-width:100%;min-height:140px}.description{opacity:.8}.phs-range{width:320px;max-width:100%}.phs-range-wrap{display:flex;align-items:center;gap:10px}');
+
+            // Shepherd.js para tours interactivos
+            wp_enqueue_style(
+                'shepherd-js',
+                'https://cdn.jsdelivr.net/npm/shepherd.js@11.2.0/dist/css/shepherd.css',
+                [],
+                '11.2.0'
+            );
+
+            wp_enqueue_style(
+                'phsbot-shepherd-custom',
+                plugin_dir_url(__FILE__) . 'core/assets/phsbot-shepherd-custom.css',
+                ['shepherd-js'],
+                '1.0.0'
+            );
+
+            wp_enqueue_script(
+                'shepherd-js',
+                'https://cdn.jsdelivr.net/npm/shepherd.js@11.2.0/dist/js/shepherd.min.js',
+                [],
+                '11.2.0',
+                true
+            );
+
+            wp_enqueue_script(
+                'phsbot-shepherd-tours',
+                plugin_dir_url(__FILE__) . 'core/assets/phsbot-shepherd-tours.js',
+                ['jquery', 'shepherd-js'],
+                '1.0.0',
+                true
+            );
         }
         /* ======== FIN enqueue_admin_assets ======== */
 

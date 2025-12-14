@@ -336,7 +336,7 @@ PHSBOT_DEF;
 
       <!-- TAB 1: CONEXIONES -->
       <section id="tab-conexiones" class="phsbot-config-panel" aria-hidden="false">
-        <div class="phsbot-module-container has-sidebar">
+        <div class="phsbot-module-container">
           <div class="phsbot-module-content">
             <div class="phsbot-mega-card" style="padding: 32px;">
               
@@ -418,24 +418,6 @@ PHSBOT_DEF;
                 <button type="submit" class="phsbot-btn-save">Guardar Configuración</button>
               </div>
 
-            </div>
-          </div>
-
-          <!-- Sidebar de ayuda -->
-          <div class="phsbot-module-sidebar">
-            <div class="phsbot-help-item">
-              <h4>💡 Licencia BOT</h4>
-              <p>Necesitas una licencia válida para usar el chatbot. La licencia comienza con BOT-.</p>
-            </div>
-
-            <div class="phsbot-help-item">
-              <h4>📱 Telegram</h4>
-              <p>Configura un bot de Telegram para recibir notificaciones de leads importantes.</p>
-            </div>
-
-            <div class="phsbot-help-item">
-              <h4>💬 WhatsApp</h4>
-              <p>Número de contacto para mostrar en el chatbot.</p>
             </div>
           </div>
         </div>
