@@ -360,6 +360,179 @@
     };
 
     // ==========================================
+    // TOUR 4: CONFIGURACIÓN
+    // ==========================================
+    AP_Tours.config = function() {
+        const tour = new Shepherd.Tour(defaultOptions);
+
+        tour.addStep({
+            id: 'config-intro',
+            title: '⚙️ Configuración Inicial',
+            text: 'Bienvenido a la configuración de GEOWriter. Aquí debes configurar los elementos esenciales para que el plugin funcione correctamente. ¡Vamos paso a paso!',
+            buttons: [
+                {
+                    text: 'Saltar',
+                    action: tour.cancel,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'company-desc',
+            title: '🏢 Descripción de Empresa (Opcional)',
+            text: 'Describe brevemente la temática de tu web o empresa. Esta información ayuda a personalizar el contenido generado, pero no es obligatoria.',
+            attachTo: {
+                element: '#ap_company_desc',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'license-key',
+            title: '🔑 Licencia (OBLIGATORIO)',
+            text: '⚠️ ¡IMPORTANTE! Sin una licencia válida, GEOWriter NO funcionará. Introduce tu clave de licencia aquí. Si no tienes una, contacta con soporte.',
+            attachTo: {
+                element: '#ap_license_key',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'verify-license',
+            title: '✅ Verificar Licencia',
+            text: 'Después de introducir tu licencia, haz clic en "Verificar Licencia" para activarla. Verás información sobre tu plan, límites y renovación.',
+            attachTo: {
+                element: '#verify-license',
+                on: 'top'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'unsplash-api',
+            title: '🖼️ Unsplash API (Casi Obligatorio)',
+            text: 'Para obtener imágenes de calidad profesional, necesitas una API key de Unsplash. Es GRATIS y muy recomendado. Haz clic en el icono (?) para ver cómo obtenerla.',
+            attachTo: {
+                element: '#ap_unsplash_key',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'pixabay-api',
+            title: '📸 Pixabay API (Recomendable)',
+            text: 'Pixabay ofrece imágenes y videos gratuitos. Aunque opcional, te da más opciones de imágenes. También es GRATIS. Haz clic en (?) para instrucciones.',
+            attachTo: {
+                element: '#ap_pixabay_key',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'pexels-api',
+            title: '🎥 Pexels API (Recomendable)',
+            text: 'Pexels es otra fuente excelente de imágenes y videos profesionales. Tener las tres APIs maximiza tus opciones. ¡También es GRATIS!',
+            attachTo: {
+                element: '#ap_pexels_key',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'save-config',
+            title: '💾 Guardar Configuración',
+            text: '¡Último paso! Una vez que hayas configurado tu licencia y las APIs que desees, haz clic aquí para guardar. ¡Y listo para empezar a crear contenido!',
+            attachTo: {
+                element: '.ap-btn-save',
+                on: 'top'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: '¡Entendido!',
+                    action: tour.complete
+                }
+            ]
+        });
+
+        return tour;
+    };
+
+    // ==========================================
     // INICIALIZACIÓN Y BOTONES DE AYUDA
     // ==========================================
 
@@ -377,6 +550,7 @@
         if ($('#autopilot-form').length) return 'autopilot';
         if ($('#queue-table, .ap-queue-wrapper').length) return 'queue';
         if ($('.ap-campaigns-wrapper').length) return 'campaigns';
+        if ($('#ap-config-form, .ap-config-wrapper').length) return 'config';
         return null;
     }
 
@@ -400,6 +574,10 @@
             case 'campaigns':
                 buttonId = 'start-campaigns-tour';
                 buttonText = 'Tutorial Campañas';
+                break;
+            case 'config':
+                buttonId = 'start-config-tour';
+                buttonText = 'Tutorial Configuración';
                 break;
         }
 
@@ -452,8 +630,30 @@
             tour.start();
         });
 
-        // Auto-iniciar tour de Autopilot si es la primera vez
+        $('#start-config-tour').on('click', function(e) {
+            e.preventDefault();
+            const tour = AP_Tours.config();
+            tour.on('complete', function() {
+                markTourCompleted('config');
+            });
+            tour.start();
+        });
+
+        // Auto-iniciar tours en primera visita
         const currentModule = detectCurrentModule();
+
+        // Auto-iniciar tour de Configuración si es la primera vez
+        if (currentModule === 'config' && !getTourStatus('config')) {
+            setTimeout(function() {
+                const tour = AP_Tours.config();
+                tour.on('complete', function() {
+                    markTourCompleted('config');
+                });
+                tour.start();
+            }, 1500);
+        }
+
+        // Auto-iniciar tour de Autopilot si es la primera vez
         if (currentModule === 'autopilot' && !getTourStatus('autopilot')) {
             // Esperar 1.5 segundos para que el usuario vea la página primero
             setTimeout(function() {
