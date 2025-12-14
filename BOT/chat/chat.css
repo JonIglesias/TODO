@@ -178,6 +178,8 @@
   display: block !important;
   flex-shrink: 0 !important;
   color: var(--phsbot-launcher-icon, #ffffff) !important;
+  fill: currentColor !important;
+  stroke: none !important;
 }
 .phsbot-launcher-text{
   color: var(--phsbot-launcher-text, #ffffff) !important;
