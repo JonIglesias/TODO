@@ -153,7 +153,7 @@
   position: fixed !important;
   z-index: 2147483645 !important;
   /* Posición definida dinámicamente en chat-frontend.php según configuración */
-  background: var(--phsbot-launcher-bg, #1e1e1e) !important;
+  background-color: var(--phsbot-launcher-bg, #1e1e1e) !important;
   border: 5px solid #ffffff !important;
   border-radius: 23px !important;
   padding: 12px 20px !important;
