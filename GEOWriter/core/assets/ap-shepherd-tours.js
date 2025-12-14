@@ -300,7 +300,7 @@
     };
 
     // ==========================================
-    // TOUR 3: VER/EDITAR CAMPAÑAS
+    // TOUR 3: LISTADO CAMPAÑAS (CON CAMPAÑAS)
     // ==========================================
     AP_Tours.campaigns = function() {
         const tour = new Shepherd.Tour(defaultOptions);
@@ -323,9 +323,9 @@
         });
 
         tour.addStep({
-            id: 'campaigns-list',
-            title: '📝 Lista de Campañas',
-            text: 'Cada campaña muestra: nombre, nicho, número de posts, progreso y fecha de creación. Puedes editarlas, duplicarlas o eliminarlas desde las acciones.',
+            id: 'campaigns-actions',
+            title: '🎮 Acciones de Campaña',
+            text: 'Cada campaña tiene botones de acción: Ver Cola (ir a la cola de posts), Editar (modificar configuración), Clonar (duplicar campaña) y Eliminar.',
             buttons: [
                 {
                     text: 'Atrás',
@@ -340,9 +340,81 @@
         });
 
         tour.addStep({
-            id: 'campaigns-actions',
-            title: '⚙️ Acciones de Campaña',
-            text: 'Desde la toolbar superior puedes crear nuevas campañas o eliminar varias a la vez seleccionándolas con el checkbox.',
+            id: 'campaigns-toolbar',
+            title: '⚙️ Toolbar Superior',
+            text: 'Desde aquí puedes crear nuevas campañas o eliminar varias a la vez seleccionándolas con el checkbox.',
+            attachTo: {
+                element: '.ap-campaigns-toolbar',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: '¡Entendido!',
+                    action: tour.complete
+                }
+            ]
+        });
+
+        return tour;
+    };
+
+    // ==========================================
+    // TOUR 3B: PRIMERA CAMPAÑA (SIN CAMPAÑAS)
+    // ==========================================
+    AP_Tours.firstCampaign = function() {
+        const tour = new Shepherd.Tour(defaultOptions);
+
+        tour.addStep({
+            id: 'no-campaigns-intro',
+            title: '🚀 ¡Bienvenido a GEOWriter!',
+            text: 'Aún no tienes campañas creadas. Una campaña es un conjunto de artículos que se generarán automáticamente con IA sobre un tema específico.',
+            buttons: [
+                {
+                    text: 'Saltar',
+                    action: tour.cancel,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'create-manual',
+            title: '✏️ Crear Primera Campaña (Manual)',
+            text: 'Con este botón puedes crear una campaña manualmente, configurando todos los parámetros tú mismo. Es para usuarios avanzados que quieren control total.',
+            attachTo: {
+                element: 'a[href*="autopost-campaign-edit"]:not([style*="background"])',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Atrás',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Siguiente',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'create-autopilot',
+            title: '🤖 Crear con Autopilot (Recomendado)',
+            text: '¡RECOMENDADO para empezar! El Autopilot analiza tu web automáticamente y configura todo por ti. Solo necesitas dar nombre, nicho y número de posts. ¡Es la forma más rápida!',
+            attachTo: {
+                element: 'a[href*="autopost-autopilot"]',
+                on: 'bottom'
+            },
             buttons: [
                 {
                     text: 'Atrás',
@@ -617,11 +689,18 @@
     function detectCurrentModule() {
         if ($('#autopilot-form').length) return 'autopilot';
         if ($('#queue-table, .ap-queue-wrapper').length) return 'queue';
-        // Solo detectar campaigns si hay una tabla (no solo botones de crear)
-        if ($('.ap-campaigns-wrapper').length && $('#campaigns-form').length) return 'campaigns';
         if ($('#ap-config-form, .ap-config-wrapper').length) return 'config';
         // Detectar página de edición/creación de campaña
         if ($('.ap-campaign-wrapper, #campaign-form').length) return 'campaign-edit';
+
+        // Detectar página de listado de campañas (con o sin campañas)
+        if ($('.ap-campaigns-wrapper').length) {
+            // Si hay tabla de campañas, es el listado normal
+            if ($('#campaigns-form').length) return 'campaigns';
+            // Si no hay tabla, es la vista vacía (primera campaña)
+            return 'first-campaign';
+        }
+
         return null;
     }
 
@@ -645,6 +724,10 @@
             case 'campaigns':
                 buttonId = 'start-campaigns-tour';
                 buttonText = 'Tutorial Campañas';
+                break;
+            case 'first-campaign':
+                buttonId = 'start-first-campaign-tour';
+                buttonText = 'Tutorial Primera Campaña';
                 break;
             case 'config':
                 buttonId = 'start-config-tour';
@@ -705,6 +788,15 @@
             tour.start();
         });
 
+        $('#start-first-campaign-tour').on('click', function(e) {
+            e.preventDefault();
+            const tour = AP_Tours.firstCampaign();
+            tour.on('complete', function() {
+                markTourCompleted('first-campaign');
+            });
+            tour.start();
+        });
+
         $('#start-config-tour').on('click', function(e) {
             e.preventDefault();
             const tour = AP_Tours.config();
@@ -725,6 +817,17 @@
 
         // Auto-iniciar tours en primera visita
         const currentModule = detectCurrentModule();
+
+        // Auto-iniciar tour de Primera Campaña si no hay campañas
+        if (currentModule === 'first-campaign' && !getTourStatus('first-campaign')) {
+            setTimeout(function() {
+                const tour = AP_Tours.firstCampaign();
+                tour.on('complete', function() {
+                    markTourCompleted('first-campaign');
+                });
+                tour.start();
+            }, 1500);
+        }
 
         // Auto-iniciar tour de Configuración si es la primera vez
         if (currentModule === 'config' && !getTourStatus('config')) {
