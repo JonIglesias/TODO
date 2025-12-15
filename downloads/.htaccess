@@ -1,10 +1,11 @@
-# Permitir acceso a scripts de descarga
+RewriteEngine On
+
+# Permitir PHP
 <Files "*.php">
     Order allow,deny
     Allow from all
 </Files>
 
-# Asegurar que PHP se ejecute
-<IfModule mod_mime.c>
-    AddType application/x-httpd-php .php
-</IfModule>
+# Hacer que geowriter.zip redirija a geowriter.php
+RewriteRule ^geowriter\.zip$ geowriter.php [L]
+RewriteRule ^conversa\.zip$ conversa.php [L]
