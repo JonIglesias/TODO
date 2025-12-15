@@ -4,13 +4,221 @@ if (!defined('API_ACCESS')) exit;
 // Definir todos los endpoints con sus especificaciones
 $endpoints = [
     [
-        'category' => 'Autenticación',
+        'category' => 'Geowriter - Generación de Campañas',
+        'endpoints' => [
+            [
+                'name' => 'Descripción de Empresa',
+                'method' => 'POST',
+                'path' => '/geowriter/descripcion-empresa',
+                'description' => 'Genera una descripción de empresa analizando el sitio web mediante scraping inteligente. Analiza la página principal y hasta 2 páginas adicionales si es necesario.',
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ],
+                'params' => [
+                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
+                    'domain' => ['type' => 'string', 'required' => true, 'description' => 'Dominio del sitio web a analizar (ej: example.com)'],
+                    'additional_info' => ['type' => 'string', 'required' => false, 'description' => 'Información adicional manual sobre la empresa']
+                ],
+                'response_success' => [
+                    'success' => true,
+                    'description' => 'Descripción de la empresa generada por IA basada en el análisis del sitio web',
+                    'pages_analyzed' => ['https://example.com', 'https://example.com/servicios'],
+                    'tokens_used' => 850
+                ],
+                'response_error' => [
+                    'success' => false,
+                    'error' => 'Domain is required',
+                    'code' => 'VALIDATION_ERROR'
+                ]
+            ],
+            [
+                'name' => 'Generar Prompt de Títulos',
+                'method' => 'POST',
+                'path' => '/geowriter/prompt-titulos',
+                'description' => 'Genera un prompt optimizado para la creación de títulos SEO basado en nicho, keywords y descripción de empresa.',
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ],
+                'params' => [
+                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
+                    'niche' => ['type' => 'string', 'required' => true, 'description' => 'Nicho o temática de la campaña'],
+                    'company_description' => ['type' => 'string', 'required' => false, 'description' => 'Descripción de la empresa'],
+                    'keywords_seo' => ['type' => 'string', 'required' => false, 'description' => 'Keywords SEO separadas por comas']
+                ],
+                'response_success' => [
+                    'success' => true,
+                    'prompt' => 'Prompt optimizado generado para títulos SEO...',
+                    'tokens_used' => 320
+                ]
+            ],
+            [
+                'name' => 'Generar Prompt de Contenido',
+                'method' => 'POST',
+                'path' => '/geowriter/prompt-contenido',
+                'description' => 'Genera un prompt optimizado para la creación de contenido basado en nicho, keywords y descripción de empresa.',
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ],
+                'params' => [
+                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
+                    'niche' => ['type' => 'string', 'required' => true, 'description' => 'Nicho o temática de la campaña'],
+                    'company_description' => ['type' => 'string', 'required' => false, 'description' => 'Descripción de la empresa'],
+                    'keywords_seo' => ['type' => 'string', 'required' => false, 'description' => 'Keywords SEO separadas por comas']
+                ],
+                'response_success' => [
+                    'success' => true,
+                    'prompt' => 'Prompt optimizado generado para contenido...',
+                    'tokens_used' => 340
+                ]
+            ],
+            [
+                'name' => 'Keywords SEO',
+                'method' => 'POST',
+                'path' => '/geowriter/keywords-seo',
+                'description' => 'Genera keywords SEO optimizadas para un nicho específico.',
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ],
+                'params' => [
+                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
+                    'niche' => ['type' => 'string', 'required' => true, 'description' => 'Nicho o temática'],
+                    'company_description' => ['type' => 'string', 'required' => false, 'description' => 'Descripción de la empresa para contexto']
+                ],
+                'response_success' => [
+                    'success' => true,
+                    'keywords' => 'keyword1, keyword2, keyword3, keyword4, keyword5',
+                    'tokens_used' => 180
+                ]
+            ],
+            [
+                'name' => 'Keywords de Campaña',
+                'method' => 'POST',
+                'path' => '/geowriter/keywords-campana',
+                'description' => 'Genera keywords específicas para búsqueda de imágenes en campañas.',
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ],
+                'params' => [
+                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
+                    'niche' => ['type' => 'string', 'required' => true, 'description' => 'Nicho o temática']
+                ],
+                'response_success' => [
+                    'success' => true,
+                    'keywords' => 'keyword_imagen1, keyword_imagen2, keyword_imagen3',
+                    'tokens_used' => 120
+                ]
+            ],
+            [
+                'name' => 'Keywords para Imágenes',
+                'method' => 'POST',
+                'path' => '/geowriter/keywords-imagenes',
+                'description' => 'Genera keywords optimizadas para búsqueda de imágenes en Pixabay basado en título del post.',
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ],
+                'params' => [
+                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
+                    'title' => ['type' => 'string', 'required' => true, 'description' => 'Título del post'],
+                    'niche' => ['type' => 'string', 'required' => false, 'description' => 'Nicho para contexto adicional']
+                ],
+                'response_success' => [
+                    'success' => true,
+                    'keywords' => 'keyword_pixabay_1, keyword_pixabay_2',
+                    'tokens_used' => 95
+                ]
+            ]
+        ]
+    ],
+    [
+        'category' => 'Geowriter - Generación de Contenido',
+        'endpoints' => [
+            [
+                'name' => 'Generar Título Individual',
+                'method' => 'POST',
+                'path' => '/geowriter/generar-titulo',
+                'description' => 'Genera un título SEO optimizado único. Incluye sistema anti-duplicados mediante Levenshtein y tracking de títulos previos por campaña.',
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ],
+                'params' => [
+                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
+                    'prompt' => ['type' => 'string', 'required' => false, 'description' => 'Prompt personalizado para generar el título'],
+                    'topic' => ['type' => 'string', 'required' => false, 'description' => 'Tema del post (alternativo a prompt)'],
+                    'domain' => ['type' => 'string', 'required' => false, 'description' => 'Dominio de la web'],
+                    'company_description' => ['type' => 'string', 'required' => false, 'description' => 'Descripción de la empresa'],
+                    'keywords_seo' => ['type' => 'array', 'required' => false, 'description' => 'Array de keywords SEO'],
+                    'keywords' => ['type' => 'array', 'required' => false, 'description' => 'Array de keywords generales'],
+                    'campaign_id' => ['type' => 'integer', 'required' => false, 'description' => 'ID de campaña para tracking y anti-duplicados']
+                ],
+                'response_success' => [
+                    'success' => true,
+                    'title' => 'Título SEO generado optimizado para posicionamiento',
+                    'tokens_used' => 145,
+                    'campaign_id' => 23,
+                    'attempt_number' => 1,
+                    'similarity_score' => 0
+                ],
+                'notes' => 'Nota: Si se proporciona campaign_id, el sistema automáticamente evita títulos similares a los ya generados en esa campaña (umbral: 75% similitud).'
+            ],
+            [
+                'name' => 'Generar Contenido de Post',
+                'method' => 'POST',
+                'path' => '/geowriter/generar-contenido',
+                'description' => 'Genera el contenido HTML completo para un post basado en título y contexto.',
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ],
+                'params' => [
+                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
+                    'title' => ['type' => 'string', 'required' => true, 'description' => 'Título del post'],
+                    'prompt' => ['type' => 'string', 'required' => false, 'description' => 'Prompt personalizado'],
+                    'keywords' => ['type' => 'string', 'required' => false, 'description' => 'Keywords SEO'],
+                    'min_words' => ['type' => 'integer', 'required' => false, 'description' => 'Mínimo de palabras (default: 800)'],
+                    'max_words' => ['type' => 'integer', 'required' => false, 'description' => 'Máximo de palabras (default: 1200)']
+                ],
+                'response_success' => [
+                    'success' => true,
+                    'content' => '<p>Contenido HTML generado...</p>',
+                    'usage' => [
+                        'total_tokens' => 2350,
+                        'prompt_tokens' => 450,
+                        'completion_tokens' => 1900
+                    ]
+                ]
+            ],
+            [
+                'name' => 'Generar Post Completo',
+                'method' => 'POST',
+                'path' => '/geowriter/post-completo',
+                'description' => 'Genera un post completo con título y contenido en una sola llamada.',
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ],
+                'params' => [
+                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
+                    'topic' => ['type' => 'string', 'required' => true, 'description' => 'Tema del post'],
+                    'niche' => ['type' => 'string', 'required' => false, 'description' => 'Nicho o industria'],
+                    'keywords' => ['type' => 'string', 'required' => false, 'description' => 'Keywords SEO']
+                ],
+                'response_success' => [
+                    'success' => true,
+                    'title' => 'Título generado',
+                    'content' => '<p>Contenido HTML completo...</p>',
+                    'usage' => [
+                        'total_tokens' => 2680
+                    ]
+                ]
+            ]
+        ]
+    ],
+    [
+        'category' => 'Licencias y Autenticación',
         'endpoints' => [
             [
                 'name' => 'Verificar Licencia',
                 'method' => 'POST',
                 'path' => '/verify',
-                'description' => 'Verifica la validez de una licencia y dominio',
+                'description' => 'Verifica la validez de una licencia y dominio.',
                 'headers' => [
                     'Content-Type' => 'application/json'
                 ],
@@ -37,17 +245,35 @@ $endpoints = [
                     'error' => 'License key is required',
                     'code' => 'VALIDATION_ERROR'
                 ]
+            ],
+            [
+                'name' => 'Obtener Plan Activo',
+                'method' => 'GET',
+                'path' => '/get-active-plan?license_key=XXX',
+                'description' => 'Obtiene información del plan activo de una licencia.',
+                'headers' => [],
+                'params' => [
+                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia (query param)']
+                ],
+                'response_success' => [
+                    'success' => true,
+                    'plan' => [
+                        'name' => 'Plan Pro',
+                        'tokens_limit' => 200000,
+                        'billing_cycle' => 'monthly'
+                    ]
+                ]
             ]
         ]
     ],
     [
-        'category' => 'Información de Uso',
+        'category' => 'Estadísticas y Uso',
         'endpoints' => [
             [
                 'name' => 'Obtener Uso de Licencia',
                 'method' => 'GET',
                 'path' => '/usage?license_key=XXX',
-                'description' => 'Obtiene información de uso y límites de una licencia',
+                'description' => 'Obtiene información de uso y límites de tokens de una licencia.',
                 'headers' => [],
                 'params' => [
                     'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia (query param)']
@@ -64,201 +290,10 @@ $endpoints = [
                 ]
             ],
             [
-                'name' => 'Obtener Plan Activo (V3)',
-                'method' => 'GET',
-                'path' => '/get-active-plan?license_key=XXX',
-                'description' => 'Endpoint de compatibilidad V3 para obtener plan activo',
-                'headers' => [],
-                'params' => [
-                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia']
-                ],
-                'response_success' => [
-                    'success' => true,
-                    'plan' => [
-                        'name' => 'Plan Pro',
-                        'tokens_limit' => 200000,
-                        'billing_cycle' => 'monthly'
-                    ]
-                ]
-            ]
-        ]
-    ],
-    [
-        'category' => 'Generación de Contenido',
-        'endpoints' => [
-            [
-                'name' => 'Generar Contenido',
-                'method' => 'POST',
-                'path' => '/generate/content',
-                'description' => 'Genera contenido completo para un post. NOTA: El plugin usa /generate-post que es un alias de este endpoint (ambos hacen lo mismo).',
-                'headers' => [
-                    'Content-Type' => 'application/json'
-                ],
-                'params' => [
-                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
-                    'title' => ['type' => 'string', 'required' => true, 'description' => 'Título del post'],
-                    'prompt' => ['type' => 'string', 'required' => false, 'description' => 'Prompt personalizado'],
-                    'keywords' => ['type' => 'string', 'required' => false, 'description' => 'Keywords SEO'],
-                    'length' => ['type' => 'string', 'required' => false, 'description' => 'corto/medio/largo (default: medio)']
-                ],
-                'response_success' => [
-                    'success' => true,
-                    'data' => [
-                        'content' => 'Contenido generado...',
-                        'tokens_used' => 1500,
-                        'tokens_remaining' => 43500
-                    ]
-                ]
-            ],
-            [
-                'name' => 'Generar Post (Alias) ✅',
-                'method' => 'POST',
-                'path' => '/generate-post',
-                'description' => '✅ USADO ACTIVAMENTE por el plugin. Es un alias de /generate/content. El plugin usa este endpoint para generar todo el contenido de los posts.',
-                'headers' => [
-                    'Content-Type' => 'application/json'
-                ],
-                'params' => [
-                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
-                    'title' => ['type' => 'string', 'required' => true, 'description' => 'Título del post'],
-                    'niche' => ['type' => 'string', 'required' => false, 'description' => 'Nicho o keywords'],
-                    'company_description' => ['type' => 'string', 'required' => false, 'description' => 'Descripción de la empresa'],
-                    'keywords_seo' => ['type' => 'string', 'required' => false, 'description' => 'Keywords SEO'],
-                    'custom_prompt' => ['type' => 'string', 'required' => false, 'description' => 'Prompt personalizado de la campaña']
-                ],
-                'response_success' => [
-                    'success' => true,
-                    'data' => [
-                        'content' => 'Contenido HTML generado con IA...',
-                        'usage' => [
-                            'total_tokens' => 1500
-                        ]
-                    ]
-                ]
-            ],
-            [
-                'name' => 'Generar Título',
-                'method' => 'POST',
-                'path' => '/generate/title',
-                'description' => 'Genera títulos optimizados para SEO',
-                'headers' => [
-                    'Content-Type' => 'application/json'
-                ],
-                'params' => [
-                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
-                    'topic' => ['type' => 'string', 'required' => true, 'description' => 'Tema del post'],
-                    'keywords' => ['type' => 'string', 'required' => false, 'description' => 'Keywords SEO'],
-                    'num_suggestions' => ['type' => 'integer', 'required' => false, 'description' => 'Número de sugerencias (default: 5)']
-                ],
-                'response_success' => [
-                    'success' => true,
-                    'data' => [
-                        'titles' => [
-                            '10 Consejos para Mejorar tu SEO',
-                            'Guía Completa de SEO en 2025',
-                            'SEO para Principiantes: Todo lo que Necesitas Saber'
-                        ],
-                        'tokens_used' => 200
-                    ]
-                ]
-            ],
-            [
-                'name' => 'Generar Keywords',
-                'method' => 'POST',
-                'path' => '/generate/keywords',
-                'description' => 'Genera keywords SEO para un tema',
-                'headers' => [
-                    'Content-Type' => 'application/json'
-                ],
-                'params' => [
-                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
-                    'topic' => ['type' => 'string', 'required' => true, 'description' => 'Tema o nicho'],
-                    'num_keywords' => ['type' => 'integer', 'required' => false, 'description' => 'Número de keywords (default: 10)']
-                ],
-                'response_success' => [
-                    'success' => true,
-                    'data' => [
-                        'keywords' => 'SEO, marketing digital, optimización web, posicionamiento, google',
-                        'tokens_used' => 150
-                    ]
-                ]
-            ],
-            [
-                'name' => 'Generar Meta (Multi-propósito)',
-                'method' => 'POST',
-                'path' => '/generate/meta',
-                'description' => '✅ USADO por el plugin. IMPORTANTE: NO genera meta descriptions de posts. Se usa para: 1) Generar descripción de empresa (type=company_description), 2) Generar prompts de títulos (type=title_prompt). Las meta descriptions de posts se generan localmente en el plugin.',
-                'headers' => [
-                    'Content-Type' => 'application/json'
-                ],
-                'params' => [
-                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
-                    'type' => ['type' => 'string', 'required' => true, 'description' => 'company_description o title_prompt'],
-                    'domain' => ['type' => 'string', 'required' => false, 'description' => 'Dominio (si type=company_description)'],
-                    'niche' => ['type' => 'string', 'required' => false, 'description' => 'Nicho (si type=title_prompt)'],
-                    'company_description' => ['type' => 'string', 'required' => false, 'description' => 'Descripción (si type=title_prompt)'],
-                    'keywords_seo' => ['type' => 'string', 'required' => false, 'description' => 'Keywords (si type=title_prompt)']
-                ],
-                'response_success' => [
-                    'success' => true,
-                    'data' => [
-                        'description' => 'Descripción de empresa generada...',
-                        'prompt' => 'Prompt de títulos generado...',
-                        'tokens_used' => 200
-                    ]
-                ]
-            ],
-            [
-                'name' => 'Generar Excerpt',
-                'method' => 'POST',
-                'path' => '/generate-excerpt',
-                'description' => '⚠️ NO USADO por el plugin. Genera resumen/excerpt usando IA. El plugin genera excerpts localmente (extracto de primeras 30 palabras) sin consumir tokens.',
-                'headers' => [
-                    'Content-Type' => 'application/json'
-                ],
-                'params' => [
-                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
-                    'content' => ['type' => 'string', 'required' => true, 'description' => 'Contenido completo']
-                ],
-                'response_success' => [
-                    'success' => true,
-                    'data' => [
-                        'excerpt' => 'Resumen generado por IA (150 palabras)...',
-                        'tokens_used' => 120
-                    ]
-                ]
-            ],
-            [
-                'name' => 'Mejorar Contenido',
-                'method' => 'POST',
-                'path' => '/improve-content',
-                'description' => '⚠️ NO USADO por el plugin. Mejora un contenido existente haciéndolo más claro y profesional usando IA.',
-                'headers' => [
-                    'Content-Type' => 'application/json'
-                ],
-                'params' => [
-                    'license_key' => ['type' => 'string', 'required' => true, 'description' => 'Clave de licencia'],
-                    'content' => ['type' => 'string', 'required' => true, 'description' => 'Contenido a mejorar'],
-                    'instructions' => ['type' => 'string', 'required' => false, 'description' => 'Instrucciones específicas']
-                ],
-                'response_success' => [
-                    'success' => true,
-                    'data' => [
-                        'improved_content' => 'Contenido mejorado por IA...',
-                        'tokens_used' => 800
-                    ]
-                ]
-            ]
-        ]
-    ],
-    [
-        'category' => 'Estadísticas',
-        'endpoints' => [
-            [
-                'name' => 'Obtener Estadísticas',
+                'name' => 'Obtener Estadísticas Detalladas',
                 'method' => 'POST',
                 'path' => '/get-stats',
-                'description' => 'Obtiene estadísticas detalladas de uso',
+                'description' => 'Obtiene estadísticas detalladas de uso por tipo de operación.',
                 'headers' => [
                     'Content-Type' => 'application/json'
                 ],
@@ -273,7 +308,7 @@ $endpoints = [
                         'by_operation' => [
                             'content' => ['count' => 50, 'tokens' => 100000],
                             'title' => ['count' => 80, 'tokens' => 40000],
-                            'keywords' => ['count' => 20, 'tokens' => 15000]
+                            'keywords_seo' => ['count' => 20, 'tokens' => 15000]
                         ]
                     ]
                 ]
@@ -362,6 +397,17 @@ $endpoints = [
 .endpoint-description {
     color: #7f8c8d;
     margin-bottom: 16px;
+    line-height: 1.6;
+}
+
+.endpoint-notes {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 12px;
+    margin-top: 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #856404;
 }
 
 .params-section, .response-section {
@@ -497,36 +543,59 @@ $endpoints = [
     outline: none;
     border-color: #3498db;
 }
+
+.info-box {
+    background: #e8f4f8;
+    border-left: 4px solid #3498db;
+    padding: 16px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.info-box h3 {
+    margin: 0 0 12px 0;
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+.info-box p {
+    margin: 0;
+    color: #5a6c7d;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.info-box ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.info-box li {
+    color: #5a6c7d;
+    line-height: 1.8;
+}
 </style>
 
 <div class="api-docs-wrapper">
     <div class="search-box">
-        <input type="text" 
-               class="search-input" 
-               id="endpoint-search" 
-               placeholder="🔍 Buscar endpoint por nombre o ruta...">
+        <input type="text"
+               class="search-input"
+               id="endpoint-search"
+               placeholder="Buscar endpoint por nombre o ruta...">
     </div>
-    
-    <div class="api-category" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-left: none;">
-        <h2 style="color: white; border-bottom-color: rgba(255,255,255,0.3);">ℹ️ Información Importante</h2>
-        <div style="font-size: 14px; line-height: 1.6;">
-            <p style="margin-bottom: 12px;"><strong>Endpoints marcados con:</strong></p>
-            <ul style="list-style: none; padding-left: 0;">
-                <li style="margin-bottom: 8px;">✅ <strong>USADO por el plugin</strong> - Endpoints activamente utilizados</li>
-                <li style="margin-bottom: 8px;">⚠️ <strong>NO USADO por el plugin</strong> - Endpoints disponibles pero no utilizados actualmente</li>
-            </ul>
-            <p style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
-                <strong>Nota sobre Meta Descriptions y Excerpts:</strong><br>
-                El plugin genera las meta descriptions y excerpts de los posts <strong>localmente con PHP</strong> (extractos del contenido), 
-                no mediante llamadas a la API. Esto ahorra tokens y mejora la velocidad.
-            </p>
-        </div>
+
+    <div class="info-box">
+        <h3>Información General</h3>
+        <p><strong>Base URL:</strong> <?= htmlspecialchars(API_BASE_URL) ?></p>
+        <p><strong>Autenticación:</strong> Todos los endpoints requieren un parámetro <code>license_key</code> válido.</p>
+        <p><strong>Formato de respuesta:</strong> JSON</p>
+        <p><strong>Modelo de IA configurado:</strong> Los endpoints de Geowriter utilizan el modelo configurado en la base de datos (setting_key: geowrite_ai_model).</p>
     </div>
 
     <?php foreach ($endpoints as $category): ?>
     <div class="api-category">
-        <h2 class="category-header">📁 <?= htmlspecialchars($category['category']) ?></h2>
-        
+        <h2 class="category-header"><?= htmlspecialchars($category['category']) ?></h2>
+
         <?php foreach ($category['endpoints'] as $endpoint): ?>
         <div class="endpoint-card" data-search="<?= strtolower($endpoint['name'] . ' ' . $endpoint['path']) ?>">
             <div class="endpoint-header">
@@ -535,15 +604,21 @@ $endpoints = [
                 </span>
                 <span class="endpoint-name"><?= htmlspecialchars($endpoint['name']) ?></span>
             </div>
-            
+
             <code class="endpoint-path"><?= htmlspecialchars(API_BASE_URL . $endpoint['path']) ?></code>
-            
+
             <p class="endpoint-description"><?= htmlspecialchars($endpoint['description']) ?></p>
-            
+
+            <?php if (isset($endpoint['notes'])): ?>
+            <div class="endpoint-notes">
+                <?= htmlspecialchars($endpoint['notes']) ?>
+            </div>
+            <?php endif; ?>
+
             <!-- Headers -->
             <?php if (!empty($endpoint['headers'])): ?>
             <div class="params-section">
-                <div class="section-title">📋 Headers</div>
+                <div class="section-title">Headers</div>
                 <table class="params-table">
                     <thead>
                         <tr>
@@ -562,11 +637,11 @@ $endpoints = [
                 </table>
             </div>
             <?php endif; ?>
-            
+
             <!-- Parámetros -->
             <?php if (!empty($endpoint['params'])): ?>
             <div class="params-section">
-                <div class="section-title">📝 Parámetros</div>
+                <div class="section-title">Parámetros</div>
                 <table class="params-table">
                     <thead>
                         <tr>
@@ -595,24 +670,24 @@ $endpoints = [
                 </table>
             </div>
             <?php endif; ?>
-            
+
             <!-- Respuesta -->
             <div class="response-section">
-                <div class="section-title">📤 Ejemplo de Respuesta</div>
-                
+                <div class="section-title">Ejemplo de Respuesta</div>
+
                 <div class="response-tabs">
-                    <button class="response-tab active" onclick="showResponse(this, 'success')">✅ Success</button>
+                    <button class="response-tab active" onclick="showResponse(this, 'success')">Success</button>
                     <?php if (isset($endpoint['response_error'])): ?>
-                    <button class="response-tab" onclick="showResponse(this, 'error')">❌ Error</button>
+                    <button class="response-tab" onclick="showResponse(this, 'error')">Error</button>
                     <?php endif; ?>
                 </div>
-                
+
                 <div class="response-content active" data-type="success">
                     <div class="code-block">
                         <pre><?= json_encode($endpoint['response_success'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?></pre>
                     </div>
                 </div>
-                
+
                 <?php if (isset($endpoint['response_error'])): ?>
                 <div class="response-content" data-type="error">
                     <div class="code-block">
@@ -621,10 +696,10 @@ $endpoints = [
                 </div>
                 <?php endif; ?>
             </div>
-            
+
             <!-- Ejemplo de petición cURL -->
             <div class="params-section" style="margin-top: 16px;">
-                <div class="section-title">🔧 Ejemplo cURL</div>
+                <div class="section-title">Ejemplo cURL</div>
                 <div class="code-block">
                     <pre><?= generateCurlExample($endpoint) ?></pre>
                 </div>
@@ -640,7 +715,7 @@ $endpoints = [
 document.getElementById('endpoint-search').addEventListener('input', function(e) {
     const search = e.target.value.toLowerCase();
     const cards = document.querySelectorAll('.endpoint-card');
-    
+
     cards.forEach(card => {
         const searchText = card.getAttribute('data-search');
         if (searchText.includes(search)) {
@@ -654,13 +729,13 @@ document.getElementById('endpoint-search').addEventListener('input', function(e)
 // Cambiar entre respuestas success/error
 function showResponse(button, type) {
     const parent = button.closest('.response-section');
-    
+
     // Actualizar tabs
     parent.querySelectorAll('.response-tab').forEach(tab => {
         tab.classList.remove('active');
     });
     button.classList.add('active');
-    
+
     // Actualizar contenido
     parent.querySelectorAll('.response-content').forEach(content => {
         content.classList.remove('active');
@@ -673,24 +748,28 @@ function showResponse(button, type) {
 
 <?php
 function generateCurlExample($endpoint) {
-    $curl = "curl -X {$endpoint['method']} '{API_BASE_URL}{$endpoint['path']}'";
-    
+    $curl = "curl -X {$endpoint['method']} '" . API_BASE_URL . "{$endpoint['path']}'";
+
     // Headers
     if (!empty($endpoint['headers'])) {
         foreach ($endpoint['headers'] as $header => $value) {
             $curl .= " \\\n  -H '{$header}: {$value}'";
         }
     }
-    
+
     // Body (solo para POST)
     if ($endpoint['method'] === 'POST' && !empty($endpoint['params'])) {
         $body = [];
         foreach ($endpoint['params'] as $param => $details) {
-            $body[$param] = "valor_ejemplo";
+            if ($details['type'] === 'array') {
+                $body[$param] = ['ejemplo1', 'ejemplo2'];
+            } else {
+                $body[$param] = 'valor_ejemplo';
+            }
         }
         $curl .= " \\\n  -d '" . json_encode($body, JSON_UNESCAPED_UNICODE) . "'";
     }
-    
+
     return $curl;
 }
 ?>

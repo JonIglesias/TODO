@@ -21,7 +21,16 @@ class Auth {
      */
     public static function require() {
         if (!self::check()) {
-            header('Location: ' . API_BASE_URL . 'admin/login.php');
+            // Detectar si estamos dentro de /admin/ y redirigir correctamente
+            $currentDir = dirname($_SERVER['SCRIPT_NAME']);
+
+            if (strpos($currentDir, '/admin') !== false) {
+                // Ya estamos en admin, redirigir relativo
+                header('Location: login.php');
+            } else {
+                // Estamos fuera de admin, usar ruta absoluta
+                header('Location: ' . API_BASE_URL . 'admin/login.php');
+            }
             exit;
         }
     }
