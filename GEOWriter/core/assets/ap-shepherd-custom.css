@@ -20,8 +20,13 @@
 
 .ap-shepherd-theme .shepherd-header {
     padding: 20px 24px 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #000000;
     border-radius: 12px 12px 0 0;
+}
+
+.shepherd-has-title .shepherd-content .shepherd-header {
+    background: #000000;
+    padding: 1em;
 }
 
 .ap-shepherd-theme .shepherd-title {
