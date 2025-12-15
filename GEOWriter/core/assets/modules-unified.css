@@ -12,6 +12,14 @@
     max-width: 2400px !important;
 }
 
+/* Ocultar avisos de WordPress en módulos */
+.ap-module-wrap .notice,
+.ap-module-wrap .updated,
+.ap-module-wrap .error,
+.ap-module-wrap div[id*="message"] {
+    display: none !important;
+}
+
 .ap-module-sidebar 
 	{
     padding: 14px !important; 
@@ -1739,6 +1747,7 @@
     max-width: 100% !important;
     height: 100% !important;
     flex: 1;
+    aspect-ratio: 900;
 }
 
 .ap-card-tokens-liquid {

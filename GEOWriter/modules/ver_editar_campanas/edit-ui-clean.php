@@ -48,6 +48,11 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
                 Guardar Campaña
             </button>
             <?php if ($is_edit): ?>
+                <?php if ($campaign->queue_generated): ?>
+                    <a href="<?php echo admin_url('admin.php?page=autopost-queue&campaign_id=' . $campaign->id); ?>" class="button button-primary">Ver Cola</a>
+                <?php else: ?>
+                    <a href="<?php echo admin_url('admin.php?page=autopost-queue&campaign_id=' . $campaign->id); ?>" class="button button-primary" id="btn-generate-queue-header">Generar Cola</a>
+                <?php endif; ?>
                 <button type="button" class="button" onclick="window.location.href='<?php echo admin_url('admin.php?page=autopost-ia'); ?>'">← Volver a Campañas</button>
             <?php endif; ?>
         </div>
@@ -91,7 +96,7 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
                            id="domain"
                            name="domain"
                            class="ap-field-input"
-                           value="<?php echo $autopilot_data ? esc_attr($autopilot_data['domain']) : ($is_edit ? esc_attr($campaign->domain) : ''); ?>"
+                           value="<?php echo $autopilot_data ? esc_attr($autopilot_data['domain']) : ($is_edit ? esc_attr($campaign->domain) : esc_attr(parse_url(get_site_url(), PHP_URL_HOST))); ?>"
                            placeholder="www.ejemplo.com">
                 </div>
 
@@ -602,7 +607,7 @@ jQuery(document).ready(function($) {
             $('#category_id').val() && $('#category_id').val().trim() !== '';
 
         // Habilitar/Deshabilitar botón "Generar Cola" (solo validación para este botón)
-        const $btnGenerateQueue = $('#btn-generate-queue');
+        const $btnGenerateQueue = $('#btn-generate-queue, #btn-generate-queue-header');
         if ($btnGenerateQueue.length) {
             if (campaignComplete) {
                 $btnGenerateQueue

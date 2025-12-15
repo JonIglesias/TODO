@@ -145,9 +145,9 @@ $has_interrupted = $processing_count > 0;
                                                     'icon' => '⏳'
                                                 ],
                                                 'processing' => [
-                                                    'label' => 'Ejecutando', 
-                                                    'color' => '#000000', 
-                                                    'bg' => '#000000',
+                                                    'label' => 'Ejecutando',
+                                                    'color' => '#ffffff',
+                                                    'bg' => 'rgba(0, 0, 0, 0.6)',
                                                     'icon' => '⚙️'
                                                 ],
                                                 'completed' => [
@@ -202,8 +202,8 @@ $has_interrupted = $processing_count > 0;
                         },
                         'processing': {
                             label: 'Ejecutando',
-                            color: '#000000',
-                            bg: '#000000',
+                            color: '#ffffff',
+                            bg: 'rgba(0, 0, 0, 0.6)',
                             icon: '⚙️'
                         },
                         'completed': {
