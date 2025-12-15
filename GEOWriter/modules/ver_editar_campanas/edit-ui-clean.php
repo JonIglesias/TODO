@@ -77,7 +77,6 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
                 <div class="ap-field-group" style="flex: 1 1 0; min-width: 0;">
                     <label class="ap-field-label" for="name">
                         Nombre de Campaña<span class="required">*</span>
-                        <button type="button" class="ap-tooltip" data-help="help-campaign-name">?</button>
                     </label>
                     <input type="text"
                            id="name"
@@ -90,7 +89,6 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
                 <div class="ap-field-group" style="flex: 1 1 0; min-width: 0;">
                     <label class="ap-field-label" for="domain">
                         Dominio
-                        <button type="button" class="ap-tooltip" data-help="help-domain">?</button>
                     </label>
                     <input type="text"
                            id="domain"
@@ -103,7 +101,6 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
                 <div class="ap-field-group" style="flex: 2 1 0; min-width: 0;">
                     <label class="ap-field-label" for="niche">
                         Nicho
-                        <button type="button" class="ap-tooltip" data-help="help-niche">?</button>
                     </label>
                     <div class="ap-autocomplete-container">
                         <span id="niche-suggestion"></span>
@@ -122,7 +119,6 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
             <div class="ap-field-group">
                 <label class="ap-field-label" for="company_desc">
                     Descripción de Empresa
-                    <button type="button" class="ap-tooltip" data-help="help-company-desc">?</button>
                 </label>
                 <textarea id="company_desc"
                           name="company_desc"
@@ -163,7 +159,6 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
                                 Máx: <?php echo $max_posts_per_campaign; ?> (plan activo)
                             </span>
                         <?php endif; ?>
-                        <button type="button" class="ap-tooltip" data-help="help-num-posts">?</button>
                     </label>
                     <div class="ap-slider-wrapper">
                         <div class="ap-slider-track-container">
@@ -184,7 +179,6 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
                 <div class="ap-field-group ap-field-extension" style="flex: 0 0 auto; min-width: 220px; max-width: 250px;">
                     <label class="ap-field-label" for="post_length">
                         Extensión del Post
-                        <button type="button" class="ap-tooltip" data-help="help-post-length">?</button>
                     </label>
                     <select id="post_length" name="post_length" class="ap-field-input">
                         <option value="corto" <?php echo ($is_edit && $campaign->post_length === 'corto') ? 'selected' : ''; ?>>Corto (300-500 palabras)</option>
@@ -197,7 +191,6 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
             <div class="ap-field-group">
                 <label class="ap-field-label" for="keywords_seo">
                     Keywords SEO
-                    <button type="button" class="ap-tooltip" data-help="help-keywords-seo">?</button>
                 </label>
                 <textarea id="keywords_seo"
                           name="keywords_seo"
@@ -216,7 +209,6 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
             <div class="ap-field-group">
                 <label class="ap-field-label" for="prompt_titles">
                     Prompt para Títulos
-                    <button type="button" class="ap-tooltip" data-help="help-prompt-titles">?</button>
                     <button type="button" class="ap-btn-ai ap-btn-inline ia-generate" data-field="prompt_titles" data-source="niche,company_desc,keywords_seo">
                         <span class="spinner"></span>
                         <svg class="token-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -235,7 +227,6 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
             <div class="ap-field-group">
                 <label class="ap-field-label" for="prompt_content">
                     Prompt para Contenido
-                    <button type="button" class="ap-tooltip" data-help="help-prompt-content">?</button>
                     <button type="button" class="ap-btn-ai ap-btn-inline ia-generate" data-field="prompt_content" data-source="niche,company_desc,keywords_seo">
                         <span class="spinner"></span>
                         <svg class="token-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -264,8 +255,7 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
             <div class="ap-field-group">
                 <label class="ap-field-label" for="keywords_images">
                     Keywords para Imágenes
-                    <button type="button" class="ap-tooltip" data-help="help-keywords-images">?</button>
-</label>
+                </label>
                 <textarea id="keywords_images" 
                           name="keywords_images" 
                           class="ap-field-textarea"><?php echo $is_edit ? esc_textarea($campaign->keywords_images) : ''; ?></textarea>
@@ -316,7 +306,6 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
             <div class="ap-field-group">
                 <label class="ap-field-label">
                     Días de Publicación
-                    <button type="button" class="ap-tooltip" data-help="help-publish-days">?</button>
                 </label>
                 <div style="display: flex; gap: 20px; flex-wrap: wrap;">
                     <?php 
@@ -357,7 +346,6 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
             <div class="ap-field-group">
                 <label class="ap-field-label" for="category_id">
                     Categoría
-                    <button type="button" class="ap-tooltip" data-help="help-category">?</button>
                 </label>
                 <select id="category_id" name="category_id" class="ap-field-input" style="max-width: 400px;">
                     <option value="">Selecciona una categoría</option>
