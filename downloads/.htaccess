@@ -1,0 +1,10 @@
+# Permitir acceso a scripts de descarga
+<Files "*.php">
+    Order allow,deny
+    Allow from all
+</Files>
+
+# Asegurar que PHP se ejecute
+<IfModule mod_mime.c>
+    AddType application/x-httpd-php .php
+</IfModule>
