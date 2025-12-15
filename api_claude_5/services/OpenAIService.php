@@ -52,11 +52,22 @@ class OpenAIService {
             $stmt->execute();
             $settings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
+            // DEBUG: Log valores leídos de BD
+            error_log("=== OpenAIService DEBUG ===");
+            error_log("BD settings: " . json_encode($settings));
+            error_log("OPENAI_MODEL constant: " . (defined('OPENAI_MODEL') ? OPENAI_MODEL : 'NOT DEFINED'));
+
             $this->model = $settings['geowrite_ai_model'] ?? OPENAI_MODEL ?? 'gpt-4o-mini';
             $this->temperature = isset($settings['geowrite_ai_temperature']) ? floatval($settings['geowrite_ai_temperature']) : (OPENAI_TEMPERATURE ?? 0.7);
             $this->maxTokens = isset($settings['geowrite_ai_max_tokens']) ? intval($settings['geowrite_ai_max_tokens']) : (OPENAI_MAX_TOKENS ?? 4000);
+
+            error_log("Model seleccionado: " . $this->model);
+            error_log("Temperature: " . $this->temperature);
+            error_log("MaxTokens: " . $this->maxTokens);
+            error_log("=========================");
         } catch (Exception $e) {
             // Si falla la BD, usar constantes como fallback
+            error_log("ERROR al leer BD en OpenAIService: " . $e->getMessage());
             $this->model = OPENAI_MODEL ?? 'gpt-4o-mini';
             $this->maxTokens = OPENAI_MAX_TOKENS ?? 4000;
             $this->temperature = OPENAI_TEMPERATURE ?? 0.7;
