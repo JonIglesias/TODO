@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Conversa
  * Description: Chat con esteroides
- * Version: 1.4
+ * Version: 1.4.1
  * Author: Jon Iglesias
  * License: GPLv2 or later
  */
@@ -10,13 +10,18 @@
 if (!defined('ABSPATH')) exit;
 
 // Definir constantes del plugin
-define('PHSBOT_VERSION', '1.4');
+define('PHSBOT_VERSION', '1.4.1');
 define('PHSBOT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PHSBOT_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 /**
  * Sistema de actualizaciones automáticas desde GitHub
  */
+// Cargar Parsedown (requerido por Plugin Update Checker)
+if (!class_exists('Parsedown')) {
+    require_once PHSBOT_PLUGIN_DIR . 'lib/Parsedown.php';
+}
+
 require PHSBOT_PLUGIN_DIR . 'lib/plugin-update-checker/plugin-update-checker.php';
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
