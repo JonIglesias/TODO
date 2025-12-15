@@ -62,7 +62,8 @@ class DescripcionEmpresaEndpoint extends BaseEndpoint {
                 'total_tokens' => $scraperResult['tokens_used'],
                 'prompt_tokens' => $scraperResult['prompt_tokens'] ?? 0,
                 'completion_tokens' => $scraperResult['completion_tokens'] ?? 0
-            ]
+            ],
+            'model' => $scraperResult['model'] ?? null
         ]);
         
         return [
@@ -262,27 +263,38 @@ PROMPT;
         $totalTokens = 0;
         $promptTokens = 0;
         $completionTokens = 0;
-        
+        $modelUsed = null;
+
         foreach ([$resultCombined, $resultDescription] as $result) {
             if ($result['success'] && isset($result['usage'])) {
                 $totalTokens += $result['usage']['total_tokens'] ?? 0;
                 $promptTokens += $result['usage']['prompt_tokens'] ?? 0;
                 $completionTokens += $result['usage']['completion_tokens'] ?? 0;
+
+                // Capturar el modelo usado (del primer resultado exitoso)
+                if (!$modelUsed && isset($result['model'])) {
+                    $modelUsed = $result['model'];
+                }
             }
         }
-        
+
         if (isset($resultMore) && $resultMore['success'] && isset($resultMore['usage'])) {
             $totalTokens += $resultMore['usage']['total_tokens'] ?? 0;
             $promptTokens += $resultMore['usage']['prompt_tokens'] ?? 0;
             $completionTokens += $resultMore['usage']['completion_tokens'] ?? 0;
+
+            if (!$modelUsed && isset($resultMore['model'])) {
+                $modelUsed = $resultMore['model'];
+            }
         }
-        
+
         $this->trackUsage('company_description', [
             'usage' => [
                 'total_tokens' => $totalTokens,
                 'prompt_tokens' => $promptTokens,
                 'completion_tokens' => $completionTokens
-            ]
+            ],
+            'model' => $modelUsed
         ]);
         
         $pagesAnalyzed = array_merge([$url], $scrapedUrls);
