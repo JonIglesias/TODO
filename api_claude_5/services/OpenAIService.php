@@ -43,10 +43,24 @@ class OpenAIService {
                 $this->apiKey = OPENAI_API_KEY ?? '';
             }
         }
-        
-        $this->model = OPENAI_MODEL ?? 'gpt-4o-mini';
-        $this->maxTokens = OPENAI_MAX_TOKENS ?? 4000;
-        $this->temperature = OPENAI_TEMPERATURE ?? 0.7;
+
+        // ⭐ CRÍTICO: Leer modelo directamente de BD para Geowriter
+        // NO confiar en constantes que pueden estar cacheadas por OPcache
+        try {
+            $db = Database::getInstance();
+            $stmt = $db->prepare("SELECT setting_key, setting_value FROM " . DB_PREFIX . "settings WHERE setting_key IN ('geowrite_ai_model', 'geowrite_ai_temperature', 'geowrite_ai_max_tokens')");
+            $stmt->execute();
+            $settings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+            $this->model = $settings['geowrite_ai_model'] ?? OPENAI_MODEL ?? 'gpt-4o-mini';
+            $this->temperature = isset($settings['geowrite_ai_temperature']) ? floatval($settings['geowrite_ai_temperature']) : (OPENAI_TEMPERATURE ?? 0.7);
+            $this->maxTokens = isset($settings['geowrite_ai_max_tokens']) ? intval($settings['geowrite_ai_max_tokens']) : (OPENAI_MAX_TOKENS ?? 4000);
+        } catch (Exception $e) {
+            // Si falla la BD, usar constantes como fallback
+            $this->model = OPENAI_MODEL ?? 'gpt-4o-mini';
+            $this->maxTokens = OPENAI_MAX_TOKENS ?? 4000;
+            $this->temperature = OPENAI_TEMPERATURE ?? 0.7;
+        }
     }
     
     /**
