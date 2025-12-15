@@ -126,6 +126,36 @@ class GenerarTituloEndpoint extends BaseEndpoint {
             }
 
             $generatedTitle = trim($result['content']);
+
+            // [FIX] Si la IA devolvió múltiples títulos (separados por saltos de línea), tomar solo el primero
+            if (strpos($generatedTitle, "\n") !== false) {
+                $lines = explode("\n", $generatedTitle);
+                $validTitles = [];
+
+                foreach ($lines as $line) {
+                    $line = trim($line);
+
+                    // Saltar líneas vacías o muy cortas (< 15 caracteres)
+                    if (strlen($line) < 15) continue;
+
+                    // Quitar numeración si existe (1., 2., etc.)
+                    $line = preg_replace('/^\d+[\.\)\-\:]\s*/', '', $line);
+                    $line = preg_replace('/^[\*\-\•]\s*/', '', $line);
+                    $line = trim($line);
+
+                    // Validar que sea un título válido
+                    if (strlen($line) >= 15) {
+                        $validTitles[] = $line;
+                    }
+                }
+
+                // Tomar el primer título válido
+                if (!empty($validTitles)) {
+                    $generatedTitle = $validTitles[0];
+                    error_log("WARN: IA devolvió múltiples títulos. Tomando solo el primero: " . $generatedTitle);
+                }
+            }
+
             error_log("Título generado: " . $generatedTitle);
 
             // Verificar similitud con títulos existentes
