@@ -5,20 +5,20 @@
  * Generado automáticamente
  */
 
-/* Estilos globales para todos los botones */
-.button,
-button,
-input[type="button"],
-input[type="submit"],
-.ap-btn-primary,
-.ap-btn-secondary,
-.ap-btn-save,
-.ap-btn-danger,
-.ap-btn-cancel,
-.ap-btn-verify,
-.ap-btn-edit,
-.ap-btn-clone,
-.ap-action-btn {
+/* Estilos para botones solo dentro de los módulos del plugin */
+.ap-module-wrap .button,
+.ap-module-wrap button,
+.ap-module-wrap input[type="button"],
+.ap-module-wrap input[type="submit"],
+.ap-module-wrap .ap-btn-primary,
+.ap-module-wrap .ap-btn-secondary,
+.ap-module-wrap .ap-btn-save,
+.ap-module-wrap .ap-btn-danger,
+.ap-module-wrap .ap-btn-cancel,
+.ap-module-wrap .ap-btn-verify,
+.ap-module-wrap .ap-btn-edit,
+.ap-module-wrap .ap-btn-clone,
+.ap-module-wrap .ap-action-btn {
     height: 44px !important;
     border-radius: 5px !important;
 }
