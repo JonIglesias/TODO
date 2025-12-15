@@ -2,7 +2,7 @@
 /**
  * Plugin Name: GEO Writer - V7.0
  * Description: Sistema profesional de generación automática con IA - Versión mejorada con arquitectura optimizada
- * Version: 7.0.88
+ * Version: 7.0.89
  * Author: Bocetos Marketing
  * Text Domain: GEO Writer - V7.0
  * Requires PHP: 7.4
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Constantes globales
-define('AP_VERSION', '7.0.88');
+define('AP_VERSION', '7.0.89');
 define('AP_MIN_PHP', '7.4');
 define('AP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('AP_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -40,6 +40,26 @@ if (!defined('WP_DEBUG') || !WP_DEBUG) {
 
 // CARGAR SANITIZADOR POST INMEDIATAMENTE (PHP 8+ fix)
 require_once AP_PLUGIN_DIR . 'core/bootstrap/ap-sanitize-post.php';
+
+/**
+ * Sistema de actualizaciones automáticas desde GitHub
+ */
+// Cargar Parsedown (requerido por Plugin Update Checker)
+if (!class_exists('Parsedown')) {
+    require_once AP_PLUGIN_DIR . 'lib/Parsedown.php';
+}
+
+require AP_PLUGIN_DIR . 'lib/plugin-update-checker/plugin-update-checker.php';
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+
+$geowriterUpdateChecker = PucFactory::buildUpdateChecker(
+    'https://github.com/bocetosmarketing/geowriter',
+    __FILE__,
+    'geowriter'
+);
+
+// Opcional: establecer rama específica para updates (por defecto usa releases)
+// $geowriterUpdateChecker->setBranch('main');
 
 /**
  * Verificar versión PHP

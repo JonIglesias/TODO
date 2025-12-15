@@ -1,0 +1,40 @@
+# WordPress
+*.log
+.htaccess
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDEs
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# PHP
+composer.phar
+vendor/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Backups
+*.bak
+*.swp
+*.swo
+*~
+
+# Logs y cache
+error_log
+debug.log
+*.cache
