@@ -2,7 +2,7 @@
 /**
  * Plugin Name: GEO Writer - V7.0
  * Description: Sistema profesional de generación automática con IA - Versión mejorada con arquitectura optimizada
- * Version: 7.0.89
+ * Version: 7.0.90
  * Author: Bocetos Marketing
  * Text Domain: GEO Writer - V7.0
  * Requires PHP: 7.4
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Constantes globales
-define('AP_VERSION', '7.0.89');
+define('AP_VERSION', '7.0.90');
 define('AP_MIN_PHP', '7.4');
 define('AP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('AP_PLUGIN_URL', plugin_dir_url(__FILE__));
