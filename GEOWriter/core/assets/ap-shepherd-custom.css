@@ -53,7 +53,8 @@
     padding: 10px 20px !important;
     font-size: 14px !important;
     font-weight: 500 !important;
-    border-radius: 8px !important;
+    height: 44px !important;
+    border-radius: 5px !important;
     border: none !important;
     cursor: pointer !important;
     transition: all 0.2s ease !important;
@@ -65,13 +66,13 @@
 }
 
 .ap-shepherd-theme .shepherd-button:not(.shepherd-button-secondary) {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    background: linear-gradient(135deg, #59b76d 0%, #24611e 100%) !important;
     color: #ffffff !important;
 }
 
 .ap-shepherd-theme .shepherd-button:not(.shepherd-button-secondary):hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4) !important;
+    box-shadow: 0 4px 12px rgba(89, 183, 109, 0.4) !important;
 }
 
 .ap-shepherd-theme .shepherd-button-secondary {
@@ -149,20 +150,21 @@
     align-items: center;
     gap: 6px;
     padding: 8px 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    height: 44px;
+    background: linear-gradient(135deg, #59b76d 0%, #24611e 100%);
     color: #ffffff;
     border: none;
-    border-radius: 8px;
+    border-radius: 5px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 8px rgba(89, 183, 109, 0.3);
 }
 
 .ap-help-tour-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 16px rgba(89, 183, 109, 0.4);
 }
 
 .ap-help-tour-btn .dashicons {
