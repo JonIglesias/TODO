@@ -42,6 +42,21 @@ if (!defined('WP_DEBUG') || !WP_DEBUG) {
 require_once AP_PLUGIN_DIR . 'core/bootstrap/ap-sanitize-post.php';
 
 /**
+ * Sistema de actualizaciones automáticas desde GitHub
+ */
+require AP_PLUGIN_DIR . 'lib/plugin-update-checker/plugin-update-checker.php';
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+
+$geowriterUpdateChecker = PucFactory::buildUpdateChecker(
+    'https://github.com/bocetosmarketing/geowriter',
+    __FILE__,
+    'geowriter'
+);
+
+// Opcional: establecer rama específica para updates (por defecto usa releases)
+// $geowriterUpdateChecker->setBranch('main');
+
+/**
  * Verificar versión PHP
  */
 if (version_compare(PHP_VERSION, AP_MIN_PHP, '<')) {
