@@ -35,7 +35,7 @@ CRITICAL: Think like this:
 DO NOT think about the company's services. Think about the THINGS, PRODUCTS, TECHNIQUES, or TRENDS that exist in this world.
 
 STEP 2 - TITLE GENERATION:
-Generate 1 journalistic title that:
+Generate ONLY 1 journalistic title (not multiple options) that:
 
 CONTENT:
 - Addresses ONE specific and concrete topic from the ecosystem (NOT the company)
@@ -59,4 +59,5 @@ FORBIDDEN:
 - Titles about "experiences", "workshops", "courses" or other service-oriented language
 
 OUTPUT:
-Return only the title in SPANISH, without explanations.
+Return ONLY ONE SINGLE TITLE in SPANISH, without explanations, numbering, or multiple options.
+Do not include variations or alternatives. Just one title.
