@@ -76,15 +76,52 @@ $release = json_decode($response, true);
 
 debug_log("Release data: " . json_encode(['tag' => $release['tag_name'] ?? 'unknown', 'has_zipball' => isset($release['zipball_url'])]));
 
-// Redirigir al zipball (código fuente del release)
-if (isset($release['zipball_url'])) {
-    $redirect_url = $release['zipball_url'];
-    debug_log("Redirecting to: $redirect_url");
-    header('Location: ' . $redirect_url);
-    exit;
+// Preparar URL y nombre comercial del archivo
+$download_url = null;
+$filename = 'conversa.zip';
+
+if (isset($release['zipball_url']) && isset($release['tag_name'])) {
+    $download_url = $release['zipball_url'];
+    $filename = 'conversa-' . $release['tag_name'] . '.zip';
+} else {
+    debug_log("No zipball_url found - Using fallback");
+    $download_url = 'https://github.com/bocetosmarketing/conversa-bot/archive/refs/heads/main.zip';
+    $filename = 'conversa-latest.zip';
 }
 
-// Fallback si algo falla
-debug_log("No zipball_url found - Using fallback");
-header('Location: https://github.com/bocetosmarketing/conversa-bot/archive/refs/heads/main.zip');
+debug_log("Downloading from: $download_url");
+debug_log("Serving as: $filename");
+
+// Configurar headers para descarga con nombre comercial
+header('Content-Type: application/zip');
+header('Content-Disposition: attachment; filename="' . $filename . '"');
+header('Cache-Control: no-cache, must-revalidate');
+header('Pragma: no-cache');
+
+// Streaming del archivo desde GitHub sin guardarlo en disco
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $download_url);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+curl_setopt($ch, CURLOPT_USERAGENT, 'WooCommerce-Download-Script');
+curl_setopt($ch, CURLOPT_TIMEOUT, 300); // 5 minutos para archivos grandes
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($curl, $data) {
+    echo $data;
+    flush();
+    return strlen($data);
+});
+
+debug_log("Starting file streaming...");
+$result = curl_exec($ch);
+$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$curl_error = curl_error($ch);
+curl_close($ch);
+
+if ($result === false) {
+    debug_log("ERROR: cURL streaming failed: $curl_error (HTTP: $http_code)");
+    http_response_code(500);
+    die("Error downloading file");
+}
+
+debug_log("Download completed successfully (HTTP: $http_code)");
 exit;
