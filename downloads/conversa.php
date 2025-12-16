@@ -5,7 +5,7 @@
  */
 
 // Log para debugging (comentar en producción si no se necesita)
-$log_enabled = false; // Cambiar a true para activar logs
+$log_enabled = true; // Cambiar a true para activar logs
 $log_file = __DIR__ . '/download-debug.log';
 
 function debug_log($message) {
