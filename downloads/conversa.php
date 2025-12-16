@@ -4,18 +4,35 @@
  * Compatible con verificaciones de WooCommerce
  */
 
-// Log para debugging (comentar en producción si no se necesita)
-$log_enabled = true; // Cambiar a true para activar logs
+// Log para debugging - FORZAR escritura inmediata
+$log_enabled = true;
 $log_file = __DIR__ . '/download-debug.log';
 
+// Función de logging mejorada con captura de errores
 function debug_log($message) {
     global $log_enabled, $log_file;
     if ($log_enabled) {
-        file_put_contents($log_file, date('Y-m-d H:i:s') . " [Conversa] " . $message . "\n", FILE_APPEND);
+        $timestamp = date('Y-m-d H:i:s');
+        $log_entry = "$timestamp [Conversa] $message\n";
+        @file_put_contents($log_file, $log_entry, FILE_APPEND | LOCK_EX);
+        @chmod($log_file, 0666); // Asegurar permisos de escritura
     }
 }
 
-debug_log("Request: " . $_SERVER['REQUEST_METHOD'] . " from " . ($_SERVER['HTTP_USER_AGENT'] ?? 'unknown'));
+// Capturar errores fatales
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        debug_log("FATAL ERROR: " . $error['message'] . " in " . $error['file'] . ":" . $error['line']);
+    }
+});
+
+// Log inicial INMEDIATO
+debug_log("=== SCRIPT INICIADO ===");
+debug_log("Request: " . ($_SERVER['REQUEST_METHOD'] ?? 'CLI') . " from " . ($_SERVER['HTTP_USER_AGENT'] ?? 'unknown'));
+debug_log("Remote IP: " . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+debug_log("Request URI: " . ($_SERVER['REQUEST_URI'] ?? 'unknown'));
+debug_log("Query String: " . ($_SERVER['QUERY_STRING'] ?? 'none'));
 
 // Si es un HEAD request (WooCommerce verificando), responder como si fuera un ZIP válido
 if ($_SERVER['REQUEST_METHOD'] === 'HEAD') {
