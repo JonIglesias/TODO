@@ -1001,8 +1001,14 @@ jQuery(document).ready(function($) {
         const companyDesc = $('#company_desc').val().trim();
         const niche = $('#niche').val().trim() || $('#niche_custom').val().trim();
 
+        console.log('[CheckStyles] Company desc length:', companyDesc.length);
+        console.log('[CheckStyles] Niche:', niche);
+        console.log('[CheckStyles] Already populated:', stylesAlreadyPopulated);
+
         // Si ambos campos están llenos y no se han poblado los estilos aún
         if (companyDesc && niche && !stylesAlreadyPopulated) {
+            console.log('[CheckStyles] ✅ Condiciones cumplidas, programando llamada...');
+
             // Cancelar timer previo
             if (decideEstiloTimer) {
                 clearTimeout(decideEstiloTimer);
@@ -1012,11 +1018,17 @@ jQuery(document).ready(function($) {
             decideEstiloTimer = setTimeout(function() {
                 callDecideEstilo(niche, companyDesc);
             }, 1000);
+        } else {
+            if (!companyDesc) console.log('[CheckStyles] ⚠️ Falta company_desc');
+            if (!niche) console.log('[CheckStyles] ⚠️ Falta niche');
+            if (stylesAlreadyPopulated) console.log('[CheckStyles] ⚠️ Ya se poblaron los estilos');
         }
     }
 
     function callDecideEstilo(niche, companyDesc) {
-        console.log('Calling decide_estilo API...');
+        console.log('[DecideEstilo] Iniciando llamada API...');
+        console.log('[DecideEstilo] Niche:', niche);
+        console.log('[DecideEstilo] Company Desc:', companyDesc.substring(0, 50) + '...');
 
         $.ajax({
             url: ajaxurl,
@@ -1024,16 +1036,21 @@ jQuery(document).ready(function($) {
             data: {
                 action: 'ap_decide_estilo',
                 nonce: '<?php echo wp_create_nonce("ap_nonce"); ?>',
+                campaign_id: campaignId,
                 niche: niche,
                 company_desc: companyDesc
             },
             beforeSend: function() {
+                console.log('[DecideEstilo] Enviando petición AJAX...');
                 // Mostrar indicador de carga en las descripciones
-                $('.style-description').html('<em style="color:#999;">Analizando...</em>');
+                $('.style-description').html('<em style="color:#999;">Analizando...</em>').show();
             },
             success: function(response) {
-                if (response.success && response.data.styles) {
+                console.log('[DecideEstilo] Respuesta recibida:', response);
+
+                if (response.success && response.data && response.data.styles) {
                     const styles = response.data.styles;
+                    console.log('[DecideEstilo] Estilos recibidos:', Object.keys(styles));
 
                     // Actualizar las descripciones de cada estilo
                     $('input[name="image_style_selected"]').each(function() {
@@ -1041,7 +1058,10 @@ jQuery(document).ready(function($) {
                         const $description = $(this).closest('.ap-radio-style').find('.style-description');
 
                         if (styles[styleKey]) {
+                            console.log('[DecideEstilo] Actualizando estilo:', styleKey);
                             $description.text(styles[styleKey]).show();
+                        } else {
+                            console.warn('[DecideEstilo] No se encontró descripción para:', styleKey);
                         }
                     });
 
@@ -1053,15 +1073,16 @@ jQuery(document).ready(function($) {
                     $('#keywords_images').val(JSON.stringify(currentData));
 
                     stylesAlreadyPopulated = true;
-                    console.log('Estilos poblados correctamente');
+                    console.log('[DecideEstilo] ✅ Estilos poblados correctamente');
                 } else {
-                    console.error('Error en decide_estilo:', response.data?.message || 'Error desconocido');
-                    $('.style-description').html('<em style="color:#c00;">Error al analizar estilos</em>');
+                    console.error('[DecideEstilo] ❌ Error en respuesta:', response.data?.message || response);
+                    $('.style-description').html('<em style="color:#c00;">Error al analizar estilos</em>').show();
                 }
             },
             error: function(xhr, status, error) {
-                console.error('AJAX error:', error);
-                $('.style-description').html('<em style="color:#c00;">Error de conexión</em>');
+                console.error('[DecideEstilo] ❌ Error AJAX:', status, error);
+                console.error('[DecideEstilo] Response text:', xhr.responseText);
+                $('.style-description').html('<em style="color:#c00;">Error de conexión</em>').show();
             }
         });
     }

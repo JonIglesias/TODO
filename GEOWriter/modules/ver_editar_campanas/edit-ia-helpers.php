@@ -278,11 +278,9 @@ class AP_IA_Helpers {
      * @return array ['success' => bool, 'data' => ['styles' => array]]
      */
     public static function decide_estilo($niche, $company_desc) {
-        // ⭐ ESTABLECER Y VALIDAR CONTEXTO
-        $context = self::set_campaign_context();
-        if (!$context['success']) {
-            return $context;
-        }
+        // ⭐ ESTABLECER CONTEXTO (opcional para decide_estilo)
+        // Intentar establecer contexto pero no fallar si no está disponible
+        self::set_campaign_context();
 
         $api = self::get_api_client();
         $result = $api->decide_estilo($niche, $company_desc);
