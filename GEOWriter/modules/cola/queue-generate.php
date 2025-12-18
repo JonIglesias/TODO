@@ -280,23 +280,18 @@ class AP_Queue_Generator {
         // Generar keywords para imágenes
         $keywords_result = $this->generate_image_keywords($title);
         $image_keywords = '';
-        
+
         if ($keywords_result['success']) {
+            // Con el nuevo sistema, recibimos UNA keyword aspiracional (no una lista)
             $image_keywords = $keywords_result['keywords'] ?? $keywords_result['data'] ?? '';
-            
-            // Limitar a 15 términos máximo
-            $terms = array_map('trim', explode(',', $image_keywords));
-            $terms = array_slice($terms, 0, 15);
-            $image_keywords = implode(', ', $terms);
+            $image_keywords = trim($image_keywords);
         }
-        
+
+        // Fallback: usar keywords_seo si no se generó keyword aspiracional
         if (empty($image_keywords)) {
             $image_keywords = $this->campaign->keywords_seo ?? '';
-            $terms = array_map('trim', explode(',', $image_keywords));
-            $terms = array_slice($terms, 0, 15);
-            $image_keywords = implode(', ', $terms);
         }
-        
+
         $tokens_keywords = $keywords_result['tokens'] ?? 0;
         
         // Buscar imágenes
