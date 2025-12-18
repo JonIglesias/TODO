@@ -13,23 +13,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Constantes globales
-define('AP_VERSION', '7.0.90');
-define('AP_MIN_PHP', '7.4');
-define('AP_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define('AP_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('AP_CORE_DIR', AP_PLUGIN_DIR . 'core/');
-define('AP_MODULES_DIR', AP_PLUGIN_DIR . 'modules/');
-define('AP_API_URL_DEFAULT', 'https://www.bocetosmarketing.com/api_claude_5');
-
-// Constantes de configuración
-define('AP_MAX_TIMEOUT', 120); // Timeout máximo de 2 minutos
-define('AP_RATE_LIMIT_WINDOW', 300); // 5 minutos
-define('AP_CACHE_DURATION', HOUR_IN_SECONDS);
-define('AP_LOG_MAX_SIZE', 10 * 1024 * 1024); // 10MB
-define('AP_BATCH_SIZE', 5);
-define('AP_MAX_RETRIES', 3);
-define('AP_RETRY_DELAY', 2);
+// Cargar configuración centralizada
+// IMPORTANTE: Para cambiar la URL de la API, edita el archivo config.php
+require_once __DIR__ . '/config.php';
 
 // Suprimir deprecated/notice solo en producción (PHP 8+ compatibility)
 // Esto evita warnings de WordPress core y otros plugins con código legacy
