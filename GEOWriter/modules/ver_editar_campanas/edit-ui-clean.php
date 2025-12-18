@@ -1023,7 +1023,7 @@ jQuery(document).ready(function($) {
             type: 'POST',
             data: {
                 action: 'ap_decide_estilo',
-                nonce: '<?php echo wp_create_nonce("ap_ajax_nonce"); ?>',
+                nonce: '<?php echo wp_create_nonce("ap_nonce"); ?>',
                 niche: niche,
                 company_desc: companyDesc
             },
@@ -1041,7 +1041,7 @@ jQuery(document).ready(function($) {
                         const $description = $(this).closest('.ap-radio-style').find('.style-description');
 
                         if (styles[styleKey]) {
-                            $description.text(styles[styleKey]);
+                            $description.text(styles[styleKey]).show();
                         }
                     });
 
