@@ -126,6 +126,13 @@ $router->post('generate/decide-estilo', function() {
     $endpoint->handle();
 });
 
+// Generar prompt dinámico para keywords de imagen
+$router->post('generate/image-prompt', function() {
+    require_once API_BASE_DIR . '/endpoints/generate-image-prompt.php';
+    $endpoint = new GenerateImagePromptEndpoint();
+    $endpoint->handle();
+});
+
 // Título individual
 $router->post('generate/titulo', function() {
     require_once API_BASE_DIR . '/endpoints/generar-titulo.php';

@@ -470,6 +470,19 @@ function ap_run_migrations() {
 
         update_option('ap_db_version', '2.0');
     }
+
+    // Migración v2.1: Añadir campo image_dynamic_prompt para sistema de estilos de imagen
+    // Este campo almacena el prompt dinámico generado por IA para keywords de imagen
+    if (version_compare($current_version, '2.1', '<')) {
+        $campaigns_table = $wpdb->prefix . 'ap_campaigns';
+        $columns = $wpdb->get_col("DESCRIBE $campaigns_table");
+
+        if (!in_array('image_dynamic_prompt', $columns)) {
+            $wpdb->query("ALTER TABLE $campaigns_table ADD COLUMN image_dynamic_prompt LONGTEXT NULL AFTER keywords_images");
+        }
+
+        update_option('ap_db_version', '2.1');
+    }
 }
 
 // Ejecutar al activar plugin

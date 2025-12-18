@@ -172,16 +172,16 @@ class AP_IA_Helpers {
         ];
     }
     
-    public static function generate_keywords_images($title, $niche, $company_desc, $keywords_seo, $keywords_images_base = '') {
+    public static function generate_keywords_images($title, $dynamic_prompt = '') {
         // ⭐ ESTABLECER Y VALIDAR CONTEXTO
         $context = self::set_campaign_context();
         if (!$context['success']) {
             return $context;
         }
-        
+
         $api = self::get_api_client();
-        $result = $api->generate_image_keywords($title, $niche, $company_desc, $keywords_seo, $keywords_images_base);
-        
+        $result = $api->generate_image_keywords($title, $dynamic_prompt);
+
         if ($result && isset($result['success']) && $result['success']) {
             return [
                 'success' => true,
@@ -190,7 +190,7 @@ class AP_IA_Helpers {
                 'tokens' => $result['tokens_used'] ?? 0
             ];
         }
-        
+
         return [
             'success' => false,
             'message' => $result['error'] ?? 'Error generando keywords de imagen'
@@ -252,10 +252,10 @@ class AP_IA_Helpers {
         if (!$context['success']) {
             return $context;
         }
-        
+
         $api = self::get_api_client();
         $result = $api->generate_post_content($title, $keywords_seo, $company_desc, $length, $custom_prompt);
-        
+
         if ($result && isset($result['success']) && $result['success']) {
             return [
                 'success' => true,
@@ -263,10 +263,75 @@ class AP_IA_Helpers {
                 'tokens' => $result['tokens_used'] ?? 0
             ];
         }
-        
+
         return [
             'success' => false,
             'message' => $result['error'] ?? 'Error generando contenido'
+        ];
+    }
+
+    /**
+     * Decide estilo visual - Genera descripciones contextualizadas de estilos
+     *
+     * @param string $niche
+     * @param string $company_desc
+     * @return array ['success' => bool, 'data' => ['styles' => array]]
+     */
+    public static function decide_estilo($niche, $company_desc) {
+        // ⭐ ESTABLECER Y VALIDAR CONTEXTO
+        $context = self::set_campaign_context();
+        if (!$context['success']) {
+            return $context;
+        }
+
+        $api = self::get_api_client();
+        $result = $api->decide_estilo($niche, $company_desc);
+
+        if ($result && isset($result['success']) && $result['success']) {
+            return [
+                'success' => true,
+                'data' => [
+                    'styles' => $result['styles'] ?? []
+                ],
+                'tokens' => $result['tokens_used'] ?? 0
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => $result['error'] ?? 'Error analizando estilos visuales'
+        ];
+    }
+
+    /**
+     * Genera prompt dinámico para keywords de imagen
+     *
+     * @param string $company_desc
+     * @param string $niche
+     * @param string $image_style_selected
+     * @return array ['success' => bool, 'data' => string (dynamic_prompt)]
+     */
+    public static function generate_image_prompt($company_desc, $niche, $image_style_selected) {
+        // ⭐ ESTABLECER Y VALIDAR CONTEXTO
+        $context = self::set_campaign_context();
+        if (!$context['success']) {
+            return $context;
+        }
+
+        $api = self::get_api_client();
+        $result = $api->generate_image_prompt($company_desc, $niche, $image_style_selected);
+
+        if ($result && isset($result['success']) && $result['success']) {
+            return [
+                'success' => true,
+                'data' => $result['dynamic_prompt'] ?? '',
+                'tokens' => $result['tokens_used'] ?? 0
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => $result['error'] ?? 'Error generando prompt dinámico de imagen'
         ];
     }
 }

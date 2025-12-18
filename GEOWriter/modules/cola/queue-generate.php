@@ -514,17 +514,22 @@ class AP_Queue_Generator {
     }
     
     private function generate_image_keywords($title) {
-        // Pasar las keywords de imagen base de la campaña
-        $base_keywords = $this->campaign->keywords_images ?? '';
-        
+        // Usar el prompt dinámico de imagen generado en la campaña
+        $dynamic_prompt = $this->campaign->image_dynamic_prompt ?? '';
+
+        // Si no hay prompt dinámico, retornar error
+        if (empty($dynamic_prompt)) {
+            return [
+                'success' => false,
+                'message' => 'No hay prompt dinámico de imagen configurado. Guarda la campaña de nuevo para generarlo.'
+            ];
+        }
+
         $result = AP_IA_Helpers::generate_keywords_images(
             $title,
-            $this->campaign->niche,
-            $this->campaign->company_desc,
-            $this->campaign->keywords_seo,
-            $base_keywords  // Keywords de imagen de la campaña
+            $dynamic_prompt
         );
-        
+
         return $result;
     }
     
