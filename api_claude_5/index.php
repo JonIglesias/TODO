@@ -119,20 +119,6 @@ $router->post('generate/keywords-campana', function() {
     $endpoint->handle();
 });
 
-// Análisis de estilos visuales
-$router->post('generate/decide-estilo', function() {
-    require_once API_BASE_DIR . '/endpoints/decide_estilo.php';
-    $endpoint = new DecideEstiloEndpoint();
-    $endpoint->handle();
-});
-
-// Generar prompt dinámico para keywords de imagen
-$router->post('generate/image-prompt', function() {
-    require_once API_BASE_DIR . '/endpoints/generate-image-prompt.php';
-    $endpoint = new GenerateImagePromptEndpoint();
-    $endpoint->handle();
-});
-
 // Título individual
 $router->post('generate/titulo', function() {
     require_once API_BASE_DIR . '/endpoints/generar-titulo.php';

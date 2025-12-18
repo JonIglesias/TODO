@@ -54,39 +54,6 @@ function ap_campaign_save_handler() {
         'image_provider' => sanitize_text_field($_POST['image_provider'] ?? 'pexels'),
         'category_id' => intval($_POST['category_id'] ?? 0)
     ];
-
-    // ========================================
-    // GENERAR PROMPT DINÁMICO DE IMAGEN
-    // ========================================
-    // Si tenemos company_desc, niche y un estilo seleccionado, generar el prompt dinámico
-    $image_dynamic_prompt = '';
-    $company_desc = $data['company_desc'];
-    $niche_value = $data['niche'];
-    $keywords_images_json = $data['keywords_images'];
-
-    if (!empty($company_desc) && !empty($keywords_images_json)) {
-        // Parsear el JSON de keywords_images para obtener el estilo seleccionado
-        $keywords_data = json_decode($keywords_images_json, true);
-        $selected_style = $keywords_data['selected'] ?? '';
-
-        if (!empty($selected_style)) {
-            // Establecer contexto de campaña para el helper
-            if ($campaign_id) {
-                $GLOBALS['ap_current_campaign_id'] = (string)$campaign_id;
-                $GLOBALS['ap_current_campaign_name'] = $campaign_name;
-            }
-
-            // Llamar al helper para generar el prompt dinámico
-            $result = AP_IA_Helpers::generate_image_prompt($company_desc, $niche_value, $selected_style);
-
-            if ($result && isset($result['success']) && $result['success']) {
-                $image_dynamic_prompt = $result['data'];
-            }
-        }
-    }
-
-    // Añadir el prompt dinámico a los datos a guardar
-    $data['image_dynamic_prompt'] = $image_dynamic_prompt;
     
     // ========================================
     // ACTUALIZAR CAMPAÑA EXISTENTE

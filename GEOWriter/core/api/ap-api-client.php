@@ -636,30 +636,27 @@ class AP_API_Client {
     
     /**
      * 5. Generar keywords para imágenes
-     * NUEVO: usa generate/keywords-imagenes con dynamic_prompt
+     * CORREGIDO: usa generate-keywords con type=images
      */
-    public function generate_image_keywords($title, $dynamic_prompt = '') {
-        // Si no hay dynamic_prompt, no podemos generar keywords
-        if (empty($dynamic_prompt)) {
-            return [
-                'success' => false,
-                'error' => 'dynamic_prompt es requerido'
-            ];
-        }
-
-        $result = $this->request('generate/keywords-imagenes', [
+    public function generate_image_keywords($title, $niche, $description, $seo_keywords = '', $base_image_keywords = '') {
+        $result = $this->request('generate-keywords', [
+            'type' => 'images',
             'title' => $title,
-            'dynamic_prompt' => $dynamic_prompt
+            'niche' => $niche,
+            'company_description' => $description,
+            'keywords_seo' => $seo_keywords,
+            'keywords_images_base' => $base_image_keywords  // Keywords de imagen de la campaña
         ]);
-
+        
         if (isset($result['success']) && $result['success']) {
+            $data = $result['data'] ?? [];
             return [
                 'success' => true,
-                'keywords' => $result['keywords'] ?? '',
-                'tokens_used' => $result['tokens_used'] ?? 0
+                'keywords' => $data['keywords'] ?? '',
+                'tokens_used' => $data['usage']['total_tokens'] ?? 0
             ];
         }
-
+        
         return [
             'success' => false,
             'error' => $result['error'] ?? 'Error generando keywords de imágenes'
@@ -759,75 +756,17 @@ class AP_API_Client {
      */
     public function get_api_settings(): array {
         $result = $this->request('get-settings', []);
-
+        
         if (isset($result['success']) && $result['success']) {
             return [
                 'success' => true,
                 'data' => $result['data'] ?? []
             ];
         }
-
+        
         return [
             'success' => false,
             'error' => $result['error'] ?? 'Error obteniendo configuración'
-        ];
-    }
-
-    /**
-     * Decide estilo visual - Analiza el negocio y genera descripciones contextualizadas de estilos
-     *
-     * @param string $niche
-     * @param string $company_desc
-     * @return array ['success' => bool, 'styles' => array, 'tokens_used' => int]
-     */
-    public function decide_estilo(string $niche, string $company_desc): array {
-        $result = $this->request('generate/decide-estilo', [
-            'niche' => $niche,
-            'company_description' => $company_desc
-        ]);
-
-        if (isset($result['success']) && $result['success']) {
-            return [
-                'success' => true,
-                'styles' => $result['styles'] ?? [],
-                'tokens_used' => $result['tokens_used'] ?? 0
-            ];
-        }
-
-        return [
-            'success' => false,
-            'error' => $result['error'] ?? 'Error analizando estilos visuales'
-        ];
-    }
-
-    /**
-     * Genera prompt dinámico para keywords de imagen basado en negocio y estilo seleccionado
-     *
-     * @param string $company_desc
-     * @param string $niche
-     * @param string $image_style_selected
-     * @return array ['success' => bool, 'dynamic_prompt' => string, 'tokens_used' => int]
-     */
-    public function generate_image_prompt(string $company_desc, string $niche, string $image_style_selected): array {
-        $result = $this->request('generate/image-prompt', [
-            'company_description' => $company_desc,
-            'niche' => $niche,
-            'image_style_selected' => $image_style_selected,
-            // title se añadirá como placeholder {{title}} en el prompt
-            'title' => '{{title}}'
-        ]);
-
-        if (isset($result['success']) && $result['success']) {
-            return [
-                'success' => true,
-                'dynamic_prompt' => $result['dynamic_prompt'] ?? '',
-                'tokens_used' => $result['tokens_used'] ?? 0
-            ];
-        }
-
-        return [
-            'success' => false,
-            'error' => $result['error'] ?? 'Error generando prompt dinámico de imagen'
         ];
     }
 }

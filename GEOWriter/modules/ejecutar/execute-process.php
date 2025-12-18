@@ -74,13 +74,13 @@ class AP_Queue_Executor {
 
         // Descargar imágenes con logs
         $featured_id = self::download_image($item->featured_image_url, [
-            'keywords' => $item->image_keywords,
+            'keywords' => $campaign->keywords_seo,
             'title' => $item->title,
             'type' => 'featured'
         ]);
 
         $inner_id = self::download_image($item->inner_image_url, [
-            'keywords' => $item->image_keywords,
+            'keywords' => $campaign->keywords_seo,
             'title' => $item->title,
             'type' => 'inner'
         ]);

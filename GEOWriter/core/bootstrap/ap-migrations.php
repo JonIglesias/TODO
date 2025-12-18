@@ -470,36 +470,6 @@ function ap_run_migrations() {
 
         update_option('ap_db_version', '2.0');
     }
-
-    // Migración v2.1: Añadir campo image_dynamic_prompt para sistema de estilos de imagen
-    // Este campo almacena el prompt dinámico generado por IA para keywords de imagen
-    if (version_compare($current_version, '2.1', '<')) {
-        $campaigns_table = $wpdb->prefix . 'ap_campaigns';
-        $columns = $wpdb->get_col("DESCRIBE $campaigns_table");
-
-        if (!in_array('image_dynamic_prompt', $columns)) {
-            $wpdb->query("ALTER TABLE $campaigns_table ADD COLUMN image_dynamic_prompt LONGTEXT NULL AFTER keywords_images");
-        }
-
-        update_option('ap_db_version', '2.1');
-    }
-
-    // Migración v2.2: Actualizar URL de API de api_claude_5 a api_v2
-    // Actualiza automáticamente la URL guardada en la base de datos
-    if (version_compare($current_version, '2.2', '<')) {
-        $current_api_url = get_option('ap_api_url', '');
-
-        // Si la URL actual contiene 'api_claude_5', actualizarla a 'api_v2'
-        if (strpos($current_api_url, 'api_claude_5') !== false) {
-            $new_api_url = str_replace('api_claude_5', 'api_v2', $current_api_url);
-            update_option('ap_api_url', $new_api_url);
-
-            // Log de la actualización (opcional, para debugging)
-            error_log("GEOWriter: API URL actualizada de '$current_api_url' a '$new_api_url'");
-        }
-
-        update_option('ap_db_version', '2.2');
-    }
 }
 
 // Ejecutar al activar plugin

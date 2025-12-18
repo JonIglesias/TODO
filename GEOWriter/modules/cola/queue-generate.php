@@ -280,18 +280,23 @@ class AP_Queue_Generator {
         // Generar keywords para imágenes
         $keywords_result = $this->generate_image_keywords($title);
         $image_keywords = '';
-
+        
         if ($keywords_result['success']) {
-            // Con el nuevo sistema, recibimos UNA keyword aspiracional (no una lista)
             $image_keywords = $keywords_result['keywords'] ?? $keywords_result['data'] ?? '';
-            $image_keywords = trim($image_keywords);
+            
+            // Limitar a 15 términos máximo
+            $terms = array_map('trim', explode(',', $image_keywords));
+            $terms = array_slice($terms, 0, 15);
+            $image_keywords = implode(', ', $terms);
         }
-
-        // Fallback: usar keywords_seo si no se generó keyword aspiracional
+        
         if (empty($image_keywords)) {
             $image_keywords = $this->campaign->keywords_seo ?? '';
+            $terms = array_map('trim', explode(',', $image_keywords));
+            $terms = array_slice($terms, 0, 15);
+            $image_keywords = implode(', ', $terms);
         }
-
+        
         $tokens_keywords = $keywords_result['tokens'] ?? 0;
         
         // Buscar imágenes
@@ -509,22 +514,17 @@ class AP_Queue_Generator {
     }
     
     private function generate_image_keywords($title) {
-        // Usar el prompt dinámico de imagen generado en la campaña
-        $dynamic_prompt = $this->campaign->image_dynamic_prompt ?? '';
-
-        // Si no hay prompt dinámico, retornar error
-        if (empty($dynamic_prompt)) {
-            return [
-                'success' => false,
-                'message' => 'No hay prompt dinámico de imagen configurado. Guarda la campaña de nuevo para generarlo.'
-            ];
-        }
-
+        // Pasar las keywords de imagen base de la campaña
+        $base_keywords = $this->campaign->keywords_images ?? '';
+        
         $result = AP_IA_Helpers::generate_keywords_images(
             $title,
-            $dynamic_prompt
+            $this->campaign->niche,
+            $this->campaign->company_desc,
+            $this->campaign->keywords_seo,
+            $base_keywords  // Keywords de imagen de la campaña
         );
-
+        
         return $result;
     }
     

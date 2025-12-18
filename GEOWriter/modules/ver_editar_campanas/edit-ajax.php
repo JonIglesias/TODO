@@ -299,32 +299,3 @@ function ap_autosave_campaign_ajax() {
     }
 }
 
-// ⭐ DECIDIR ESTILO VISUAL (auto-llamado cuando company_desc + niche están llenos)
-add_action('wp_ajax_ap_decide_estilo', 'ap_decide_estilo_ajax');
-function ap_decide_estilo_ajax() {
-    // Aplicar rate limiting: máximo 10 análisis de estilo cada 5 minutos
-    AP_Rate_Limiter::enforce('ap_decide_estilo', 10, AP_RATE_LIMIT_WINDOW);
-
-    ap_verify_ajax_request();
-
-    $niche = sanitize_text_field($_POST['niche'] ?? '');
-    $company_desc = sanitize_textarea_field($_POST['company_desc'] ?? '');
-
-    if (empty($company_desc)) {
-        wp_send_json_error(['message' => 'Descripción de empresa requerida']);
-    }
-
-    // Llamar a la API para obtener descripciones de estilos contextualizados
-    $result = AP_IA_Helpers::decide_estilo($niche, $company_desc);
-
-    if ($result && isset($result['success']) && $result['success']) {
-        wp_send_json_success([
-            'styles' => $result['data']['styles'] ?? []
-        ]);
-    } else {
-        wp_send_json_error([
-            'message' => $result['message'] ?? 'Error analizando estilos'
-        ]);
-    }
-}
-

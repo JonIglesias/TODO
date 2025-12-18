@@ -253,72 +253,22 @@ $max_posts_form = ($max_posts_per_campaign === -1) ? 1000 : $max_posts_per_campa
             </h2>
             
             <div class="ap-field-group">
-                <label class="ap-field-label">
-                    Estilo Visual de Imágenes
+                <label class="ap-field-label" for="keywords_images">
+                    Keywords para Imágenes
                 </label>
-
-                <div id="image-styles-container" style="margin-top: 10px;">
-                    <?php
-                    // Parsear keywords_images para obtener datos guardados
-                    $saved_data = null;
-                    $selected_style = 'luxury'; // Default
-
-                    if ($is_edit && !empty($campaign->keywords_images)) {
-                        $saved_data = json_decode($campaign->keywords_images, true);
-                        if (json_last_error() === JSON_ERROR_NONE && isset($saved_data['selected'])) {
-                            $selected_style = $saved_data['selected'];
-                        }
-                    }
-
-                    // Estilos disponibles con nombres por defecto
-                    $styles = [
-                        'lifestyle' => 'Lifestyle / Aspiracional',
-                        'technical' => 'Técnico / Profesional',
-                        'luxury' => 'Luxury / Premium',
-                        'natural' => 'Natural / Eco',
-                        'documentary' => 'Documental / Real',
-                        'minimalist' => 'Minimalista / Clean',
-                        'editorial' => 'Editorial / Magazine',
-                        'corporate' => 'Corporativo / Business'
-                    ];
-
-                    foreach ($styles as $key => $label):
-                        $description = '';
-                        if ($saved_data && isset($saved_data['styles'][$key])) {
-                            $description = $saved_data['styles'][$key];
-                        }
-                        $checked = ($key === $selected_style) ? 'checked' : '';
-                    ?>
-                    <div class="ap-radio-style" style="margin-bottom: 12px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;" data-style="<?php echo esc_attr($key); ?>">
-                        <label style="display: flex; align-items: start; cursor: pointer; margin: 0;">
-                            <input type="radio"
-                                   name="image_style_selected"
-                                   value="<?php echo esc_attr($key); ?>"
-                                   <?php echo $checked; ?>
-                                   style="margin-top: 3px; margin-right: 10px; cursor: pointer;">
-                            <div class="style-content" style="flex: 1;">
-                                <div class="style-name" style="font-weight: 600; color: #2271b1;">
-                                    <?php echo esc_html($label); ?>
-                                </div>
-                                <div class="style-description" style="font-size: 13px; color: #666; margin-top: 4px; <?php echo empty($description) ? 'display:none;' : ''; ?>">
-                                    <?php echo esc_html($description); ?>
-                                </div>
-                            </div>
-                        </label>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-
-                <!-- Campo oculto para guardar el JSON completo -->
-                <input type="hidden" id="keywords_images" name="keywords_images" value="<?php echo $is_edit ? esc_attr($campaign->keywords_images) : ''; ?>">
-
-                <p class="ap-field-desc">
-                    <span id="style-loading-msg" style="display:none; color: #2271b1;">
-                        <span class="spinner is-active" style="float: none; margin: 0 5px 0 0;"></span>
-                        Analizando tu negocio para personalizar los estilos...
-                    </span>
-                    <span id="style-default-msg">Los estilos se personalizarán automáticamente al rellenar "Descripción de empresa" y "Nicho"</span>
-                </p>
+                <textarea id="keywords_images" 
+                          name="keywords_images" 
+                          class="ap-field-textarea"><?php echo $is_edit ? esc_textarea($campaign->keywords_images) : ''; ?></textarea>
+                    <button type="button" class="ap-btn-ai ap-btn-inline" id="btn-generate-images" data-field="keywords_images" data-source="prompt_titles,niche,company_desc,keywords_seo">
+                        <span class="spinner"></span>
+                        <svg class="token-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9 7h4.5c1.5 0 2.5 1 2.5 2.5S15 12 13.5 12M9 7v10m0-10V7m4.5 5h-4.5m4.5 0h.5c1.5 0 2.5 1 2.5 2.5S15.5 17 14 17H9m0 0v0"/>
+                        </svg>
+                        <span class="text">Generar con IA</span>
+                    </button>
+                
+                <p class="ap-field-desc">Rellena el prompt de títulos primero para generar con IA</p>
             </div>
             
             <div class="ap-field-group">
@@ -990,142 +940,6 @@ jQuery(document).ready(function($) {
             $('#progress-company-desc').hide();
         }, 2000);
     }
-
-    // ========================================
-    // DECIDE ESTILO - AUTO-POPULATE STYLE DESCRIPTIONS
-    // ========================================
-    let decideEstiloTimer = null;
-    let stylesAlreadyPopulated = false;
-
-    function checkAndPopulateStyles() {
-        const companyDesc = $('#company_desc').val().trim();
-        const niche = $('#niche').val().trim() || $('#niche_custom').val().trim();
-
-        console.log('[CheckStyles] Company desc length:', companyDesc.length);
-        console.log('[CheckStyles] Niche:', niche);
-        console.log('[CheckStyles] Already populated:', stylesAlreadyPopulated);
-
-        // Si ambos campos están llenos y no se han poblado los estilos aún
-        if (companyDesc && niche && !stylesAlreadyPopulated) {
-            console.log('[CheckStyles] ✅ Condiciones cumplidas, programando llamada...');
-
-            // Cancelar timer previo
-            if (decideEstiloTimer) {
-                clearTimeout(decideEstiloTimer);
-            }
-
-            // Esperar 1 segundo después del último cambio antes de llamar API
-            decideEstiloTimer = setTimeout(function() {
-                callDecideEstilo(niche, companyDesc);
-            }, 1000);
-        } else {
-            if (!companyDesc) console.log('[CheckStyles] ⚠️ Falta company_desc');
-            if (!niche) console.log('[CheckStyles] ⚠️ Falta niche');
-            if (stylesAlreadyPopulated) console.log('[CheckStyles] ⚠️ Ya se poblaron los estilos');
-        }
-    }
-
-    function callDecideEstilo(niche, companyDesc) {
-        console.log('[DecideEstilo] Iniciando llamada API...');
-        console.log('[DecideEstilo] Niche:', niche);
-        console.log('[DecideEstilo] Company Desc:', companyDesc.substring(0, 50) + '...');
-
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'ap_decide_estilo',
-                nonce: '<?php echo wp_create_nonce("ap_nonce"); ?>',
-                campaign_id: campaignId,
-                niche: niche,
-                company_desc: companyDesc
-            },
-            beforeSend: function() {
-                console.log('[DecideEstilo] Enviando petición AJAX...');
-                // Mostrar indicador de carga en las descripciones
-                $('.style-description').html('<em style="color:#999;">Analizando...</em>').show();
-            },
-            success: function(response) {
-                console.log('[DecideEstilo] Respuesta recibida:', response);
-
-                if (response.success && response.data && response.data.styles) {
-                    const styles = response.data.styles;
-                    console.log('[DecideEstilo] Estilos recibidos:', Object.keys(styles));
-
-                    // Actualizar las descripciones de cada estilo
-                    $('input[name="image_style_selected"]').each(function() {
-                        const styleKey = $(this).val();
-                        const $description = $(this).closest('.ap-radio-style').find('.style-description');
-
-                        if (styles[styleKey]) {
-                            console.log('[DecideEstilo] Actualizando estilo:', styleKey);
-                            $description.text(styles[styleKey]).show();
-                        } else {
-                            console.warn('[DecideEstilo] No se encontró descripción para:', styleKey);
-                        }
-                    });
-
-                    // Actualizar el hidden field con el JSON completo
-                    const currentData = {
-                        styles: styles,
-                        selected: $('input[name="image_style_selected"]:checked').val() || 'luxury'
-                    };
-                    $('#keywords_images').val(JSON.stringify(currentData));
-
-                    stylesAlreadyPopulated = true;
-                    console.log('[DecideEstilo] ✅ Estilos poblados correctamente');
-                } else {
-                    console.error('[DecideEstilo] ❌ Error en respuesta:', response.data?.message || response);
-                    $('.style-description').html('<em style="color:#c00;">Error al analizar estilos</em>').show();
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('[DecideEstilo] ❌ Error AJAX:', status, error);
-                console.error('[DecideEstilo] Response text:', xhr.responseText);
-                $('.style-description').html('<em style="color:#c00;">Error de conexión</em>').show();
-            }
-        });
-    }
-
-    // Escuchar cambios en company_desc y niche
-    $('#company_desc, #niche, #niche_custom').on('input change', checkAndPopulateStyles);
-
-    // También escuchar cambios en el radio button para actualizar el JSON
-    $('input[name="image_style_selected"]').on('change', function() {
-        const stylesData = $('.ap-radio-style').toArray().reduce((acc, elem) => {
-            const key = $(elem).find('input[name="image_style_selected"]').val();
-            const description = $(elem).find('.style-description').text();
-            if (description && description !== 'Analizando...' && description !== 'Error al analizar estilos') {
-                acc[key] = description;
-            }
-            return acc;
-        }, {});
-
-        const selectedStyle = $(this).val();
-        const jsonData = {
-            styles: stylesData,
-            selected: selectedStyle
-        };
-        $('#keywords_images').val(JSON.stringify(jsonData));
-        console.log('Style selected:', selectedStyle);
-    });
-
-    // Al cargar la página, verificar si ya hay estilos guardados
-    const savedKeywordsImages = $('#keywords_images').val();
-    if (savedKeywordsImages) {
-        try {
-            const data = JSON.parse(savedKeywordsImages);
-            if (data.styles && Object.keys(data.styles).length > 0) {
-                stylesAlreadyPopulated = true;
-                console.log('Estilos ya guardados, no se llamará a la API');
-            }
-        } catch (e) {
-            console.log('No hay estilos guardados previamente');
-        }
-    }
-
-    // Ejecutar check inicial al cargar
-    setTimeout(checkAndPopulateStyles, 500);
 });
 </script>
 
