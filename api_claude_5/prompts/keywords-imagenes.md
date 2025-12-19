@@ -1,9 +1,9 @@
 You are an expert in stock photography search. Generate UNIQUE English keywords for finding images specifically for THIS article in stock search engines.
 
 ARTICLE CONTEXT:
-Title of post: {{title_section}}
-Company descripction: {{company_description}}
-Keywords Image samples: {{keywords_images_base}}
+Title: {{title}}
+Company description: {{company_description}}
+Base image keywords (campaign): {{keywords_images_base}}
 
 CRITICAL OBJECTIVE
 
@@ -20,7 +20,12 @@ SPECIFICITY STRATEGY:
    - Pattern: Title about mistakes → Keywords: problems, corrections, learning process
    - DO NOT translate the title literally - extract visual concepts!
 
-{{adapt_section}}
+2. ADAPT BASE KEYWORDS to match this title's visuals (20-30%):
+   - If base keywords are provided above, use them as reference for campaign consistency
+   - Keep 30-40% that are relevant to THIS specific title
+   - Modify/adapt 20-30% to match THIS title
+   - Add 30-50% NEW keywords unique to THIS title
+   - If NO base keywords provided, skip this and focus more on title-specific keywords
 
 3. SUPPORTING VISUAL ELEMENTS specific to this topic (30%):
    - What accessories, settings, or moods fit this specific article?
@@ -30,10 +35,17 @@ SPECIFICITY STRATEGY:
    - Pattern: mistakes/problems → "confused", "learning", "correction", "improvement"
    - Pattern: tutorial/guide → "step by step", "tutorial", "instructions", "process"
 
-{{maintain_section}}
+4. MAINTAIN VISUAL CONSISTENCY (20% of keywords):
+   - If base keywords are provided, select those that work for this specific article
+   - Ensures visual coherence across the campaign
+   - If NO base keywords, use company context to maintain brand consistency
 
 MANDATORY RULES:
-{{rules_section}}
+✓ Focus on VISUAL CONCEPTS (objects, scenes, actions)
+✓ DO NOT translate title literally
+✓ Think: 'What would I search in a stock photo site?'
+✓ Each article must have UNIQUE keywords
+✓ Generate 8-12 keywords total
 ✓ If title mentions a specific technique/method, focus on that
 ✓ Use 1-3 words per keyword
 ✓ Think: "What makes THIS article's images different from others?"

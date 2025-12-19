@@ -94,9 +94,9 @@ $all_variables = [
     
     // Variables de títulos y prompts
     'title' => [
-        'desc' => 'Título del post generado',
+        'desc' => 'Título del post (sin formato adicional)',
         'example' => 'Cómo Mejorar tu SEO en 2025: Guía Completa para E-commerce',
-        'origin' => 'Generado por IA usando title_prompt + company_description + keywords'
+        'origin' => 'Generado por IA usando title_prompt + company_description + keywords, o enviado directamente para generar keywords de imágenes'
     ],
     'title_prompt' => [
         'desc' => 'Prompt maestro generado para crear títulos coherentes con el nicho',
@@ -196,12 +196,9 @@ $md_available_vars = [
         'keywords_seo_section'       // Sección de keywords SEO formateada
     ],
     'keywords-imagenes' => [
-        'title_section',             // Sección del título formateada
+        'title',                     // Título del post
         'company_description',       // Descripción de empresa
-        'keywords_images_base',      // Keywords base de imágenes de campaña
-        'adapt_section',             // Sección de adaptación (si hay base keywords)
-        'maintain_section',          // Sección de coherencia visual
-        'rules_section'              // Reglas mandatorias
+        'keywords_images_base'       // Keywords base de imágenes de campaña (puede estar vacío)
     ]
 ];
 
