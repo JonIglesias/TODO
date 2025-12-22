@@ -138,8 +138,8 @@ class AP_Image_Search {
         $page = floor($offset / 30) + 1;
         $index_in_page = $offset % 30;
         
-        // Filtrar por orientación landscape (16:9 o similar)
-        $response = wp_remote_get("https://api.unsplash.com/search/photos?query=" . urlencode($keywords) . "&per_page=30&page={$page}&orientation=landscape", [
+        // Filtrar por orientación landscape y ordenar por relevancia
+        $response = wp_remote_get("https://api.unsplash.com/search/photos?query=" . urlencode($keywords) . "&per_page=30&page={$page}&orientation=landscape&order_by=relevant", [
             'headers' => ['Authorization' => 'Client-ID ' . $key],
             'timeout' => 15
         ]);
@@ -194,7 +194,8 @@ class AP_Image_Search {
         $page = floor($offset / 20) + 1;
         $index_in_page = $offset % 20;
         
-        $response = wp_remote_get("https://pixabay.com/api/?key={$key}&q=" . urlencode($keywords) . "&per_page=20&page={$page}", [
+        // Ordenar por popularidad (relevancia), filtrar contenido seguro y solo fotos
+        $response = wp_remote_get("https://pixabay.com/api/?key={$key}&q=" . urlencode($keywords) . "&per_page=20&page={$page}&order=popular&safesearch=true&image_type=photo", [
             'timeout' => 15
         ]);
         
@@ -241,7 +242,8 @@ class AP_Image_Search {
         $page = floor($offset / 30) + 1;
         $index_in_page = $offset % 30;
         
-        $response = wp_remote_get("https://api.pexels.com/v1/search?query=" . urlencode($keywords) . "&per_page=30&page={$page}", [
+        // Filtrar por orientación landscape para coherencia con otros providers
+        $response = wp_remote_get("https://api.pexels.com/v1/search?query=" . urlencode($keywords) . "&per_page=30&page={$page}&orientation=landscape", [
             'headers' => ['Authorization' => $key],
             'timeout' => 15
         ]);
